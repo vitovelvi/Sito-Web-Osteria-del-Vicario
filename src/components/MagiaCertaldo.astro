@@ -1,0 +1,86 @@
+---
+const foto = [
+  { src: "/immagini/luogo/osteria-vicolo-wide.jpg", alt: "Vicolo medievale di Certaldo Alto" },
+  { src: "/immagini/luogo/vicolo-alto.jpg", alt: "Scorcio dei vicoli in pietra del borgo" },
+  { src: "/immagini/luogo/vista-cielo.jpg", alt: "Vista sui tetti di Certaldo Alto al tramonto" },
+];
+---
+
+<section class="magia" id="magia-certaldo">
+  <div class="magia-intro">
+    <p class="eyebrow">Certaldo Alto</p>
+    <h2>Un borgo medievale, intatto</h2>
+    <p class="magia-text">
+      Mura del XII secolo, vicoli di pietra, la torre che domina la Val d'Elsa: Certaldo Alto è uno
+      dei borghi meglio conservati della Toscana, raggiungibile a piedi o in funicolare. L'Osteria
+      del Vicario è il punto da cui iniziare a viverlo.
+    </p>
+  </div>
+  <div class="magia-grid">
+    {foto.map((f) => (
+      <div class="magia-item tilt-card">
+        <img src={f.src} alt={f.alt} loading="lazy" />
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  .magia {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 6rem clamp(1.5rem, 6vw, 6rem);
+  }
+
+  .magia-intro {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto 3rem;
+  }
+
+  .magia-intro h2 {
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    color: var(--avorio);
+    margin: 0.6rem 0 1rem;
+  }
+
+  .magia-text {
+    color: var(--avorio);
+    opacity: 0.8;
+    font-size: 1.05rem;
+    line-height: 1.7;
+  }
+
+  .magia-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr 1fr;
+    gap: 1.2rem;
+    perspective: 1000px;
+  }
+
+  .magia-item {
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    border-radius: 1rem;
+  }
+
+  .magia-item:first-child {
+    aspect-ratio: 4 / 3;
+    grid-row: span 2;
+  }
+
+  .magia-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  @media (max-width: 760px) {
+    .magia-grid {
+      grid-template-columns: 1fr;
+    }
+    .magia-item:first-child {
+      grid-row: auto;
+    }
+  }
+</style>

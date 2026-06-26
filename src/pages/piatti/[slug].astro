@@ -1,0 +1,165 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import NavFunnel from "../../components/NavFunnel.astro";
+import Footer from "../../components/Footer.astro";
+import { piatti } from "../../data/piatti.js";
+
+export function getStaticPaths() {
+  return piatti.map((p) => ({ params: { slug: p.slug }, props: { piatto: p } }));
+}
+
+const { piatto } = Astro.props;
+---
+
+<Layout
+  title={`${piatto.nome} — Osteria del Vicario`}
+  description={`${piatto.nome}: ingredienti, storia e abbinamento vino. Cucina vegetale d'autore all'Osteria del Vicario, Certaldo Alto.`}
+>
+  <NavFunnel />
+
+  <main>
+    <section class="dish-hero">
+      <img src={piatto.img} alt={piatto.nome} />
+      <div class="dish-hero-overlay"></div>
+      <div class="dish-hero-caption">
+        <p class="eyebrow">Cucina vegetale d'autore</p>
+        <h1>{piatto.nome}</h1>
+        <p class="nome-en">{piatto.nomeEn}</p>
+      </div>
+    </section>
+
+    <section class="dish-body">
+      <div class="dish-block">
+        <span class="meta-label">La storia</span>
+        <p class="dish-storia">{piatto.storia}</p>
+      </div>
+
+      <div class="dish-meta-grid">
+        <div class="dish-block">
+          <span class="meta-label">Ingredienti</span>
+          <p>{piatto.ingredienti.join(", ")}</p>
+        </div>
+        <div class="dish-block">
+          <span class="meta-label">Allergeni</span>
+          <p>{piatto.allergeni.length > 0 ? piatto.allergeni.join(", ") : "Nessuno dichiarato"}</p>
+        </div>
+        <div class="dish-block">
+          <span class="meta-label">Vino consigliato</span>
+          <p>{piatto.vino}</p>
+        </div>
+      </div>
+
+      <div class="dish-cta">
+        <a class="btn btn-cotto" href="/tavolo">Prenota un tavolo</a>
+        <a class="btn btn-outline" href="/menu">Torna al menu</a>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Layout>
+
+<style>
+  main {
+    background: var(--notte);
+  }
+
+  .dish-hero {
+    position: relative;
+    height: 70vh;
+    min-height: 420px;
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .dish-hero img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .dish-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(33, 23, 16, 0.1) 0%, rgba(33, 23, 16, 0.85) 100%);
+  }
+
+  .dish-hero-caption {
+    position: relative;
+    z-index: 2;
+    padding: 2.5rem clamp(1.5rem, 6vw, 6rem);
+  }
+
+  .dish-hero-caption h1 {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    color: var(--avorio);
+    margin: 0.4rem 0 0.3rem;
+  }
+
+  .nome-en {
+    color: var(--avorio);
+    opacity: 0.7;
+    font-style: italic;
+    margin: 0;
+  }
+
+  .dish-body {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 4rem clamp(1.5rem, 6vw, 6rem) 6rem;
+  }
+
+  .dish-block {
+    margin-bottom: 2rem;
+  }
+
+  .dish-storia {
+    color: var(--avorio);
+    opacity: 0.85;
+    font-size: 1.1rem;
+    line-height: 1.7;
+  }
+
+  .meta-label {
+    display: block;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.75rem;
+    color: var(--oliva);
+    margin-bottom: 0.4rem;
+  }
+
+  .dish-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    border-top: 1px solid rgba(242, 233, 215, 0.1);
+    border-bottom: 1px solid rgba(242, 233, 215, 0.1);
+    padding: 1.5rem 0;
+    margin-bottom: 2.5rem;
+  }
+
+  .dish-meta-grid p {
+    color: var(--avorio);
+    opacity: 0.8;
+    font-size: 0.9rem;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .dish-cta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 640px) {
+    .dish-meta-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

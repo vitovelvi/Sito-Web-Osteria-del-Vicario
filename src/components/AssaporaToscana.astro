@@ -1,0 +1,85 @@
+---
+const foto = [
+  { src: "/immagini/dettagli/tavoli.jpeg", alt: "Tavoli imbanditi nella sala dell'Osteria" },
+  { src: "/immagini/piatti/vini.jpg", alt: "Selezione di vini toscani" },
+  { src: "/immagini/dettagli/bar-servizio.webp", alt: "Servizio al bar dell'Osteria" },
+];
+---
+
+<section class="assapora" id="assapora-toscana">
+  <p class="eyebrow">L'Osteria</p>
+  <h2>Assapora la Toscana</h2>
+  <p class="assapora-text">
+    Pane caldo, vino versato, pasta tirata a mano: la sala dell'Osteria conserva il ritmo lento di
+    un monastero, con la cucina vegetale d'autore a raccontare il territorio.
+  </p>
+
+  <div class="assapora-grid">
+    {foto.map((f) => (
+      <div class="assapora-item tilt-card">
+        <img src={f.src} alt={f.alt} loading="lazy" />
+      </div>
+    ))}
+  </div>
+
+  <div class="assapora-cta">
+    <a class="btn btn-outline" href="/menu">Scopri il menu</a>
+    <a class="btn btn-cotto" href="/tavolo">Prenota un tavolo</a>
+  </div>
+</section>
+
+<style>
+  .assapora {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 6rem clamp(1.5rem, 6vw, 6rem);
+    text-align: center;
+  }
+
+  .assapora h2 {
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    color: var(--avorio);
+    margin: 0.6rem 0 1rem;
+  }
+
+  .assapora-text {
+    color: var(--avorio);
+    opacity: 0.8;
+    max-width: 640px;
+    margin: 0 auto 3rem;
+    font-size: 1.05rem;
+    line-height: 1.7;
+  }
+
+  .assapora-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.2rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .assapora-item {
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: 1rem;
+  }
+
+  .assapora-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .assapora-cta {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 760px) {
+    .assapora-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

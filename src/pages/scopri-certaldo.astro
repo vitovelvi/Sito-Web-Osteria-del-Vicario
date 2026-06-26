@@ -1,0 +1,206 @@
+---
+import Layout from "../layouts/Layout.astro";
+import NavFunnel from "../components/NavFunnel.astro";
+import PageHeader from "../components/PageHeader.astro";
+import Footer from "../components/Footer.astro";
+
+const sezioni = [
+  {
+    titolo: "Storia del borgo",
+    testo:
+      "Certaldo Alto nasce in epoca medievale sulla collina che domina la Val d'Elsa. Le mura, le torri e i palazzi in pietra raccontano oltre nove secoli di storia, in gran parte ancora intatti.",
+    img: "/immagini/luogo/osteria-vicolo-wide.jpg",
+  },
+  {
+    titolo: "Casa di Boccaccio",
+    testo:
+      "Giovanni Boccaccio, autore del Decameron, è legato a Certaldo: la casa-museo a lui dedicata si trova nel borgo alto, a pochi passi dall'Osteria del Vicario.",
+    img: "/immagini/luogo/vicolo-alto.jpg",
+  },
+  {
+    titolo: "Eventi e Mercantia",
+    testo:
+      "Ogni estate il borgo si anima con Mercantia, festival internazionale di teatro di strada e arti performative che trasforma vicoli e piazze in palcoscenici a cielo aperto.",
+    img: "/immagini/luogo/terrazza-pranzo.jpg",
+  },
+  {
+    titolo: "Panorami",
+    testo:
+      "Dalle mura e dalle terrazze del borgo lo sguardo corre sulla Val d'Elsa: colline coltivate, cipressi, e nelle giornate limpide il profilo di San Gimignano in lontananza.",
+    img: "/immagini/luogo/vista-cielo.jpg",
+  },
+  {
+    titolo: "Come arrivare",
+    testo:
+      "Certaldo Alto è raggiungibile a piedi in salita dal borgo basso oppure comodamente con la funicolare. In auto, dista circa 40 minuti da Firenze e 30 minuti da Siena.",
+    img: "/immagini/luogo/paesaggio.webp",
+  },
+];
+
+const itinerari = [
+  {
+    titolo: "Cosa vedere in un giorno",
+    testo:
+      "Mattina: passeggiata tra le mura e visita alla Casa di Boccaccio. Pranzo o cena: cucina vegetale d'autore all'Osteria del Vicario. Pomeriggio: terrazza panoramica e tramonto sulla Val d'Elsa.",
+  },
+  {
+    titolo: "Itinerario di due giorni",
+    testo:
+      "Giorno 1: arrivo, check-in nel monastero, cena all'Osteria. Giorno 2: visita al borgo con calma, cantine della Val d'Elsa nel pomeriggio, seconda cena o aperitivo in terrazza prima della partenza.",
+  },
+];
+---
+
+<Layout
+  title="Scopri Certaldo Alto — Osteria del Vicario"
+  description="Cosa vedere a Certaldo Alto: storia del borgo, Casa di Boccaccio, Mercantia, panorami, come arrivare e itinerari per un weekend in Toscana."
+>
+  <NavFunnel />
+
+  <PageHeader
+    image="/immagini/luogo/vista-cielo.jpg"
+    eyebrow="Il territorio"
+    title="Scopri Certaldo Alto"
+    text="Tutto quello che vale la pena vedere e vivere nel borgo medievale che ospita l'Osteria del Vicario."
+  />
+
+  <main>
+    {sezioni.map((s, i) => (
+      <section class={`riga ${i % 2 === 1 ? "riga-inversa" : ""}`}>
+        <div class="riga-img">
+          <img src={s.img} alt={s.titolo} loading="lazy" />
+        </div>
+        <div class="riga-testo">
+          <h2>{s.titolo}</h2>
+          <p>{s.testo}</p>
+        </div>
+      </section>
+    ))}
+
+    <section class="itinerari">
+      <h2>Itinerari consigliati</h2>
+      <div class="itinerari-grid">
+        {itinerari.map((it) => (
+          <div class="itinerario-card glass">
+            <h3>{it.titolo}</h3>
+            <p>{it.testo}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <div class="scopri-cta">
+      <a class="btn btn-outline" href="/camere">Prenota una camera</a>
+      <a class="btn btn-cotto" href="/tavolo">Prenota un tavolo</a>
+    </div>
+  </main>
+
+  <Footer />
+</Layout>
+
+<style>
+  main {
+    background: var(--notte);
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 4rem clamp(1.5rem, 6vw, 6rem) 6rem;
+  }
+
+  .riga {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+    align-items: center;
+    margin-bottom: 4rem;
+  }
+
+  .riga-inversa {
+    direction: rtl;
+  }
+
+  .riga-inversa .riga-testo,
+  .riga-inversa .riga-img {
+    direction: ltr;
+  }
+
+  .riga-img {
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: 1rem;
+  }
+
+  .riga-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .riga-testo h2 {
+    font-family: var(--font-display);
+    color: var(--oro-sera);
+    font-size: 1.5rem;
+    margin: 0 0 0.8rem;
+  }
+
+  .riga-testo p {
+    color: var(--avorio);
+    opacity: 0.85;
+    line-height: 1.7;
+  }
+
+  .itinerari {
+    margin: 5rem 0;
+    text-align: center;
+  }
+
+  .itinerari h2 {
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    color: var(--avorio);
+    margin-bottom: 2rem;
+  }
+
+  .itinerari-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    text-align: left;
+  }
+
+  .itinerario-card {
+    padding: 1.8rem;
+    border-radius: 1rem;
+  }
+
+  .itinerario-card h3 {
+    color: var(--oro-sera);
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    margin: 0 0 0.6rem;
+  }
+
+  .itinerario-card p {
+    color: var(--avorio);
+    opacity: 0.8;
+    line-height: 1.6;
+    font-size: 0.92rem;
+    margin: 0;
+  }
+
+  .scopri-cta {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 760px) {
+    .riga,
+    .riga-inversa {
+      grid-template-columns: 1fr;
+      direction: ltr;
+    }
+    .itinerari-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,90 @@
+---
+const esperienze = [
+  { titolo: "Cammina lungo le mura", testo: "Un giro a piedi tra i vicoli e le mura del 1100, dalla Porta del Sole alla Torre." },
+  { titolo: "Casa di Boccaccio", testo: "La casa-museo dell'autore del Decameron, a pochi passi dall'Osteria." },
+  { titolo: "Funicolare panoramica", testo: "Sali o scendi dal borgo con la funicolare, con vista sulla Val d'Elsa." },
+  { titolo: "Tramonto in terrazza", testo: "L'ora dorata sulla campagna toscana, da vivere con un calice in mano." },
+  { titolo: "Cantine e degustazioni", testo: "Le cantine della Val d'Elsa, a pochi minuti di auto, per chi vuole approfondire i vini del territorio." },
+  { titolo: "Mercatini del borgo", testo: "I mercati e gli eventi stagionali animano le piazze di Certaldo Alto durante l'anno." },
+];
+---
+
+<section class="esperienze" id="esperienze">
+  <p class="eyebrow">Oltre la tavola</p>
+  <h2>Esperienze a Certaldo Alto</h2>
+  <p class="esperienze-text">
+    Il soggiorno non finisce a tavola. Certaldo Alto si vive camminando, assaggiando, guardando il
+    sole calare sui colli.
+  </p>
+
+  <div class="esperienze-grid">
+    {esperienze.map((e) => (
+      <div class="esperienza-card glass">
+        <h3>{e.titolo}</h3>
+        <p>{e.testo}</p>
+      </div>
+    ))}
+  </div>
+
+  <div class="esperienze-cta">
+    <a class="btn btn-outline" href="/scopri-certaldo">Scopri Certaldo Alto</a>
+  </div>
+</section>
+
+<style>
+  .esperienze {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 6rem clamp(1.5rem, 6vw, 6rem);
+    text-align: center;
+  }
+
+  .esperienze h2 {
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    color: var(--avorio);
+    margin: 0.6rem 0 1rem;
+  }
+
+  .esperienze-text {
+    color: var(--avorio);
+    opacity: 0.8;
+    max-width: 640px;
+    margin: 0 auto 3rem;
+    font-size: 1.05rem;
+    line-height: 1.7;
+  }
+
+  .esperienze-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.2rem;
+    text-align: left;
+    margin-bottom: 2.5rem;
+  }
+
+  .esperienza-card {
+    padding: 1.6rem;
+    border-radius: 1rem;
+  }
+
+  .esperienza-card h3 {
+    color: var(--oro-sera);
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    margin: 0 0 0.5rem;
+  }
+
+  .esperienza-card p {
+    color: var(--avorio);
+    opacity: 0.78;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  @media (max-width: 760px) {
+    .esperienze-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

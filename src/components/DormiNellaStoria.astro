@@ -1,0 +1,107 @@
+---
+const camere = [
+  { img: "/immagini/camere/camera-02.jpg", vista: "Vista sui tetti del borgo", comfort: "Bagno privato, soffitto a volta" },
+  { img: "/immagini/camere/camera-05.webp", vista: "Affacciata sul chiostro", comfort: "Letto matrimoniale, pietra a vista" },
+  { img: "/immagini/camere/camera-08.webp", vista: "Vista sulla Val d'Elsa", comfort: "Luminosa, arredi essenziali" },
+];
+---
+
+<section class="dormi" id="dormi-nella-storia">
+  <p class="eyebrow">Il B&B</p>
+  <h2>Dormi nella storia</h2>
+  <p class="dormi-text">
+    Le celle di un monastero del 1100 sono oggi camere essenziali e luminose. Ti svegli, apri la
+    finestra, e davanti hai Certaldo Alto.
+  </p>
+
+  <div class="dormi-grid">
+    {camere.map((c) => (
+      <div class="dormi-card tilt-card glass">
+        <div class="dormi-img">
+          <img src={c.img} alt={c.vista} loading="lazy" />
+        </div>
+        <div class="dormi-body">
+          <strong>{c.vista}</strong>
+          <span>{c.comfort}</span>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <div class="dormi-cta">
+    <a class="btn btn-cotto" href="/camere">Prenota una camera</a>
+  </div>
+</section>
+
+<style>
+  .dormi {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 6rem clamp(1.5rem, 6vw, 6rem);
+    text-align: center;
+  }
+
+  .dormi h2 {
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    color: var(--avorio);
+    margin: 0.6rem 0 1rem;
+  }
+
+  .dormi-text {
+    color: var(--avorio);
+    opacity: 0.8;
+    max-width: 640px;
+    margin: 0 auto 3rem;
+    font-size: 1.05rem;
+    line-height: 1.7;
+  }
+
+  .dormi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    text-align: left;
+    margin-bottom: 2.5rem;
+  }
+
+  .dormi-card {
+    border-radius: 1rem;
+    overflow: hidden;
+  }
+
+  .dormi-img {
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+  }
+
+  .dormi-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .dormi-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 1.2rem 1.4rem;
+  }
+
+  .dormi-body strong {
+    color: var(--oro-sera);
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+  }
+
+  .dormi-body span {
+    color: var(--avorio);
+    opacity: 0.75;
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 760px) {
+    .dormi-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

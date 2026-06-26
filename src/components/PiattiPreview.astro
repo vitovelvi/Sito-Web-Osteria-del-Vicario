@@ -1,0 +1,107 @@
+---
+import { piatti } from "../data/piatti.js";
+
+const selezione = piatti.slice(0, 4);
+---
+
+<section class="piatti-preview" id="i-piatti">
+  <p class="eyebrow">La cucina</p>
+  <h2>I piatti</h2>
+  <p class="piatti-text">
+    Ogni piatto ha una storia, un'origine e un vino consigliato. Scoprili uno per uno.
+  </p>
+
+  <div class="piatti-preview-grid">
+    {selezione.map((p) => (
+      <a class="piatto-preview-card tilt-card" href={`/piatti/${p.slug}`}>
+        <img src={p.img} alt={p.nome} loading="lazy" />
+        <div class="piatto-preview-overlay">
+          <strong>{p.nome}</strong>
+          <span>Scopri il piatto →</span>
+        </div>
+      </a>
+    ))}
+  </div>
+
+  <div class="piatti-preview-cta">
+    <a class="btn btn-outline" href="/menu">Vedi tutto il menu</a>
+  </div>
+</section>
+
+<style>
+  .piatti-preview {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 6rem clamp(1.5rem, 6vw, 6rem);
+    text-align: center;
+  }
+
+  .piatti-preview h2 {
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    color: var(--avorio);
+    margin: 0.6rem 0 1rem;
+  }
+
+  .piatti-text {
+    color: var(--avorio);
+    opacity: 0.8;
+    max-width: 560px;
+    margin: 0 auto 3rem;
+    font-size: 1.05rem;
+    line-height: 1.7;
+  }
+
+  .piatti-preview-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.2rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .piatto-preview-card {
+    position: relative;
+    aspect-ratio: 3 / 4;
+    border-radius: 1rem;
+    overflow: hidden;
+  }
+
+  .piatto-preview-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .piatto-preview-card:hover img {
+    transform: scale(1.08);
+  }
+
+  .piatto-preview-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 0.3rem;
+    padding: 1.2rem;
+    background: linear-gradient(to bottom, rgba(33, 23, 16, 0) 40%, rgba(33, 23, 16, 0.9) 100%);
+    text-align: left;
+  }
+
+  .piatto-preview-overlay strong {
+    color: var(--avorio);
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+  }
+
+  .piatto-preview-overlay span {
+    color: var(--candela);
+    font-size: 0.78rem;
+  }
+
+  @media (max-width: 760px) {
+    .piatti-preview-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>

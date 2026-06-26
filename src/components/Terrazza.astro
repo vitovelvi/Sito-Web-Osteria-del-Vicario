@@ -1,0 +1,70 @@
+---
+---
+
+<section class="terrazza" id="la-terrazza">
+  <img src="/immagini/luogo/terrazza-vista-2.jpg" alt="Terrazza panoramica sulla Val d'Elsa al tramonto" />
+  <div class="terrazza-overlay"></div>
+  <div class="terrazza-caption">
+    <p class="eyebrow">La terrazza</p>
+    <h2>La Toscana, da qui sopra</h2>
+    <p>
+      Il sole scende sulla Val d'Elsa, il calice si scalda lentamente, la cena può aspettare ancora
+      un minuto.
+    </p>
+    <a class="btn btn-cotto" href="/tavolo">Prenota un tavolo</a>
+  </div>
+</section>
+
+<style>
+  .terrazza {
+    position: relative;
+    height: 90vh;
+    min-height: 480px;
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .terrazza img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .terrazza-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(33, 23, 16, 0.2) 0%,
+      rgba(33, 23, 16, 0.45) 60%,
+      rgba(33, 23, 16, 0.8) 100%
+    );
+  }
+
+  .terrazza-caption {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 600px;
+    padding: 2rem;
+  }
+
+  .terrazza-caption h2 {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    color: var(--avorio);
+    margin: 0.5rem 0 1rem;
+  }
+
+  .terrazza-caption p {
+    color: var(--avorio);
+    opacity: 0.88;
+    font-size: 1.1rem;
+    line-height: 1.7;
+    margin-bottom: 1.8rem;
+  }
+</style>

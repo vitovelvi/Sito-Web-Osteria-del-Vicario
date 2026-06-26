@@ -1,0 +1,37 @@
+---
+import Gallery from "./Gallery.astro";
+
+const items = [
+  { src: "/immagini/camere/camera-01.jpg", alt: "Camera del B&B con letto matrimoniale" },
+  { src: "/immagini/luogo/osteria-vicolo.jpg", alt: "Vicolo davanti all'Osteria del Vicario" },
+  { src: "/immagini/dettagli/tavoli.jpeg", alt: "Sala dell'Osteria imbandita" },
+  { src: "/immagini/luogo/chiostro-cortile.jpeg", alt: "Cortile interno con archi in pietra" },
+  { src: "/immagini/camere/camera-04.webp", alt: "Camera del monastero" },
+  { src: "/immagini/luogo/terrazza-notte.jpeg", alt: "Terrazza dell'Osteria di sera" },
+  { src: "/immagini/luogo/vista-alta.jpg", alt: "Vista sui colli toscani da Certaldo Alto" },
+  { src: "/immagini/camere/camera-07.webp", alt: "Camera del monastero" },
+  { src: "/immagini/dettagli/bar-servizio.webp", alt: "Servizio al bar dell'Osteria" },
+  { src: "/immagini/luogo/paesaggio.webp", alt: "Paesaggio della Val d'Elsa" },
+];
+---
+
+<section class="galleria" id="galleria">
+  <p class="eyebrow">Un assaggio</p>
+  <h2>Galleria</h2>
+  <Gallery items={items} />
+</section>
+
+<style>
+  .galleria {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 6rem clamp(1.5rem, 6vw, 6rem);
+    text-align: center;
+  }
+
+  .galleria h2 {
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    color: var(--avorio);
+    margin: 0.6rem 0 2.5rem;
+  }
+</style>

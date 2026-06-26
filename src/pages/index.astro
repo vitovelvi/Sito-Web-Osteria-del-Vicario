@@ -1,149 +1,123 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import NavFunnel from "../components/NavFunnel.astro";
-import Scene from "../components/Scene.astro";
 import FloatingEmblem from "../components/FloatingEmblem.astro";
-import TrustBar from "../components/TrustBar.astro";
-import ProblemSolution from "../components/ProblemSolution.astro";
-import Servizi from "../components/Servizi.astro";
-import ComeFunziona from "../components/ComeFunziona.astro";
-import PercheNoi from "../components/PercheNoi.astro";
-import Testimonianze from "../components/Testimonianze.astro";
+import MagiaCertaldo from "../components/MagiaCertaldo.astro";
+import DormiNellaStoria from "../components/DormiNellaStoria.astro";
+import AssaporaToscana from "../components/AssaporaToscana.astro";
+import Esperienze from "../components/Esperienze.astro";
+import PiattiPreview from "../components/PiattiPreview.astro";
+import Terrazza from "../components/Terrazza.astro";
+import GalleriaMix from "../components/GalleriaMix.astro";
+import Recensioni from "../components/Recensioni.astro";
 import FAQ from "../components/FAQ.astro";
+import Contatti from "../components/Contatti.astro";
 import Footer from "../components/Footer.astro";
-
-const journey = [
-  {
-    image: "/immagini/hero/vicolo-insegna.jpg",
-    alt: "Vicolo di pietra di Certaldo Alto con l'insegna dell'Osteria del Vicario",
-    eyebrow: "Certaldo Alto",
-    title: "Un vicolo, una soglia",
-    text: "Tra le pietre del borgo medievale, un passaggio stretto conduce a un monastero che dal 1100 custodisce la sua tavola.",
-  },
-  {
-    image: "/immagini/hero/portone.jpg",
-    alt: "Portone antico in mattoni e ferro dell'Osteria del Vicario",
-    eyebrow: "Il varco",
-    title: "Oltre la soglia",
-    text: "Il portone si apre su un tempo diverso: quello lento dell'ospitalità monastica, riscoperto in chiave contemporanea.",
-  },
-  {
-    image: "/immagini/luogo/chiostro-cortile.jpeg",
-    alt: "Cortile interno con archi in pietra illuminato la sera",
-    eyebrow: "Il chiostro",
-    title: "Silenzio e pietra",
-    text: "Gli archi del cortile interno raccontano nove secoli di storia. Oggi accolgono chi cerca una sosta autentica.",
-  },
-  {
-    image: "/immagini/luogo/terrazza-vista.jpg",
-    alt: "Terrazza panoramica sulla Val d'Elsa",
-    eyebrow: "La terrazza",
-    title: "La Val d'Elsa ai tuoi piedi",
-    text: "Dalla terrazza lo sguardo corre sui colli toscani, mentre la cucina prepara la prima portata della sera.",
-  },
-  {
-    image: "/immagini/piatti/risotto-pesto.jpg",
-    alt: "Risotto carnaroli al pesto con chips e crema, piatto vegetale d'autore",
-    eyebrow: "La cucina",
-    title: "Cucina vegetale d'autore",
-    text: "Verdure, legumi ed erbe del territorio diventano piatti che reinterpretano la tradizione toscana senza compromessi.",
-    cta: { label: "Prenota un tavolo", href: "/tavolo" },
-  },
-  {
-    image: "/immagini/camere/camera-02.jpg",
-    alt: "Camera del B&B con arredi essenziali e luce naturale",
-    eyebrow: "Le camere",
-    title: "Dormire nel monastero",
-    text: "Le celle di un tempo sono oggi camere essenziali e luminose, pensate per chi vuole restare oltre la cena.",
-    cta: { label: "Prenota una camera", href: "/camere" },
-  },
-];
 ---
 
 <Layout title="Osteria del Vicario — Certaldo Alto">
   <NavFunnel />
 
-  <TrustBar />
-
   <main>
-    {journey.map((scene, i) => (
-      <div class="scene-wrap">
-        <Scene
-          image={scene.image}
-          alt={scene.alt}
-          eyebrow={scene.eyebrow}
-          title={scene.title}
-          text={scene.text}
-          cta={scene.cta}
-        />
-        {i === 0 && <FloatingEmblem />}
+    <section class="hero">
+      <img
+        src="/immagini/hero/vicolo-insegna.jpg"
+        alt="Vicolo di pietra di Certaldo Alto con l'insegna dell'Osteria del Vicario"
+      />
+      <div class="hero-overlay"></div>
+      <div class="hero-caption">
+        <p class="eyebrow">Certaldo Alto, dal 1100</p>
+        <h1>Vivi il cuore medievale della Toscana</h1>
+        <p class="hero-text">
+          Dormi in un monastero del 1100, cammina tra le mura del borgo, cena con la cucina
+          vegetale d'autore dell'Osteria del Vicario.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-outline" href="/camere">Prenota Camera</a>
+          <a class="btn btn-cotto" href="/tavolo">Prenota Tavolo</a>
+        </div>
       </div>
-    ))}
+      <FloatingEmblem />
+    </section>
 
-    <footer class="closing">
-      <p class="eyebrow">Osteria del Vicario</p>
-      <h2>Vi aspettiamo oltre la soglia</h2>
-      <div class="closing-actions">
-        <a class="btn btn-outline" href="/camere">Prenota una camera</a>
-        <a class="btn btn-cotto" href="/tavolo">Prenota un tavolo</a>
-      </div>
-      <p class="closing-address">Via del Castello, Certaldo Alto (FI)</p>
-    </footer>
-
-    <ProblemSolution />
-    <Servizi />
-    <ComeFunziona />
-    <PercheNoi />
-    <Testimonianze />
+    <MagiaCertaldo />
+    <DormiNellaStoria />
+    <AssaporaToscana />
+    <Esperienze />
+    <PiattiPreview />
+    <Terrazza />
+    <GalleriaMix />
+    <Recensioni />
     <FAQ />
+    <Contatti />
   </main>
 
   <Footer />
 
   <script>
-    import { initScroll, initEmblem } from "../scripts/scroll.js";
+    import { initScroll, initEmblem, initTilt } from "../scripts/scroll.js";
     initScroll();
     initEmblem();
+    initTilt();
   </script>
 </Layout>
 
 <style>
-  .scene-wrap {
+  .hero {
     position: relative;
-  }
-
-  .closing {
-    position: relative;
-    min-height: 70vh;
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
+  }
+
+  .hero img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(33, 23, 16, 0.35) 0%,
+      rgba(33, 23, 16, 0.55) 60%,
+      rgba(33, 23, 16, 0.9) 100%
+    );
+  }
+
+  .hero-caption {
+    position: relative;
+    z-index: 2;
     text-align: center;
-    gap: 1rem;
-    padding: 4rem 1.5rem;
-    background: radial-gradient(
-        circle at 50% 0%,
-        rgba(232, 177, 90, 0.12),
-        transparent 60%
-      ),
-      var(--notte);
+    max-width: 720px;
+    padding: 2rem;
   }
 
-  .closing h2 {
-    font-size: clamp(2rem, 5vw, 3rem);
+  .hero-caption h1 {
+    font-size: clamp(2.4rem, 6vw, 4rem);
     color: var(--avorio);
+    margin: 0.6rem 0 1.2rem;
   }
 
-  .closing-actions {
+  .hero-text {
+    color: var(--avorio);
+    opacity: 0.9;
+    font-size: clamp(1rem, 1.4vw, 1.2rem);
+    line-height: 1.7;
+    margin-bottom: 2rem;
+  }
+
+  .hero-actions {
     display: flex;
+    justify-content: center;
     gap: 1rem;
-    margin-top: 1rem;
-  }
-
-  .closing-address {
-    margin-top: 2rem;
-    color: var(--ardesia);
-    font-size: 0.9rem;
+    flex-wrap: wrap;
   }
 </style>

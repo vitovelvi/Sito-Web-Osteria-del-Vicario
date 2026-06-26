@@ -3,89 +3,7 @@ import Layout from "../layouts/Layout.astro";
 import NavFunnel from "../components/NavFunnel.astro";
 import PageHeader from "../components/PageHeader.astro";
 import Footer from "../components/Footer.astro";
-
-const piatti = [
-  {
-    nome: "Macedonia frutta e verdure di stagione",
-    nomeEn: "Seasonal vegetable and fruit salad",
-    img: "/immagini/piatti/piatto-12.jpg",
-    ingredienti: ["Verdure di stagione", "Frutta di stagione", "Erbe aromatiche"],
-    allergeni: [],
-  },
-  {
-    nome: "Zucchina, cetriolo, mandorla e capperi",
-    nomeEn: "Courgette, cucumber, almond and capers",
-    img: "/immagini/piatti/vegan.jpg",
-    ingredienti: ["Zucchina", "Cetriolo", "Mandorla", "Capperi"],
-    allergeni: ["Frutta a guscio (mandorla)"],
-  },
-  {
-    nome: "Essenziale di panzanella",
-    nomeEn: "Tomato, cucumber, onion, bread",
-    img: "/immagini/piatti/piatto-13.jpeg",
-    ingredienti: ["Pomodoro", "Cetriolo", "Cipolla", "Pane toscano"],
-    allergeni: ["Glutine"],
-  },
-  {
-    nome: "Taco Toscano",
-    nomeEn: "Taco, white beans, pappa al pomodoro and onions",
-    img: "/immagini/piatti/piatto-03.jpeg",
-    ingredienti: ["Taco", "Fagioli bianchi", "Pappa al pomodoro", "Cipolle"],
-    allergeni: ["Glutine"],
-  },
-  {
-    nome: "Spaghetti, spirulina, nori e salicornia",
-    nomeEn: "Spaghetti, spirulina and salicornia seaweed",
-    img: "/immagini/piatti/piatto-20.jpeg",
-    ingredienti: ["Spaghetti", "Spirulina", "Alga nori", "Salicornia"],
-    allergeni: ["Glutine"],
-  },
-  {
-    nome: "Pasta fresca fatta a mano del mese",
-    nomeEn: "Homemade handmade pasta",
-    img: "/immagini/piatti/piatto-10.jpeg",
-    ingredienti: ["Pasta fresca fatta a mano", "Ricetta e condimento del mese"],
-    allergeni: ["Glutine", "Può contenere uova"],
-  },
-  {
-    nome: "Anguria BBQ, purè di patate, cipolle",
-    nomeEn: "BBQ watermelon, potato puree, onions",
-    img: "/immagini/piatti/piatto-04.jpeg",
-    ingredienti: ["Anguria grigliata", "Purè di patate", "Cipolle caramellate"],
-    allergeni: [],
-  },
-  {
-    nome: "Melanzana, hummus, uvetta e basilico",
-    nomeEn: "Roasted eggplant, hummus, raisins and basil",
-    img: "/immagini/piatti/piatto-01.jpeg",
-    ingredienti: ["Melanzana arrostita", "Hummus di ceci", "Uvetta", "Basilico"],
-    allergeni: ["Sesamo (tahin)"],
-  },
-];
-
-const risottoDelMese = {
-  nome: "Risotto del mese",
-  nomeEn: "Risotto of the month",
-  ingredienti: ["Riso carnaroli", "Ricetta a rotazione mensile in base alla stagione"],
-  allergeni: ["Può contenere lattosio, a seconda della ricetta del mese"],
-  varianti: [
-    { img: "/immagini/piatti/risotto-pesto.jpg", alt: "Risotto al pesto" },
-    { img: "/immagini/piatti/piatto-risotto-viola.jpeg", alt: "Risotto viola con cipolla rossa" },
-    { img: "/immagini/piatti/piatto-06.jpeg", alt: "Risotto alla zucca" },
-    { img: "/immagini/piatti/piatto-07.jpeg", alt: "Risotto verde alle erbe" },
-  ],
-};
-
-const dolci = {
-  nome: "Desserts",
-  nomeEn: "Daily selection",
-  testo: "Una selezione di dolci che cambia ogni giorno in base a cosa prepara la cucina.",
-  foto: [
-    { img: "/immagini/piatti/dolce.jpg", alt: "Dolce della casa" },
-    { img: "/immagini/piatti/dolce-2.jpg", alt: "Dessert della casa con crumble" },
-    { img: "/immagini/piatti/piatto-17.jpeg", alt: "Dessert cremoso con crumble" },
-  ],
-};
+import { piatti, risottoDelMese, dolci } from "../data/piatti.js";
 ---
 
 <Layout
@@ -98,7 +16,7 @@ const dolci = {
     image="/immagini/piatti/risotto-pesto.jpg"
     eyebrow="Menu à la carte"
     title="Il nostro menu"
-    text="Ad ogni commensale è richiesto di selezionare un minimo di 2 portate. Per ogni piatto trovi ingredienti e allergeni indicativi."
+    text="Ad ogni commensale è richiesto di selezionare un minimo di 2 portate. Apri ogni piatto per scoprire storia, ingredienti e abbinamento."
   />
 
   <main>
@@ -128,25 +46,16 @@ const dolci = {
     <section class="menu-sezione">
       <div class="piatti-grid">
         {piatti.map((p) => (
-          <article class="piatto-card tilt-card glass">
+          <a class="piatto-card tilt-card glass" href={`/piatti/${p.slug}`}>
             <div class="piatto-img">
               <img src={p.img} alt={p.nome} loading="lazy" width="400" height="300" />
             </div>
             <div class="piatto-body">
               <h3>{p.nome}</h3>
               <p class="nome-en">{p.nomeEn}</p>
-              <div class="piatto-meta">
-                <div class="meta-block">
-                  <span class="meta-label">Ingredienti</span>
-                  <p>{p.ingredienti.join(", ")}</p>
-                </div>
-                <div class="meta-block">
-                  <span class="meta-label">Allergeni</span>
-                  <p>{p.allergeni.length > 0 ? p.allergeni.join(", ") : "Nessuno dichiarato"}</p>
-                </div>
-              </div>
+              <span class="piatto-link">Scopri il piatto →</span>
             </div>
-          </article>
+          </a>
         ))}
       </div>
     </section>
@@ -309,13 +218,18 @@ const dolci = {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .piatto-card:hover .piatto-img img {
+    transform: scale(1.06);
   }
 
   .piatto-body {
     padding: 1.4rem;
     display: flex;
     flex-direction: column;
-    gap: 0.6rem;
+    gap: 0.4rem;
   }
 
   .piatto-body h3 {
@@ -331,6 +245,12 @@ const dolci = {
     font-style: italic;
     font-size: 0.85rem;
     margin: 0;
+  }
+
+  .piatto-link {
+    color: var(--candela);
+    font-size: 0.82rem;
+    margin-top: 0.4rem;
   }
 
   .piatto-meta {

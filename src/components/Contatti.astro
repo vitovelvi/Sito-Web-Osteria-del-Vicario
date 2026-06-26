@@ -1,0 +1,110 @@
+---
+---
+
+<section class="contatti" id="contatti">
+  <p class="eyebrow">Vieni a trovarci</p>
+  <h2>Contatti</h2>
+
+  <div class="contatti-grid">
+    <div class="contatti-info glass">
+      <div class="contatti-row">
+        <span class="contatti-label">Dove siamo</span>
+        <p>Via del Castello, Certaldo Alto (FI)</p>
+      </div>
+      <div class="contatti-row">
+        <span class="contatti-label">Telefono</span>
+        <p><a href="tel:+390571667809">+39 0571 667809</a></p>
+      </div>
+      <div class="contatti-row">
+        <span class="contatti-label">Email</span>
+        <p><a href="mailto:osteriadelvicario@gmail.com">osteriadelvicario@gmail.com</a></p>
+      </div>
+      <a
+        class="btn btn-cotto whatsapp-btn"
+        href="https://wa.me/393472248182"
+        target="_blank"
+        rel="noopener"
+      >
+        Scrivici su WhatsApp
+      </a>
+    </div>
+
+    <div class="contatti-map">
+      <iframe
+        title="Mappa Osteria del Vicario, Certaldo Alto"
+        src="https://www.google.com/maps?q=Osteria+del+Vicario+Certaldo+Alto&output=embed"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+      ></iframe>
+    </div>
+  </div>
+</section>
+
+<style>
+  .contatti {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 6rem clamp(1.5rem, 6vw, 6rem);
+    text-align: center;
+  }
+
+  .contatti h2 {
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    color: var(--avorio);
+    margin: 0.6rem 0 2.5rem;
+  }
+
+  .contatti-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 1.5rem;
+    text-align: left;
+  }
+
+  .contatti-info {
+    border-radius: 1rem;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.4rem;
+  }
+
+  .contatti-label {
+    display: block;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.72rem;
+    color: var(--oliva);
+    margin-bottom: 0.3rem;
+  }
+
+  .contatti-row p {
+    color: var(--avorio);
+    margin: 0;
+    font-size: 0.95rem;
+  }
+
+  .whatsapp-btn {
+    margin-top: 0.5rem;
+    justify-content: center;
+  }
+
+  .contatti-map {
+    border-radius: 1rem;
+    overflow: hidden;
+    min-height: 320px;
+  }
+
+  .contatti-map iframe {
+    width: 100%;
+    height: 100%;
+    min-height: 320px;
+    border: 0;
+  }
+
+  @media (max-width: 760px) {
+    .contatti-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
