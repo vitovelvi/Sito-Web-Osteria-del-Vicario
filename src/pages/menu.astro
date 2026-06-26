@@ -8,27 +8,116 @@ const sezioni = [
   {
     nome: "Antipasti",
     piatti: [
-      { nome: "Tartare di verdure di stagione", desc: "con crumble di pane e olio nuovo", prezzo: "€ 12" },
-      { nome: "Crostone di pane toscano", desc: "con crema di ceci e erbe del territorio", prezzo: "€ 10" },
+      {
+        nome: "Tartare di verdure di stagione",
+        img: "/immagini/piatti/piatto-02.jpeg",
+        prezzo: "€ 12",
+        storia:
+          "Nasce dall'orto del monastero: un modo di portare in tavola le verdure crude, tagliate fini come una tartare di carne, per esaltarne il sapore.",
+        ingredienti: ["Verdure di stagione", "Pane toscano", "Olio extravergine", "Erbe aromatiche"],
+        allergeni: ["Glutine"],
+      },
+      {
+        nome: "Crostone di pane toscano",
+        img: "/immagini/piatti/piatto-03.jpeg",
+        prezzo: "€ 10",
+        storia:
+          "Il pane sciocco toscano, tostato e arricchito con una crema di ceci: un richiamo diretto alla cucina povera contadina della Val d'Elsa.",
+        ingredienti: ["Pane toscano", "Ceci", "Aglio", "Rosmarino", "Olio extravergine"],
+        allergeni: ["Glutine"],
+      },
     ],
   },
   {
     nome: "Primi",
     piatti: [
-      { nome: "Risotto carnaroli al pesto", desc: "con chips di verdure e crema vegetale", prezzo: "€ 16" },
-      { nome: "Tortelli alle melanzane", desc: "su crema di pomodoro confit", prezzo: "€ 15" },
+      {
+        nome: "Risotto carnaroli al pesto",
+        img: "/immagini/piatti/risotto-pesto.jpg",
+        prezzo: "€ 16",
+        storia:
+          "Il piatto più richiesto della carta: un risotto mantecato senza burro né formaggio, con un pesto di basilico ed erbe dell'orto che ne esalta la cremosità.",
+        ingredienti: ["Riso carnaroli", "Basilico", "Pinoli", "Olio extravergine", "Lievito alimentare"],
+        allergeni: ["Frutta a guscio"],
+      },
+      {
+        nome: "Risotto viola con cipolla rossa",
+        img: "/immagini/piatti/piatto-risotto-viola.jpeg",
+        prezzo: "€ 15",
+        storia:
+          "Il colore arriva dal cavolo viola, usato per mantecare il riso insieme a una reduzione di cipolla rossa caramellata.",
+        ingredienti: ["Riso carnaroli", "Cavolo viola", "Cipolla rossa", "Brodo vegetale"],
+        allergeni: [],
+      },
+      {
+        nome: "Tortelli alle melanzane",
+        img: "/immagini/piatti/tortelli-melanzane.jpg",
+        prezzo: "€ 15",
+        storia:
+          "Pasta fresca senza uova, ripiena di melanzane arrostite, su una crema di pomodoro confit fatta con i pomodori dell'estate.",
+        ingredienti: ["Farina di grano duro", "Melanzane", "Pomodoro confit", "Basilico"],
+        allergeni: ["Glutine"],
+      },
     ],
   },
   {
     nome: "Secondi",
     piatti: [
-      { nome: "Piatto vegetale dello chef", desc: "composizione di stagione, ricetta a rotazione", prezzo: "€ 18" },
+      {
+        nome: "Piatto vegetale dello chef",
+        img: "/immagini/piatti/piatto-14.jpeg",
+        prezzo: "€ 18",
+        storia:
+          "Una composizione che cambia ogni settimana in base a cosa offre l'orto: legumi, radici e verdure di stagione cucinate con tecniche diverse nello stesso piatto.",
+        ingredienti: ["Legumi di stagione", "Verdure dell'orto", "Erbe aromatiche", "Olio extravergine"],
+        allergeni: [],
+      },
+      {
+        nome: "Composizione di legumi e cereali",
+        img: "/immagini/piatti/piatto-17.jpeg",
+        prezzo: "€ 17",
+        storia:
+          "Un piatto pensato per essere completo e sostanzioso: cereali integrali, legumi e verdure arrostite, conditi con un'emulsione di erbe.",
+        ingredienti: ["Cereali integrali", "Legumi", "Verdure arrostite", "Erbe aromatiche"],
+        allergeni: ["Glutine"],
+      },
     ],
   },
   {
     nome: "Dolci",
     piatti: [
-      { nome: "Dolce della casa", desc: "ricetta vegetale, ingredienti del territorio", prezzo: "€ 8" },
+      {
+        nome: "Dolce della casa",
+        img: "/immagini/piatti/dolce.jpg",
+        prezzo: "€ 8",
+        storia:
+          "La ricetta cambia con le stagioni: frutta del territorio, una base di frutta secca e nessun ingrediente di origine animale.",
+        ingredienti: ["Frutta di stagione", "Frutta secca", "Sciroppo d'acero"],
+        allergeni: ["Frutta a guscio"],
+      },
+      {
+        nome: "Dessert vegetale al cioccolato",
+        img: "/immagini/piatti/dolce-2.jpg",
+        prezzo: "€ 9",
+        storia:
+          "Una mousse densa a base di cioccolato fondente e legumi, per una consistenza cremosa senza panna né uova.",
+        ingredienti: ["Cioccolato fondente", "Ceci o fagioli neri", "Sciroppo d'acero", "Vaniglia"],
+        allergeni: ["Soia (tracce)"],
+      },
+    ],
+  },
+  {
+    nome: "Colazione (per chi soggiorna)",
+    piatti: [
+      {
+        nome: "Colazione dell'Osteria",
+        img: "/immagini/piatti/colazione.jpg",
+        prezzo: "Incluso nel soggiorno",
+        storia:
+          "Una colazione dolce e salata con prodotti locali, servita ogni mattina nella sala del monastero a chi pernotta in camera.",
+        ingredienti: ["Pane e dolci da forno", "Marmellate", "Frutta fresca", "Bevande calde", "Spremuta d'arancia"],
+        allergeni: ["Glutine", "Frutta a guscio"],
+      },
     ],
   },
 ];
@@ -36,7 +125,7 @@ const sezioni = [
 
 <Layout
   title="Menu — Osteria del Vicario"
-  description="Il menu stagionale 100% vegetale dell'Osteria del Vicario, Certaldo Alto."
+  description="Il menu stagionale 100% vegetale dell'Osteria del Vicario, Certaldo Alto: piatti, ingredienti e allergeni."
 >
   <NavFunnel />
 
@@ -44,25 +133,44 @@ const sezioni = [
     image="/immagini/piatti/risotto-pesto.jpg"
     eyebrow="La cucina"
     title="Il nostro menu"
-    text="Un menu di stagione, interamente vegetale. I piatti e i prezzi possono variare in base alla disponibilità dell'orto."
+    text="Un menu di stagione, interamente vegetale. Per ogni piatto trovi la storia, gli ingredienti principali e gli allergeni presenti."
   />
 
   <main>
-    <p class="placeholder-note">* Menu indicativo: piatti e prezzi reali in fase di conferma.</p>
+    <p class="placeholder-note">
+      * Menu indicativo: piatti, prezzi e allergeni in fase di conferma con la cucina. Per
+      allergie e intolleranze specifiche, segnalacelo al momento della prenotazione.
+    </p>
+
     {sezioni.map((s) => (
       <section class="menu-sezione">
         <h2>{s.nome}</h2>
-        <ul>
+        <div class="piatti-grid">
           {s.piatti.map((p) => (
-            <li>
-              <div class="piatto-info">
-                <strong>{p.nome}</strong>
-                <span>{p.desc}</span>
+            <article class="piatto-card tilt-card glass">
+              <div class="piatto-img">
+                <img src={p.img} alt={p.nome} loading="lazy" width="400" height="300" />
               </div>
-              <span class="prezzo">{p.prezzo}</span>
-            </li>
+              <div class="piatto-body">
+                <div class="piatto-head">
+                  <h3>{p.nome}</h3>
+                  <span class="prezzo">{p.prezzo}</span>
+                </div>
+                <p class="storia">{p.storia}</p>
+                <div class="piatto-meta">
+                  <div class="meta-block">
+                    <span class="meta-label">Ingredienti</span>
+                    <p>{p.ingredienti.join(", ")}</p>
+                  </div>
+                  <div class="meta-block">
+                    <span class="meta-label">Allergeni</span>
+                    <p>{p.allergeni.length > 0 ? p.allergeni.join(", ") : "Nessuno dichiarato"}</p>
+                  </div>
+                </div>
+              </div>
+            </article>
           ))}
-        </ul>
+        </div>
       </section>
     ))}
 
@@ -72,12 +180,17 @@ const sezioni = [
   </main>
 
   <Footer />
+
+  <script>
+    import { initTilt } from "../scripts/scroll.js";
+    initTilt();
+  </script>
 </Layout>
 
 <style>
   main {
     background: var(--notte);
-    max-width: 760px;
+    max-width: 1100px;
     margin: 0 auto;
     padding: 4rem clamp(1.5rem, 6vw, 6rem) 6rem;
   }
@@ -85,63 +198,116 @@ const sezioni = [
   .placeholder-note {
     color: var(--ardesia);
     font-size: 0.8rem;
-    margin-bottom: 2.5rem;
+    margin-bottom: 3rem;
+    max-width: 700px;
   }
 
   .menu-sezione {
-    margin-bottom: 2.5rem;
+    margin-bottom: 3.5rem;
   }
 
   .menu-sezione h2 {
     font-family: var(--font-display);
     color: var(--oro-sera);
-    font-size: 1.3rem;
+    font-size: 1.4rem;
     border-bottom: 1px solid rgba(232, 177, 90, 0.25);
-    padding-bottom: 0.5rem;
-    margin-bottom: 1.2rem;
+    padding-bottom: 0.6rem;
+    margin-bottom: 1.5rem;
   }
 
-  .menu-sezione ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+  .piatti-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+
+  .piatto-card {
     display: flex;
     flex-direction: column;
-    gap: 1.2rem;
+    border-radius: 1rem;
+    overflow: hidden;
   }
 
-  .menu-sezione li {
+  .piatto-img {
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+  }
+
+  .piatto-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .piatto-body {
+    padding: 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .piatto-head {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    gap: 1rem;
+    gap: 0.8rem;
   }
 
-  .piatto-info {
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-  }
-
-  .piatto-info strong {
+  .piatto-head h3 {
     color: var(--avorio);
-    font-size: 1.02rem;
-  }
-
-  .piatto-info span {
-    color: var(--avorio);
-    opacity: 0.7;
-    font-size: 0.88rem;
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    margin: 0;
   }
 
   .prezzo {
     color: var(--candela);
     font-family: var(--font-display);
     white-space: nowrap;
+    font-size: 0.95rem;
+  }
+
+  .storia {
+    color: var(--avorio);
+    opacity: 0.8;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .piatto-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    border-top: 1px solid rgba(242, 233, 215, 0.1);
+    padding-top: 0.8rem;
+  }
+
+  .meta-label {
+    display: block;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.7rem;
+    color: var(--oliva);
+    margin-bottom: 0.2rem;
+  }
+
+  .meta-block p {
+    color: var(--avorio);
+    opacity: 0.75;
+    font-size: 0.85rem;
+    margin: 0;
+    line-height: 1.5;
   }
 
   .menu-cta {
     text-align: center;
-    margin-top: 3rem;
+    margin-top: 1rem;
+  }
+
+  @media (max-width: 760px) {
+    .piatti-grid {
+      grid-template-columns: 1fr;
+    }
   }
 </style>
