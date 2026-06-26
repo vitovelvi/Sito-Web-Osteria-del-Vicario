@@ -1,0 +1,118 @@
+:root {
+  --cotto: #b05a30;
+  --oliva: #6b7748;
+  --candela: #d99a3a;
+  --oro-sera: #e8b15a;
+  --avorio: #f2e9d7;
+  --ardesia: #4a4e54;
+  --notte: #211710;
+
+  --font-display: "Fraunces", "Georgia", serif;
+  --font-body: "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  background: var(--notte);
+  color: var(--avorio);
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+.eyebrow {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--oro-sera);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.75rem;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: transform 0.3s ease, background 0.3s ease, color 0.3s ease;
+}
+
+.btn-cotto {
+  background: var(--cotto);
+  color: var(--avorio);
+}
+
+.btn-cotto:hover {
+  background: var(--oro-sera);
+  color: var(--notte);
+  transform: translateY(-2px);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--avorio);
+  border: 1px solid rgba(242, 233, 215, 0.4);
+}
+
+.btn-outline:hover {
+  border-color: var(--oro-sera);
+  color: var(--oro-sera);
+  transform: translateY(-2px);
+}
+
+/* Lenis smooth scroll */
+html.lenis {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}

@@ -1,0 +1,115 @@
+---
+import Layout from "../layouts/Layout.astro";
+import NavFunnel from "../components/NavFunnel.astro";
+import Scene from "../components/Scene.astro";
+
+const journey = [
+  {
+    image: "/immagini/hero/vicolo.jpg",
+    alt: "Vicolo di pietra di Certaldo Alto al tramonto",
+    eyebrow: "Certaldo Alto",
+    title: "Un vicolo, una soglia",
+    text: "Tra le pietre del borgo medievale, un passaggio stretto conduce a un monastero che dal 1100 custodisce la sua tavola.",
+  },
+  {
+    image: "/immagini/luogo/portone.jpg",
+    alt: "Portone antico in legno e ferro",
+    eyebrow: "Il varco",
+    title: "Oltre la soglia",
+    text: "Il portone si apre su un tempo diverso: quello lento dell'ospitalità monastica, riscoperto in chiave contemporanea.",
+  },
+  {
+    image: "/immagini/luogo/chiostro.jpg",
+    alt: "Chiostro del monastero con colonne in pietra",
+    eyebrow: "Il chiostro",
+    title: "Silenzio e pietra",
+    text: "Le colonne del chiostro raccontano nove secoli di storia. Oggi accolgono chi cerca una sosta autentica.",
+  },
+  {
+    image: "/immagini/luogo/terrazza.jpg",
+    alt: "Terrazza panoramica sulla Val d'Elsa",
+    eyebrow: "La terrazza",
+    title: "La Val d'Elsa ai tuoi piedi",
+    text: "Dalla terrazza lo sguardo corre sui colli toscani, mentre la cucina prepara la prima portata della sera.",
+  },
+  {
+    image: "/immagini/piatti/piatto-firma.jpg",
+    alt: "Piatto vegetale d'autore impiattato con cura",
+    eyebrow: "La cucina",
+    title: "Cucina vegetale d'autore",
+    text: "Verdure, legumi ed erbe del territorio diventano piatti che reinterpretano la tradizione toscana senza compromessi.",
+    cta: { label: "Prenota un tavolo", href: "/tavolo" },
+  },
+  {
+    image: "/immagini/camere/camera-monastica.jpg",
+    alt: "Camera del B&B con arredi essenziali e luce naturale",
+    eyebrow: "Le camere",
+    title: "Dormire nel monastero",
+    text: "Le celle di un tempo sono oggi camere essenziali e luminose, pensate per chi vuole restare oltre la cena.",
+    cta: { label: "Prenota una camera", href: "/camere" },
+  },
+];
+---
+
+<Layout title="Osteria del Vicario — Certaldo Alto">
+  <NavFunnel />
+
+  <main>
+    {journey.map((scene) => (
+      <Scene
+        image={scene.image}
+        alt={scene.alt}
+        eyebrow={scene.eyebrow}
+        title={scene.title}
+        text={scene.text}
+        cta={scene.cta}
+      />
+    ))}
+
+    <footer class="closing">
+      <p class="eyebrow">Osteria del Vicario</p>
+      <h2>Vi aspettiamo oltre la soglia</h2>
+      <div class="closing-actions">
+        <a class="btn btn-outline" href="/camere">Prenota una camera</a>
+        <a class="btn btn-cotto" href="/tavolo">Prenota un tavolo</a>
+      </div>
+      <p class="closing-address">Via del Castello, Certaldo Alto (FI)</p>
+    </footer>
+  </main>
+
+  <script>
+    import { initScroll } from "../scripts/scroll.js";
+    initScroll();
+  </script>
+</Layout>
+
+<style>
+  .closing {
+    min-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 1rem;
+    padding: 4rem 1.5rem;
+    background: var(--notte);
+  }
+
+  .closing h2 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    color: var(--avorio);
+  }
+
+  .closing-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .closing-address {
+    margin-top: 2rem;
+    color: var(--ardesia);
+    font-size: 0.9rem;
+  }
+</style>
