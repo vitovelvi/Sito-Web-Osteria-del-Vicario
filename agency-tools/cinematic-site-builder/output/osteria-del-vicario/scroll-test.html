@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<title>Test scroll-scrubber — Osteria del Vicario (frame placeholder)</title>
+<style>
+  * { margin:0; box-sizing:border-box; }
+  body { font-family: sans-serif; background:#111; color:#eee; }
+  .scrub-section {
+    position: relative;
+    height: 300vh;
+  }
+  .scrub-canvas {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    height: 100vh;
+    display: block;
+  }
+  .label {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 10;
+    background: rgba(0,0,0,.6);
+    padding: .5rem 1rem;
+    border-radius: 8px;
+    font-size: .85rem;
+  }
+  .spacer { height: 100vh; display:flex; align-items:center; justify-content:center; opacity:.5; }
+</style>
+</head>
+<body>
+  <p class="label">Test scroll-scrubber.js — 60 frame placeholder generati via Canvas (non AI, Fase 2 saltata)</p>
+
+  <div class="spacer">scroll giù ↓</div>
+
+  <section class="scrub-section">
+    <canvas id="scrub-canvas" class="scrub-canvas"></canvas>
+  </section>
+
+  <div class="spacer">fine sezione scrub</div>
+
+  <script type="module">
+    import { createScrollScrubber } from "./scroll-scrubber.js";
+
+    createScrollScrubber({
+      canvas: document.getElementById("scrub-canvas"),
+      framePathPattern: (i) => `frames/frame-${String(i + 1).padStart(4, "0")}.jpg`,
+      frameCount: 60,
+      trigger: document.querySelector(".scrub-section"),
+    });
+  </script>
+</body>
+</html>
