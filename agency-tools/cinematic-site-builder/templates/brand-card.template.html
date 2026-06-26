@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<title>Brand Card — {{BRAND_NAME}}</title>
+<style>
+  body { margin:0; font-family: sans-serif; background:#111; color:#eee; padding: 3rem; }
+  h1 { font-family: {{DISPLAY_FONT}}; font-size: 3rem; margin: 0 0 0.5rem; }
+  .slogan { opacity:.75; font-size:1.2rem; margin-bottom: 2rem; }
+  .swatches { display:flex; gap:1rem; margin-bottom:2rem; }
+  .swatch { width:90px; height:90px; border-radius:12px; display:flex; align-items:flex-end; padding:.5rem; font-size:.7rem; }
+  .fonts { display:flex; gap:2rem; margin-bottom:2rem; }
+  .fonts div { padding:1rem 1.5rem; border:1px solid #333; border-radius:8px; }
+  ul { line-height:1.8; }
+</style>
+</head>
+<body>
+  <p style="text-transform:uppercase;letter-spacing:.2em;opacity:.6;">Brand Card — bozza per approvazione</p>
+  <h1>{{BRAND_NAME}}</h1>
+  <p class="slogan">{{HEADLINE}} — {{SUBHEADLINE}}</p>
+
+  <h3>Palette</h3>
+  <div class="swatches">
+    <div class="swatch" style="background:{{COLOR_PRIMARY}}">primario</div>
+    <div class="swatch" style="background:{{COLOR_ACCENT}}">accento</div>
+    <div class="swatch" style="background:{{COLOR_DARK}}">scuro</div>
+    <div class="swatch" style="background:{{COLOR_LIGHT}};color:#111">chiaro</div>
+  </div>
+
+  <h3>Tipografia</h3>
+  <div class="fonts">
+    <div style="font-family:{{DISPLAY_FONT}};font-size:1.6rem;">{{DISPLAY_FONT}}</div>
+    <div style="font-family:{{BODY_FONT}};font-size:1.1rem;">{{BODY_FONT}}</div>
+  </div>
+
+  <h3>Posizionamento</h3>
+  <ul>
+    <li>{{BULLET_1}}</li>
+    <li>{{BULLET_2}}</li>
+    <li>{{BULLET_3}}</li>
+  </ul>
+</body>
+</html>
