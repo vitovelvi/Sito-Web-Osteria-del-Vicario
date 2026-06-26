@@ -49,7 +49,16 @@ const camere = [
       <h2>Richiedi la tua camera</h2>
       <p class="booking-intro">
         Indicaci le date del soggiorno: ti risponderemo con la disponibilità e le tariffe.
+        Puoi anche verificare la disponibilità e prenotare direttamente su Booking.com.
       </p>
+      <a
+        class="btn btn-outline booking-otalink"
+        href="https://www.booking.com/hotel/it/osteria-del-vicario.it.html"
+        target="_blank"
+        rel="noopener"
+      >
+        Vedi disponibilità su Booking.com
+      </a>
       <BookingForm type="camera" email="osteriadelvicario@gmail.com" phone="+39 0571 667809" />
     </section>
   </main>
@@ -92,6 +101,10 @@ const camere = [
     margin: 0 auto;
     padding: 1rem 1.5rem 6rem;
     text-align: center;
+  }
+
+  .booking-otalink {
+    margin-bottom: 2rem;
   }
 
   .booking-section h2 {

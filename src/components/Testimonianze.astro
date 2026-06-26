@@ -1,22 +1,32 @@
 ---
-const recensioni = [
-  { nome: "Cliente Google", testo: "Un luogo unico, la cucina vegetale ci ha sorpreso. Da inserire recensione reale.", stelle: 5 },
-  { nome: "Cliente Google", testo: "Atmosfera magica nel monastero, camere comode. Da inserire recensione reale.", stelle: 5 },
-  { nome: "Cliente Google", testo: "Esperienza da ripetere, personale gentile. Da inserire recensione reale.", stelle: 5 },
+const piattaforme = [
+  {
+    nome: "Booking.com",
+    nota: "400+ recensioni",
+    href: "https://www.booking.com/hotel/it/osteria-del-vicario.it.html",
+  },
+  {
+    nome: "TripAdvisor",
+    nota: "300+ recensioni",
+    href: "https://mytreats.app/food_identity/curation/osteria_del_vicario/",
+  },
 ];
 ---
 
 <section class="testimonianze" id="testimonianze">
   <p class="eyebrow">Cosa dicono di noi</p>
   <h2>Le voci di chi è già stato qui</h2>
-  <p class="placeholder-note">* Recensioni in attesa di conferma con i dati reali di Google/TripAdvisor.</p>
+  <p class="placeholder-note">
+    Le recensioni vere arrivano da Booking.com e TripAdvisor: leggile direttamente sulle
+    piattaforme ufficiali.
+  </p>
   <div class="rec-grid">
-    {recensioni.map((r) => (
-      <div class="rec-card glass">
-        <div class="stars" aria-label={`${r.stelle} stelle`}>{"★".repeat(r.stelle)}</div>
-        <p>"{r.testo}"</p>
-        <strong>{r.nome}</strong>
-      </div>
+    {piattaforme.map((p) => (
+      <a class="rec-card glass" href={p.href} target="_blank" rel="noopener">
+        <strong>{p.nome}</strong>
+        <span>{p.nota}</span>
+        <span class="rec-link">Leggi le recensioni →</span>
+      </a>
     ))}
   </div>
 </section>
@@ -36,42 +46,57 @@ const recensioni = [
   }
 
   .placeholder-note {
-    color: var(--ardesia);
-    font-size: 0.78rem;
+    color: var(--avorio);
+    opacity: 0.65;
+    font-size: 0.85rem;
     margin-bottom: 2.5rem;
+    max-width: 560px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .rec-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem;
-    text-align: left;
+    max-width: 700px;
+    margin: 0 auto;
   }
 
   .rec-card {
-    padding: 1.8rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 2rem 1.5rem;
     border-radius: 1rem;
+    text-decoration: none;
+    transition: transform 0.2s ease;
   }
 
-  .stars {
-    color: var(--oro-sera);
-    margin-bottom: 0.8rem;
-  }
-
-  .rec-card p {
-    color: var(--avorio);
-    opacity: 0.85;
-    line-height: 1.6;
-    font-size: 0.92rem;
-    margin: 0 0 1rem;
+  .rec-card:hover {
+    transform: translateY(-3px);
   }
 
   .rec-card strong {
     color: var(--oro-sera);
-    font-size: 0.85rem;
+    font-family: var(--font-display);
+    font-size: 1.15rem;
   }
 
-  @media (max-width: 900px) {
+  .rec-card span {
+    color: var(--avorio);
+    opacity: 0.8;
+    font-size: 0.9rem;
+  }
+
+  .rec-link {
+    margin-top: 0.6rem;
+    color: var(--candela);
+    font-size: 0.82rem;
+  }
+
+  @media (max-width: 560px) {
     .rec-grid {
       grid-template-columns: 1fr;
     }
