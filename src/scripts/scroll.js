@@ -63,6 +63,35 @@ export function initScroll() {
   return lenis;
 }
 
+export function initHero() {
+  const hero = document.querySelector(".hero");
+  const img = hero?.querySelector(".hero-img");
+  const caption = hero?.querySelector(".hero-caption");
+  if (!hero || !img) return;
+
+  gsap.set(img, { scale: 1.3, rotateX: 0, transformOrigin: "center 30%" });
+
+  ScrollTrigger.create({
+    trigger: hero,
+    start: "top top",
+    end: "bottom top",
+    pin: true,
+    pinSpacing: false,
+    scrub: true,
+    onUpdate: (self) => {
+      const p = self.progress;
+      gsap.set(img, {
+        scale: 1.3 - p * 0.3,
+        rotateX: p * 8,
+        filter: `brightness(${1 - p * 0.45})`,
+      });
+      if (caption) {
+        gsap.set(caption, { autoAlpha: 1 - p * 1.6, y: -p * 80 });
+      }
+    },
+  });
+}
+
 export function initEmblem() {
   const stage = document.getElementById("emblem-stage");
   const emblem = document.getElementById("emblem-3d");

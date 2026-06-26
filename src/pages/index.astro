@@ -21,6 +21,7 @@ import Footer from "../components/Footer.astro";
   <main>
     <section class="hero">
       <img
+        class="hero-img"
         src="/immagini/hero/vicolo-insegna.jpg"
         alt="Vicolo di pietra di Certaldo Alto con l'insegna dell'Osteria del Vicario"
       />
@@ -55,7 +56,8 @@ import Footer from "../components/Footer.astro";
   <Footer />
 
   <script>
-    import { initScroll, initEmblem, initTilt } from "../scripts/scroll.js";
+    import { initScroll, initHero, initEmblem, initTilt } from "../scripts/scroll.js";
+    initHero();
     initScroll();
     initEmblem();
     initTilt();
@@ -71,14 +73,17 @@ import Footer from "../components/Footer.astro";
     display: flex;
     align-items: center;
     justify-content: center;
+    perspective: 1200px;
   }
 
-  .hero img {
+  .hero-img {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
+    will-change: transform, filter;
+    transform-style: preserve-3d;
   }
 
   .hero-overlay {
