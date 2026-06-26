@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<title>Brand Card — Osteria del Vicario</title>
+<style>
+  body { margin:0; font-family: sans-serif; background:#111; color:#eee; padding: 3rem; }
+  h1 { font-family: "Fraunces", "Georgia", serif; font-size: 3rem; margin: 0 0 0.5rem; }
+  .slogan { opacity:.75; font-size:1.2rem; margin-bottom: 2rem; }
+  .swatches { display:flex; gap:1rem; margin-bottom:2rem; flex-wrap: wrap; }
+  .swatch { width:90px; height:90px; border-radius:12px; display:flex; align-items:flex-end; padding:.5rem; font-size:.7rem; }
+  .fonts { display:flex; gap:2rem; margin-bottom:2rem; }
+  .fonts div { padding:1rem 1.5rem; border:1px solid #333; border-radius:8px; }
+  ul { line-height:1.8; }
+  .note { font-size:.85rem; opacity:.55; border-top:1px solid #333; padding-top:1rem; margin-top:2rem; }
+</style>
+</head>
+<body>
+  <p style="text-transform:uppercase;letter-spacing:.2em;opacity:.6;">Brand Card — bozza per approvazione</p>
+  <h1>Osteria del Vicario</h1>
+  <p class="slogan">Vivi il cuore medievale della Toscana — cucina vegetale d'autore e B&amp;B in un monastero del 1100, Certaldo Alto</p>
+
+  <h3>Palette (estratta da src/styles/global.css)</h3>
+  <div class="swatches">
+    <div class="swatch" style="background:#b05a30;color:#fff">cotto<br>primario</div>
+    <div class="swatch" style="background:#e8b15a;color:#111">oro sera<br>accento</div>
+    <div class="swatch" style="background:#211710;color:#eee">notte<br>scuro</div>
+    <div class="swatch" style="background:#f2e9d7;color:#111">avorio<br>chiaro</div>
+    <div class="swatch" style="background:#d99a3a;color:#111">candela<br>secondario</div>
+    <div class="swatch" style="background:#6b7748;color:#fff">oliva<br>terziario</div>
+  </div>
+
+  <h3>Tipografia (da Layout.astro)</h3>
+  <div class="fonts">
+    <div style="font-family:'Fraunces',Georgia,serif;font-size:1.6rem;">Fraunces — display</div>
+    <div style="font-family:'Hanken Grotesk',Arial,sans-serif;font-size:1.1rem;">Hanken Grotesk — body</div>
+  </div>
+
+  <h3>Posizionamento</h3>
+  <ul>
+    <li>Non è un ristorante con camere: è il punto di partenza per vivere Certaldo Alto, borgo medievale intatto dal 1100.</li>
+    <li>Cucina interamente vegetale d'autore, in un monastero storico con terrazza panoramica sulla Val d'Elsa.</li>
+    <li>Target: turismo esperienziale/slow travel in Toscana, coppie e viaggiatori in cerca di autenticità più che di lusso convenzionale.</li>
+  </ul>
+
+  <p class="note">
+    Nota sulla fonte dati: il fetch automatico sull'URL live
+    (sito-web-osteria-del-vicario-mows.vercel.app) ha restituito 403
+    (deploy protetto). Questa card è stata compilata dal codice sorgente
+    reale del progetto (palette CSS, font, contenuti già approvati nelle
+    iterazioni precedenti), non da dati inventati.
+  </p>
+</body>
+</html>
