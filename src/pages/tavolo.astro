@@ -1,0 +1,110 @@
+---
+import Layout from "../layouts/Layout.astro";
+import NavFunnel from "../components/NavFunnel.astro";
+import PageHeader from "../components/PageHeader.astro";
+import Gallery from "../components/Gallery.astro";
+import BookingForm from "../components/BookingForm.astro";
+
+const piatti = [
+  { src: "/immagini/piatti/risotto-pesto.jpg", alt: "Risotto carnaroli al pesto" },
+  { src: "/immagini/piatti/piatto-risotto-viola.jpeg", alt: "Risotto viola con cipolla rossa" },
+  { src: "/immagini/piatti/tortelli-melanzane.jpg", alt: "Tortelli alle melanzane" },
+  { src: "/immagini/piatti/vegan.jpg", alt: "Piatto vegano dello chef" },
+  { src: "/immagini/piatti/dolce.jpg", alt: "Dolce della casa" },
+  { src: "/immagini/piatti/dolce-2.jpg", alt: "Dessert vegetale" },
+  { src: "/immagini/piatti/piatto-02.jpeg", alt: "Piatto vegetale d'autore" },
+  { src: "/immagini/piatti/piatto-03.jpeg", alt: "Piatto vegetale d'autore" },
+  { src: "/immagini/piatti/piatto-04.jpeg", alt: "Piatto vegetale d'autore" },
+  { src: "/immagini/piatti/piatto-07.jpeg", alt: "Piatto vegetale d'autore" },
+  { src: "/immagini/piatti/vini.jpg", alt: "Selezione di vini" },
+  { src: "/immagini/piatti/colazione.jpg", alt: "Colazione dell'Osteria" },
+];
+---
+
+<Layout
+  title="Prenota un tavolo — Osteria del Vicario"
+  description="Cucina vegetale d'autore a Certaldo Alto, in un monastero del 1100. Prenota il tuo tavolo all'Osteria del Vicario."
+>
+  <NavFunnel />
+
+  <PageHeader
+    image="/immagini/luogo/terrazza-pranzo.jpg"
+    eyebrow="La cucina"
+    title="Prenota un tavolo"
+    text="Cucina vegetale d'autore servita tra le pietre di un monastero del 1100, con la Val d'Elsa che si apre dalla terrazza."
+  />
+
+  <main>
+    <section class="intro">
+      <p>
+        Verdure, legumi ed erbe del territorio diventano piatti che reinterpretano la
+        tradizione toscana senza compromessi. La cucina dell'Osteria del Vicario cambia
+        con le stagioni, accompagnata da una carta vini che racconta la Val d'Elsa.
+      </p>
+      <a class="btn btn-outline" href="/immagini/dettagli/menu.jpeg" target="_blank" rel="noopener">
+        Guarda il menu
+      </a>
+    </section>
+
+    <section class="gallery-section">
+      <Gallery items={piatti} />
+    </section>
+
+    <section class="booking-section">
+      <h2>Richiedi la tua prenotazione</h2>
+      <p class="booking-intro">
+        Compila il modulo o contattaci direttamente: ti confermeremo la disponibilità il prima possibile.
+      </p>
+      <BookingForm type="tavolo" email="info@osteriadelvicario.it" phone="+39 0571 000000" />
+    </section>
+  </main>
+</Layout>
+
+<style>
+  main {
+    background: var(--notte);
+  }
+
+  .intro {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem 2rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .intro p {
+    color: var(--avorio);
+    opacity: 0.85;
+    font-size: 1.1rem;
+    line-height: 1.7;
+  }
+
+  .gallery-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem 1.5rem 4rem;
+  }
+
+  .booking-section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 1rem 1.5rem 6rem;
+    text-align: center;
+  }
+
+  .booking-section h2 {
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    color: var(--avorio);
+    margin-bottom: 0.75rem;
+  }
+
+  .booking-intro {
+    color: var(--avorio);
+    opacity: 0.75;
+    margin-bottom: 2rem;
+  }
+</style>

@@ -1,0 +1,100 @@
+---
+import Layout from "../layouts/Layout.astro";
+import NavFunnel from "../components/NavFunnel.astro";
+import PageHeader from "../components/PageHeader.astro";
+import Gallery from "../components/Gallery.astro";
+import BookingForm from "../components/BookingForm.astro";
+
+const camere = [
+  { src: "/immagini/camere/camera-01.jpg", alt: "Camera del B&B con letto matrimoniale" },
+  { src: "/immagini/camere/camera-02.jpg", alt: "Camera con affreschi e finestra in pietra" },
+  { src: "/immagini/camere/camera-03.webp", alt: "Camera del monastero" },
+  { src: "/immagini/camere/camera-04.webp", alt: "Camera del monastero" },
+  { src: "/immagini/camere/camera-05.webp", alt: "Camera del monastero" },
+  { src: "/immagini/camere/camera-06.webp", alt: "Camera del monastero" },
+  { src: "/immagini/camere/camera-07.webp", alt: "Camera del monastero" },
+  { src: "/immagini/camere/camera-08.webp", alt: "Camera del monastero" },
+  { src: "/immagini/luogo/corridoio.webp", alt: "Corridoio interno del monastero" },
+];
+---
+
+<Layout
+  title="Prenota una camera — Osteria del Vicario"
+  description="Dormi in un monastero del 1100 a Certaldo Alto. Camere essenziali e luminose del B&B Osteria del Vicario."
+>
+  <NavFunnel />
+
+  <PageHeader
+    image="/immagini/camere/camera-02.jpg"
+    eyebrow="Il B&B"
+    title="Dormire nel monastero"
+    text="Le celle di un tempo sono oggi camere essenziali e luminose, pensate per chi vuole restare oltre la cena."
+  />
+
+  <main>
+    <section class="intro">
+      <p>
+        Ogni camera conserva il carattere delle mura originarie del 1100: soffitti a volta,
+        pietra a vista, finestre che si affacciano sui tetti di Certaldo Alto. Il bagno
+        privato e i comfort essenziali rendono il soggiorno semplice e autentico.
+      </p>
+    </section>
+
+    <section class="gallery-section">
+      <Gallery items={camere} />
+    </section>
+
+    <section class="booking-section">
+      <h2>Richiedi la tua camera</h2>
+      <p class="booking-intro">
+        Indicaci le date del soggiorno: ti risponderemo con la disponibilità e le tariffe.
+      </p>
+      <BookingForm type="camera" email="info@osteriadelvicario.it" phone="+39 0571 000000" />
+    </section>
+  </main>
+</Layout>
+
+<style>
+  main {
+    background: var(--notte);
+  }
+
+  .intro {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem 2rem;
+    text-align: center;
+  }
+
+  .intro p {
+    color: var(--avorio);
+    opacity: 0.85;
+    font-size: 1.1rem;
+    line-height: 1.7;
+  }
+
+  .gallery-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem 1.5rem 4rem;
+  }
+
+  .booking-section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 1rem 1.5rem 6rem;
+    text-align: center;
+  }
+
+  .booking-section h2 {
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    color: var(--avorio);
+    margin-bottom: 0.75rem;
+  }
+
+  .booking-intro {
+    color: var(--avorio);
+    opacity: 0.75;
+    margin-bottom: 2rem;
+  }
+</style>

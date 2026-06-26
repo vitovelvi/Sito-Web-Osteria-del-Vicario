@@ -1,0 +1,66 @@
+---
+interface Props {
+  image: string;
+  eyebrow: string;
+  title: string;
+  text: string;
+}
+
+const { image, eyebrow, title, text } = Astro.props;
+---
+
+<header class="page-header">
+  <div class="page-header-img" style={`background-image: url('${image}')`}></div>
+  <div class="page-header-overlay"></div>
+  <div class="page-header-content">
+    <p class="eyebrow">{eyebrow}</p>
+    <h1>{title}</h1>
+    <p>{text}</p>
+  </div>
+</header>
+
+<style>
+  .page-header {
+    position: relative;
+    min-height: 60vh;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+  }
+
+  .page-header-img {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+  }
+
+  .page-header-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(33, 23, 16, 0.35) 0%,
+      rgba(33, 23, 16, 0.85) 100%
+    );
+  }
+
+  .page-header-content {
+    position: relative;
+    z-index: 2;
+    padding: 6rem clamp(1.5rem, 6vw, 6rem) 3rem;
+    max-width: 720px;
+  }
+
+  .page-header-content h1 {
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
+    color: var(--avorio);
+    margin: 0.4rem 0 1rem;
+  }
+
+  .page-header-content p:last-child {
+    color: var(--avorio);
+    opacity: 0.85;
+    font-size: 1.1rem;
+  }
+</style>

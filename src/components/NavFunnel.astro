@@ -2,7 +2,9 @@
 ---
 
 <nav class="nav-funnel">
-  <a class="brand" href="/">Osteria del Vicario</a>
+  <a class="brand" href="/">
+    <img src="/immagini/dettagli/logo.png" alt="Osteria del Vicario" />
+  </a>
   <div class="funnel-actions">
     <a class="btn btn-outline" href="/camere">Prenota una camera</a>
     <a class="btn btn-cotto" href="/tavolo">Prenota un tavolo</a>
@@ -24,10 +26,14 @@
   }
 
   .brand {
-    font-family: var(--font-display);
-    font-size: 1.1rem;
-    letter-spacing: 0.02em;
-    color: var(--avorio);
+    display: flex;
+    align-items: center;
+  }
+
+  .brand img {
+    height: 42px;
+    width: auto;
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.5));
   }
 
   .funnel-actions {
