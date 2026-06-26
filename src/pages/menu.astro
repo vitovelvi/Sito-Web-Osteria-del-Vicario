@@ -4,175 +4,187 @@ import NavFunnel from "../components/NavFunnel.astro";
 import PageHeader from "../components/PageHeader.astro";
 import Footer from "../components/Footer.astro";
 
-const sezioni = [
+const piatti = [
   {
-    nome: "Antipasti",
-    piatti: [
-      {
-        nome: "Tartare di verdure di stagione",
-        img: "/immagini/piatti/piatto-02.jpeg",
-        prezzo: "€ 12",
-        storia:
-          "Nasce dall'orto del monastero: un modo di portare in tavola le verdure crude, tagliate fini come una tartare di carne, per esaltarne il sapore.",
-        ingredienti: ["Verdure di stagione", "Pane toscano", "Olio extravergine", "Erbe aromatiche"],
-        allergeni: ["Glutine"],
-      },
-      {
-        nome: "Crostone di pane toscano",
-        img: "/immagini/piatti/piatto-03.jpeg",
-        prezzo: "€ 10",
-        storia:
-          "Il pane sciocco toscano, tostato e arricchito con una crema di ceci: un richiamo diretto alla cucina povera contadina della Val d'Elsa.",
-        ingredienti: ["Pane toscano", "Ceci", "Aglio", "Rosmarino", "Olio extravergine"],
-        allergeni: ["Glutine"],
-      },
-    ],
+    nome: "Macedonia frutta e verdure di stagione",
+    nomeEn: "Seasonal vegetable and fruit salad",
+    img: "/immagini/piatti/piatto-12.jpg",
+    ingredienti: ["Verdure di stagione", "Frutta di stagione", "Erbe aromatiche"],
+    allergeni: [],
   },
   {
-    nome: "Primi",
-    piatti: [
-      {
-        nome: "Risotto carnaroli al pesto",
-        img: "/immagini/piatti/risotto-pesto.jpg",
-        prezzo: "€ 16",
-        storia:
-          "Il piatto più richiesto della carta: un risotto mantecato senza burro né formaggio, con un pesto di basilico ed erbe dell'orto che ne esalta la cremosità.",
-        ingredienti: ["Riso carnaroli", "Basilico", "Pinoli", "Olio extravergine", "Lievito alimentare"],
-        allergeni: ["Frutta a guscio"],
-      },
-      {
-        nome: "Risotto viola con cipolla rossa",
-        img: "/immagini/piatti/piatto-risotto-viola.jpeg",
-        prezzo: "€ 15",
-        storia:
-          "Il colore arriva dal cavolo viola, usato per mantecare il riso insieme a una reduzione di cipolla rossa caramellata.",
-        ingredienti: ["Riso carnaroli", "Cavolo viola", "Cipolla rossa", "Brodo vegetale"],
-        allergeni: [],
-      },
-      {
-        nome: "Tortelli alle melanzane",
-        img: "/immagini/piatti/tortelli-melanzane.jpg",
-        prezzo: "€ 15",
-        storia:
-          "Pasta fresca senza uova, ripiena di melanzane arrostite, su una crema di pomodoro confit fatta con i pomodori dell'estate.",
-        ingredienti: ["Farina di grano duro", "Melanzane", "Pomodoro confit", "Basilico"],
-        allergeni: ["Glutine"],
-      },
-    ],
+    nome: "Zucchina, cetriolo, mandorla e capperi",
+    nomeEn: "Courgette, cucumber, almond and capers",
+    img: "/immagini/piatti/vegan.jpg",
+    ingredienti: ["Zucchina", "Cetriolo", "Mandorla", "Capperi"],
+    allergeni: ["Frutta a guscio (mandorla)"],
   },
   {
-    nome: "Secondi",
-    piatti: [
-      {
-        nome: "Piatto vegetale dello chef",
-        img: "/immagini/piatti/piatto-14.jpeg",
-        prezzo: "€ 18",
-        storia:
-          "Una composizione che cambia ogni settimana in base a cosa offre l'orto: legumi, radici e verdure di stagione cucinate con tecniche diverse nello stesso piatto.",
-        ingredienti: ["Legumi di stagione", "Verdure dell'orto", "Erbe aromatiche", "Olio extravergine"],
-        allergeni: [],
-      },
-      {
-        nome: "Composizione di legumi e cereali",
-        img: "/immagini/piatti/piatto-17.jpeg",
-        prezzo: "€ 17",
-        storia:
-          "Un piatto pensato per essere completo e sostanzioso: cereali integrali, legumi e verdure arrostite, conditi con un'emulsione di erbe.",
-        ingredienti: ["Cereali integrali", "Legumi", "Verdure arrostite", "Erbe aromatiche"],
-        allergeni: ["Glutine"],
-      },
-    ],
+    nome: "Essenziale di panzanella",
+    nomeEn: "Tomato, cucumber, onion, bread",
+    img: "/immagini/piatti/piatto-13.jpeg",
+    ingredienti: ["Pomodoro", "Cetriolo", "Cipolla", "Pane toscano"],
+    allergeni: ["Glutine"],
   },
   {
-    nome: "Dolci",
-    piatti: [
-      {
-        nome: "Dolce della casa",
-        img: "/immagini/piatti/dolce.jpg",
-        prezzo: "€ 8",
-        storia:
-          "La ricetta cambia con le stagioni: frutta del territorio, una base di frutta secca e nessun ingrediente di origine animale.",
-        ingredienti: ["Frutta di stagione", "Frutta secca", "Sciroppo d'acero"],
-        allergeni: ["Frutta a guscio"],
-      },
-      {
-        nome: "Dessert vegetale al cioccolato",
-        img: "/immagini/piatti/dolce-2.jpg",
-        prezzo: "€ 9",
-        storia:
-          "Una mousse densa a base di cioccolato fondente e legumi, per una consistenza cremosa senza panna né uova.",
-        ingredienti: ["Cioccolato fondente", "Ceci o fagioli neri", "Sciroppo d'acero", "Vaniglia"],
-        allergeni: ["Soia (tracce)"],
-      },
-    ],
+    nome: "Taco Toscano",
+    nomeEn: "Taco, white beans, pappa al pomodoro and onions",
+    img: "/immagini/piatti/piatto-03.jpeg",
+    ingredienti: ["Taco", "Fagioli bianchi", "Pappa al pomodoro", "Cipolle"],
+    allergeni: ["Glutine"],
   },
   {
-    nome: "Colazione (per chi soggiorna)",
-    piatti: [
-      {
-        nome: "Colazione dell'Osteria",
-        img: "/immagini/piatti/colazione.jpg",
-        prezzo: "Incluso nel soggiorno",
-        storia:
-          "Una colazione dolce e salata con prodotti locali, servita ogni mattina nella sala del monastero a chi pernotta in camera.",
-        ingredienti: ["Pane e dolci da forno", "Marmellate", "Frutta fresca", "Bevande calde", "Spremuta d'arancia"],
-        allergeni: ["Glutine", "Frutta a guscio"],
-      },
-    ],
+    nome: "Spaghetti, spirulina, nori e salicornia",
+    nomeEn: "Spaghetti, spirulina and salicornia seaweed",
+    img: "/immagini/piatti/piatto-20.jpeg",
+    ingredienti: ["Spaghetti", "Spirulina", "Alga nori", "Salicornia"],
+    allergeni: ["Glutine"],
+  },
+  {
+    nome: "Pasta fresca fatta a mano del mese",
+    nomeEn: "Homemade handmade pasta",
+    img: "/immagini/piatti/piatto-10.jpeg",
+    ingredienti: ["Pasta fresca fatta a mano", "Ricetta e condimento del mese"],
+    allergeni: ["Glutine", "Può contenere uova"],
+  },
+  {
+    nome: "Anguria BBQ, purè di patate al parmigiano, cipolle",
+    nomeEn: "BBQ watermelon, parmesan potato puree, onions",
+    img: "/immagini/piatti/piatto-04.jpeg",
+    ingredienti: ["Anguria grigliata", "Purè di patate", "Parmigiano", "Cipolle caramellate"],
+    allergeni: ["Lattosio"],
+  },
+  {
+    nome: "Melanzana, hummus, uvetta e basilico",
+    nomeEn: "Roasted eggplant, hummus, raisins and basil",
+    img: "/immagini/piatti/piatto-01.jpeg",
+    ingredienti: ["Melanzana arrostita", "Hummus di ceci", "Uvetta", "Basilico"],
+    allergeni: ["Sesamo (tahin)"],
   },
 ];
+
+const risottoDelMese = {
+  nome: "Risotto del mese",
+  nomeEn: "Risotto of the month",
+  ingredienti: ["Riso carnaroli", "Ricetta a rotazione mensile in base alla stagione"],
+  allergeni: ["Può contenere lattosio, a seconda della ricetta del mese"],
+  varianti: [
+    { img: "/immagini/piatti/risotto-pesto.jpg", alt: "Risotto al pesto" },
+    { img: "/immagini/piatti/piatto-risotto-viola.jpeg", alt: "Risotto viola con cipolla rossa" },
+    { img: "/immagini/piatti/piatto-06.jpeg", alt: "Risotto alla zucca" },
+    { img: "/immagini/piatti/piatto-07.jpeg", alt: "Risotto verde alle erbe" },
+  ],
+};
+
+const dolci = {
+  nome: "Desserts",
+  nomeEn: "Daily selection",
+  testo: "Una selezione di dolci che cambia ogni giorno in base a cosa prepara la cucina.",
+  foto: [
+    { img: "/immagini/piatti/dolce.jpg", alt: "Dolce della casa" },
+    { img: "/immagini/piatti/dolce-2.jpg", alt: "Dessert della casa con crumble" },
+    { img: "/immagini/piatti/piatto-17.jpeg", alt: "Dessert cremoso con crumble" },
+  ],
+};
 ---
 
 <Layout
   title="Menu — Osteria del Vicario"
-  description="Il menu stagionale 100% vegetale dell'Osteria del Vicario, Certaldo Alto: piatti, ingredienti e allergeni."
+  description="Menu à la carte dell'Osteria del Vicario, Certaldo Alto: piatti, ingredienti e allergeni."
 >
   <NavFunnel />
 
   <PageHeader
     image="/immagini/piatti/risotto-pesto.jpg"
-    eyebrow="La cucina"
+    eyebrow="Menu à la carte"
     title="Il nostro menu"
-    text="Un menu di stagione, interamente vegetale. Per ogni piatto trovi la storia, gli ingredienti principali e gli allergeni presenti."
+    text="Ad ogni commensale è richiesto di selezionare un minimo di 2 portate. Per ogni piatto trovi ingredienti e allergeni indicativi."
   />
 
   <main>
+    <section class="pricing">
+      <div class="pricing-card">
+        <span class="pricing-n">2</span>
+        <span class="pricing-label">portate</span>
+        <span class="pricing-price">€ 40</span>
+      </div>
+      <div class="pricing-card">
+        <span class="pricing-n">3</span>
+        <span class="pricing-label">portate</span>
+        <span class="pricing-price">€ 50</span>
+      </div>
+      <div class="pricing-card">
+        <span class="pricing-n">4</span>
+        <span class="pricing-label">portate</span>
+        <span class="pricing-price">€ 65</span>
+      </div>
+    </section>
+
     <p class="placeholder-note">
-      * Menu indicativo: piatti, prezzi e allergeni in fase di conferma con la cucina. Per
-      allergie e intolleranze specifiche, segnalacelo al momento della prenotazione.
+      * Allergeni indicativi in attesa di conferma definitiva dalla cucina. Per allergie e
+      intolleranze specifiche, segnalacelo al momento della prenotazione.
     </p>
 
-    {sezioni.map((s) => (
-      <section class="menu-sezione">
-        <h2>{s.nome}</h2>
-        <div class="piatti-grid">
-          {s.piatti.map((p) => (
-            <article class="piatto-card tilt-card glass">
-              <div class="piatto-img">
-                <img src={p.img} alt={p.nome} loading="lazy" width="400" height="300" />
-              </div>
-              <div class="piatto-body">
-                <div class="piatto-head">
-                  <h3>{p.nome}</h3>
-                  <span class="prezzo">{p.prezzo}</span>
+    <section class="menu-sezione">
+      <div class="piatti-grid">
+        {piatti.map((p) => (
+          <article class="piatto-card tilt-card glass">
+            <div class="piatto-img">
+              <img src={p.img} alt={p.nome} loading="lazy" width="400" height="300" />
+            </div>
+            <div class="piatto-body">
+              <h3>{p.nome}</h3>
+              <p class="nome-en">{p.nomeEn}</p>
+              <div class="piatto-meta">
+                <div class="meta-block">
+                  <span class="meta-label">Ingredienti</span>
+                  <p>{p.ingredienti.join(", ")}</p>
                 </div>
-                <p class="storia">{p.storia}</p>
-                <div class="piatto-meta">
-                  <div class="meta-block">
-                    <span class="meta-label">Ingredienti</span>
-                    <p>{p.ingredienti.join(", ")}</p>
-                  </div>
-                  <div class="meta-block">
-                    <span class="meta-label">Allergeni</span>
-                    <p>{p.allergeni.length > 0 ? p.allergeni.join(", ") : "Nessuno dichiarato"}</p>
-                  </div>
+                <div class="meta-block">
+                  <span class="meta-label">Allergeni</span>
+                  <p>{p.allergeni.length > 0 ? p.allergeni.join(", ") : "Nessuno dichiarato"}</p>
                 </div>
               </div>
-            </article>
-          ))}
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="menu-sezione">
+      <h2>{risottoDelMese.nome}</h2>
+      <p class="sezione-sub">{risottoDelMese.nomeEn}</p>
+      <div class="variant-gallery">
+        {risottoDelMese.varianti.map((v) => (
+          <div class="variant-item tilt-card">
+            <img src={v.img} alt={v.alt} loading="lazy" width="300" height="220" />
+          </div>
+        ))}
+      </div>
+      <div class="piatto-meta risotto-meta">
+        <div class="meta-block">
+          <span class="meta-label">Ingredienti</span>
+          <p>{risottoDelMese.ingredienti.join(", ")}</p>
         </div>
-      </section>
-    ))}
+        <div class="meta-block">
+          <span class="meta-label">Allergeni</span>
+          <p>{risottoDelMese.allergeni.join(", ")}</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="menu-sezione">
+      <h2>{dolci.nome}</h2>
+      <p class="sezione-sub">{dolci.nomeEn}</p>
+      <p class="dolci-testo">{dolci.testo}</p>
+      <div class="variant-gallery">
+        {dolci.foto.map((d) => (
+          <div class="variant-item tilt-card">
+            <img src={d.img} alt={d.alt} loading="lazy" width="300" height="220" />
+          </div>
+        ))}
+      </div>
+    </section>
 
     <div class="menu-cta">
       <a class="btn btn-cotto" href="/tavolo">Prenota un tavolo</a>
@@ -195,24 +207,84 @@ const sezioni = [
     padding: 4rem clamp(1.5rem, 6vw, 6rem) 6rem;
   }
 
+  .pricing {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .pricing-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 1.2rem 1.8rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(232, 177, 90, 0.25);
+    background: rgba(242, 233, 215, 0.04);
+  }
+
+  .pricing-n {
+    font-family: var(--font-display);
+    color: var(--oro-sera);
+    font-size: 1.6rem;
+  }
+
+  .pricing-label {
+    color: var(--avorio);
+    opacity: 0.7;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .pricing-price {
+    color: var(--candela);
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    margin-top: 0.3rem;
+  }
+
   .placeholder-note {
     color: var(--ardesia);
     font-size: 0.8rem;
     margin-bottom: 3rem;
     max-width: 700px;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .menu-sezione {
-    margin-bottom: 3.5rem;
+    margin-bottom: 4rem;
   }
 
   .menu-sezione h2 {
     font-family: var(--font-display);
     color: var(--oro-sera);
     font-size: 1.4rem;
-    border-bottom: 1px solid rgba(232, 177, 90, 0.25);
-    padding-bottom: 0.6rem;
-    margin-bottom: 1.5rem;
+    margin: 0 0 0.3rem;
+    text-align: center;
+  }
+
+  .sezione-sub {
+    color: var(--avorio);
+    opacity: 0.6;
+    font-style: italic;
+    font-size: 0.9rem;
+    text-align: center;
+    margin: 0 0 1.5rem;
+  }
+
+  .dolci-testo {
+    color: var(--avorio);
+    opacity: 0.8;
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto 1.5rem;
+    line-height: 1.6;
   }
 
   .piatti-grid {
@@ -243,35 +315,21 @@ const sezioni = [
     padding: 1.4rem;
     display: flex;
     flex-direction: column;
-    gap: 0.8rem;
+    gap: 0.6rem;
   }
 
-  .piatto-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 0.8rem;
-  }
-
-  .piatto-head h3 {
+  .piatto-body h3 {
     color: var(--avorio);
     font-family: var(--font-display);
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     margin: 0;
   }
 
-  .prezzo {
-    color: var(--candela);
-    font-family: var(--font-display);
-    white-space: nowrap;
-    font-size: 0.95rem;
-  }
-
-  .storia {
+  .nome-en {
     color: var(--avorio);
-    opacity: 0.8;
-    font-size: 0.9rem;
-    line-height: 1.6;
+    opacity: 0.55;
+    font-style: italic;
+    font-size: 0.85rem;
     margin: 0;
   }
 
@@ -281,6 +339,12 @@ const sezioni = [
     gap: 0.5rem;
     border-top: 1px solid rgba(242, 233, 215, 0.1);
     padding-top: 0.8rem;
+    margin-top: 0.4rem;
+  }
+
+  .risotto-meta {
+    max-width: 600px;
+    margin: 1.5rem auto 0;
   }
 
   .meta-label {
@@ -300,6 +364,25 @@ const sezioni = [
     line-height: 1.5;
   }
 
+  .variant-gallery {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+
+  .variant-item {
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: 0.6rem;
+    border: 1px solid rgba(242, 233, 215, 0.08);
+  }
+
+  .variant-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
   .menu-cta {
     text-align: center;
     margin-top: 1rem;
@@ -308,6 +391,9 @@ const sezioni = [
   @media (max-width: 760px) {
     .piatti-grid {
       grid-template-columns: 1fr;
+    }
+    .variant-gallery {
+      grid-template-columns: repeat(2, 1fr);
     }
   }
 </style>
