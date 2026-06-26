@@ -1,0 +1,97 @@
+---
+const faqs = [
+  { q: "Gli animali sono ammessi?", a: "Gli animali domestici di piccola taglia sono ammessi su richiesta, sia in sala che in camera. Contattaci prima della prenotazione." },
+  { q: "C'è un parcheggio disponibile?", a: "Certaldo Alto è un borgo pedonale: il parcheggio più vicino si trova ai piedi del borgo, raggiungibile a piedi o con la funicolare." },
+  { q: "Gestite allergie e intolleranze alimentari?", a: "Sì, la cucina è interamente vegetale e possiamo adattare i piatti a celiachia, intolleranze al glutine, alla frutta a guscio e altre esigenze segnalate in anticipo." },
+  { q: "A che ora è il check-in e il check-out?", a: "Il check-in è dalle 15:00, il check-out entro le 11:00. Orari diversi sono possibili su richiesta, in base alla disponibilità." },
+  { q: "Si può cenare senza prenotazione?", a: "Consigliamo sempre la prenotazione, soprattutto nei fine settimana, perché la sala ha un numero limitato di tavoli." },
+  { q: "La colazione è inclusa nel soggiorno?", a: "Sì, per chi soggiorna in camera la colazione dolce e salata è inclusa e viene servita nella sala del monastero." },
+];
+
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqs.map((f) => ({
+    "@type": "Question",
+    name: f.q,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: f.a,
+    },
+  })),
+};
+---
+
+<section class="faq" id="faq">
+  <p class="eyebrow">Domande frequenti</p>
+  <h2>Tutto quello che vuoi sapere</h2>
+  <div class="faq-list">
+    {faqs.map((f) => (
+      <details class="faq-item">
+        <summary>{f.q}</summary>
+        <p>{f.a}</p>
+      </details>
+    ))}
+  </div>
+</section>
+
+<script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />
+
+<style>
+  .faq {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 5rem clamp(1.5rem, 6vw, 6rem);
+    text-align: center;
+  }
+
+  .faq h2 {
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    color: var(--avorio);
+    margin: 0.6rem 0 3rem;
+  }
+
+  .faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    text-align: left;
+  }
+
+  .faq-item {
+    background: rgba(242, 233, 215, 0.04);
+    border: 1px solid rgba(242, 233, 215, 0.1);
+    border-radius: 0.75rem;
+    padding: 1rem 1.4rem;
+  }
+
+  .faq-item summary {
+    color: var(--avorio);
+    font-family: var(--font-display);
+    font-size: 1.02rem;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .faq-item summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq-item summary::after {
+    content: "+";
+    float: right;
+    color: var(--oro-sera);
+  }
+
+  .faq-item[open] summary::after {
+    content: "−";
+  }
+
+  .faq-item p {
+    color: var(--avorio);
+    opacity: 0.8;
+    line-height: 1.6;
+    margin: 0.8rem 0 0;
+    font-size: 0.92rem;
+  }
+</style>

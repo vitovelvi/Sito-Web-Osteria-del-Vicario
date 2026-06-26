@@ -1,0 +1,83 @@
+---
+import Layout from "../layouts/Layout.astro";
+import NavFunnel from "../components/NavFunnel.astro";
+import PageHeader from "../components/PageHeader.astro";
+import Footer from "../components/Footer.astro";
+---
+
+<Layout
+  title="Chi siamo — Osteria del Vicario"
+  description="La storia del monastero del 1100 a Certaldo Alto, oggi sede dell'Osteria del Vicario: cucina vegetale d'autore e B&B."
+>
+  <NavFunnel />
+
+  <PageHeader
+    image="/immagini/luogo/chiostro-cortile.jpeg"
+    eyebrow="La nostra storia"
+    title="Chi siamo"
+    text="Nove secoli di storia tra le pietre di Certaldo Alto, oggi al servizio di una cucina solo vegetale."
+  />
+
+  <main>
+    <section class="storia">
+      <h2>Un monastero del XII secolo</h2>
+      <p>
+        L'edificio che oggi ospita l'Osteria del Vicario nasce come monastero nel 1100,
+        nel cuore del borgo medievale di Certaldo Alto. Le mura in pietra, gli archi del
+        cortile interno e i soffitti a volta raccontano ancora oggi la vita di chi li ha
+        abitati prima di noi.
+      </p>
+      <p>
+        Abbiamo scelto di non snaturare questi spazi: la sala da pranzo, le camere del B&B
+        e gli ambienti comuni mantengono il carattere originario, con interventi minimi e
+        rispettosi della storia del luogo.
+      </p>
+    </section>
+
+    <section class="cucina">
+      <h2>Una cucina interamente vegetale</h2>
+      <p>
+        La nostra cucina lavora esclusivamente verdure, legumi ed erbe del territorio.
+        Non è una scelta di tendenza, ma un modo di reinterpretare la tradizione toscana
+        partendo dall'orto e dalla stagionalità, con tecniche contemporanee e ingredienti
+        a km zero quando possibile.
+      </p>
+    </section>
+
+    <section class="team">
+      <h2>Chi ci accoglie</h2>
+      <p>
+        Un piccolo team che vive il monastero ogni giorno: in cucina, in sala e nella
+        gestione delle camere, con l'obiettivo di rendere ogni soggiorno semplice e
+        autentico, dal primo contatto al check-out.
+      </p>
+    </section>
+  </main>
+
+  <Footer />
+</Layout>
+
+<style>
+  main {
+    background: var(--notte);
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 4rem clamp(1.5rem, 6vw, 6rem) 6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+  }
+
+  h2 {
+    font-size: clamp(1.5rem, 3vw, 2.1rem);
+    color: var(--avorio);
+    margin: 0 0 1rem;
+  }
+
+  p {
+    color: var(--avorio);
+    opacity: 0.85;
+    line-height: 1.75;
+    margin: 0 0 1rem;
+  }
+</style>

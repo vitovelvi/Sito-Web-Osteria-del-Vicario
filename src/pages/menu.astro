@@ -1,0 +1,147 @@
+---
+import Layout from "../layouts/Layout.astro";
+import NavFunnel from "../components/NavFunnel.astro";
+import PageHeader from "../components/PageHeader.astro";
+import Footer from "../components/Footer.astro";
+
+const sezioni = [
+  {
+    nome: "Antipasti",
+    piatti: [
+      { nome: "Tartare di verdure di stagione", desc: "con crumble di pane e olio nuovo", prezzo: "€ 12" },
+      { nome: "Crostone di pane toscano", desc: "con crema di ceci e erbe del territorio", prezzo: "€ 10" },
+    ],
+  },
+  {
+    nome: "Primi",
+    piatti: [
+      { nome: "Risotto carnaroli al pesto", desc: "con chips di verdure e crema vegetale", prezzo: "€ 16" },
+      { nome: "Tortelli alle melanzane", desc: "su crema di pomodoro confit", prezzo: "€ 15" },
+    ],
+  },
+  {
+    nome: "Secondi",
+    piatti: [
+      { nome: "Piatto vegetale dello chef", desc: "composizione di stagione, ricetta a rotazione", prezzo: "€ 18" },
+    ],
+  },
+  {
+    nome: "Dolci",
+    piatti: [
+      { nome: "Dolce della casa", desc: "ricetta vegetale, ingredienti del territorio", prezzo: "€ 8" },
+    ],
+  },
+];
+---
+
+<Layout
+  title="Menu — Osteria del Vicario"
+  description="Il menu stagionale 100% vegetale dell'Osteria del Vicario, Certaldo Alto."
+>
+  <NavFunnel />
+
+  <PageHeader
+    image="/immagini/piatti/risotto-pesto.jpg"
+    eyebrow="La cucina"
+    title="Il nostro menu"
+    text="Un menu di stagione, interamente vegetale. I piatti e i prezzi possono variare in base alla disponibilità dell'orto."
+  />
+
+  <main>
+    <p class="placeholder-note">* Menu indicativo: piatti e prezzi reali in fase di conferma.</p>
+    {sezioni.map((s) => (
+      <section class="menu-sezione">
+        <h2>{s.nome}</h2>
+        <ul>
+          {s.piatti.map((p) => (
+            <li>
+              <div class="piatto-info">
+                <strong>{p.nome}</strong>
+                <span>{p.desc}</span>
+              </div>
+              <span class="prezzo">{p.prezzo}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
+
+    <div class="menu-cta">
+      <a class="btn btn-cotto" href="/tavolo">Prenota un tavolo</a>
+    </div>
+  </main>
+
+  <Footer />
+</Layout>
+
+<style>
+  main {
+    background: var(--notte);
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 4rem clamp(1.5rem, 6vw, 6rem) 6rem;
+  }
+
+  .placeholder-note {
+    color: var(--ardesia);
+    font-size: 0.8rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .menu-sezione {
+    margin-bottom: 2.5rem;
+  }
+
+  .menu-sezione h2 {
+    font-family: var(--font-display);
+    color: var(--oro-sera);
+    font-size: 1.3rem;
+    border-bottom: 1px solid rgba(232, 177, 90, 0.25);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .menu-sezione ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+
+  .menu-sezione li {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+  }
+
+  .piatto-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .piatto-info strong {
+    color: var(--avorio);
+    font-size: 1.02rem;
+  }
+
+  .piatto-info span {
+    color: var(--avorio);
+    opacity: 0.7;
+    font-size: 0.88rem;
+  }
+
+  .prezzo {
+    color: var(--candela);
+    font-family: var(--font-display);
+    white-space: nowrap;
+  }
+
+  .menu-cta {
+    text-align: center;
+    margin-top: 3rem;
+  }
+</style>

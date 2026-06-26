@@ -3,6 +3,14 @@ import Layout from "../layouts/Layout.astro";
 import NavFunnel from "../components/NavFunnel.astro";
 import Scene from "../components/Scene.astro";
 import FloatingEmblem from "../components/FloatingEmblem.astro";
+import TrustBar from "../components/TrustBar.astro";
+import ProblemSolution from "../components/ProblemSolution.astro";
+import Servizi from "../components/Servizi.astro";
+import ComeFunziona from "../components/ComeFunziona.astro";
+import PercheNoi from "../components/PercheNoi.astro";
+import Testimonianze from "../components/Testimonianze.astro";
+import FAQ from "../components/FAQ.astro";
+import Footer from "../components/Footer.astro";
 
 const journey = [
   {
@@ -55,6 +63,8 @@ const journey = [
 <Layout title="Osteria del Vicario — Certaldo Alto">
   <NavFunnel />
 
+  <TrustBar />
+
   <main>
     {journey.map((scene, i) => (
       <div class="scene-wrap">
@@ -79,7 +89,16 @@ const journey = [
       </div>
       <p class="closing-address">Via del Castello, Certaldo Alto (FI)</p>
     </footer>
+
+    <ProblemSolution />
+    <Servizi />
+    <ComeFunziona />
+    <PercheNoi />
+    <Testimonianze />
+    <FAQ />
   </main>
+
+  <Footer />
 
   <script>
     import { initScroll, initEmblem } from "../scripts/scroll.js";

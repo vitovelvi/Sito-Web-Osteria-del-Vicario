@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://osteriadelvicario.it/sitemap-index.xml

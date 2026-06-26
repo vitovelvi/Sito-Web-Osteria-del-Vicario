@@ -1,0 +1,79 @@
+---
+const recensioni = [
+  { nome: "Cliente Google", testo: "Un luogo unico, la cucina vegetale ci ha sorpreso. Da inserire recensione reale.", stelle: 5 },
+  { nome: "Cliente Google", testo: "Atmosfera magica nel monastero, camere comode. Da inserire recensione reale.", stelle: 5 },
+  { nome: "Cliente Google", testo: "Esperienza da ripetere, personale gentile. Da inserire recensione reale.", stelle: 5 },
+];
+---
+
+<section class="testimonianze" id="testimonianze">
+  <p class="eyebrow">Cosa dicono di noi</p>
+  <h2>Le voci di chi è già stato qui</h2>
+  <p class="placeholder-note">* Recensioni in attesa di conferma con i dati reali di Google/TripAdvisor.</p>
+  <div class="rec-grid">
+    {recensioni.map((r) => (
+      <div class="rec-card glass">
+        <div class="stars" aria-label={`${r.stelle} stelle`}>{"★".repeat(r.stelle)}</div>
+        <p>"{r.testo}"</p>
+        <strong>{r.nome}</strong>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  .testimonianze {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 5rem clamp(1.5rem, 6vw, 6rem);
+    text-align: center;
+  }
+
+  .testimonianze h2 {
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    color: var(--avorio);
+    margin: 0.6rem 0 0.8rem;
+  }
+
+  .placeholder-note {
+    color: var(--ardesia);
+    font-size: 0.78rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .rec-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    text-align: left;
+  }
+
+  .rec-card {
+    padding: 1.8rem;
+    border-radius: 1rem;
+  }
+
+  .stars {
+    color: var(--oro-sera);
+    margin-bottom: 0.8rem;
+  }
+
+  .rec-card p {
+    color: var(--avorio);
+    opacity: 0.85;
+    line-height: 1.6;
+    font-size: 0.92rem;
+    margin: 0 0 1rem;
+  }
+
+  .rec-card strong {
+    color: var(--oro-sera);
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 900px) {
+    .rec-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

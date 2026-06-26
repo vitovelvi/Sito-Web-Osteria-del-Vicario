@@ -1,0 +1,63 @@
+---
+---
+
+<section class="problem-solution">
+  <div class="ps-col">
+    <p class="eyebrow">Cerchi un'esperienza diversa?</p>
+    <h2>Stanco dei soliti ristoranti toscani senza carattere?</h2>
+    <p>
+      Tra Firenze e Siena è facile trovare cucina di tradizione, difficile trovare un
+      luogo che unisca storia autentica, cucina vegetale di livello e la possibilità
+      di restare a dormire dove hai cenato.
+    </p>
+  </div>
+  <div class="ps-col ps-solution">
+    <p class="eyebrow">La nostra risposta</p>
+    <h2>Un monastero del 1100, una cucina solo vegetale, le camere sopra la sala</h2>
+    <p>
+      All'Osteria del Vicario cena e soggiorno nascono nello stesso luogo: le pietre
+      di un monastero del XII secolo a Certaldo Alto, una cucina che lavora solo
+      verdure, legumi ed erbe del territorio, e camere a pochi passi dal tavolo.
+    </p>
+  </div>
+</section>
+
+<style>
+  .problem-solution {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 5rem clamp(1.5rem, 6vw, 6rem);
+  }
+
+  .ps-col h2 {
+    font-size: clamp(1.5rem, 2.6vw, 2rem);
+    color: var(--avorio);
+    margin: 0.6rem 0 1rem;
+  }
+
+  .ps-col p:not(.eyebrow) {
+    color: var(--avorio);
+    opacity: 0.8;
+    line-height: 1.7;
+  }
+
+  .ps-solution {
+    border-left: 1px solid rgba(232, 177, 90, 0.25);
+    padding-left: 2.5rem;
+  }
+
+  @media (max-width: 760px) {
+    .problem-solution {
+      grid-template-columns: 1fr;
+    }
+    .ps-solution {
+      border-left: none;
+      border-top: 1px solid rgba(232, 177, 90, 0.25);
+      padding-left: 0;
+      padding-top: 2rem;
+    }
+  }
+</style>

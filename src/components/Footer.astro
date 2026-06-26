@@ -1,0 +1,116 @@
+---
+---
+
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <img src="/immagini/dettagli/logo.png" alt="Osteria del Vicario" />
+      <p>Cucina vegetale d'autore e B&B in un monastero del 1100.</p>
+    </div>
+
+    <div class="footer-col">
+      <h3>Contatti</h3>
+      <p>Via del Castello<br />Certaldo Alto (FI)</p>
+      <p><a href="tel:+390571000000">+39 0571 000000</a></p>
+      <p><a href="mailto:info@osteriadelvicario.it">info@osteriadelvicario.it</a></p>
+    </div>
+
+    <div class="footer-col">
+      <h3>Orari</h3>
+      <p>Cena: 19:30 – 22:30<br />Chiuso il martedì</p>
+      <p>Check-in B&B: dalle 15:00</p>
+    </div>
+
+    <div class="footer-col">
+      <h3>Esplora</h3>
+      <p><a href="/tavolo">Prenota un tavolo</a></p>
+      <p><a href="/camere">Prenota una camera</a></p>
+      <p><a href="/chi-siamo">Chi siamo</a></p>
+    </div>
+
+    <div class="footer-col">
+      <h3>Seguici</h3>
+      <p><a href="https://instagram.com" target="_blank" rel="noopener">Instagram</a></p>
+      <p><a href="https://facebook.com" target="_blank" rel="noopener">Facebook</a></p>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p>&copy; {new Date().getFullYear()} Osteria del Vicario. Tutti i diritti riservati.</p>
+    <p>P.IVA 00000000000</p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--notte);
+    border-top: 1px solid rgba(242, 233, 215, 0.1);
+    padding: 4rem clamp(1.5rem, 6vw, 6rem) 2rem;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr;
+    gap: 2rem;
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+
+  .footer-brand img {
+    height: 36px;
+    margin-bottom: 0.75rem;
+  }
+
+  .footer-brand p {
+    color: var(--avorio);
+    opacity: 0.7;
+    font-size: 0.9rem;
+    max-width: 220px;
+  }
+
+  .footer-col h3 {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--oro-sera);
+    margin-bottom: 0.9rem;
+  }
+
+  .footer-col p {
+    color: var(--avorio);
+    opacity: 0.8;
+    font-size: 0.9rem;
+    margin: 0 0 0.6rem;
+    line-height: 1.5;
+  }
+
+  .footer-col a:hover {
+    color: var(--oro-sera);
+  }
+
+  .footer-bottom {
+    max-width: 1280px;
+    margin: 3rem auto 0;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(242, 233, 215, 0.08);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    color: var(--ardesia);
+    font-size: 0.8rem;
+  }
+
+  @media (max-width: 900px) {
+    .footer-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 560px) {
+    .footer-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
