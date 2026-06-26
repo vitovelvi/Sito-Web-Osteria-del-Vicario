@@ -104,6 +104,51 @@ button {
   transform: translateY(-2px);
 }
 
+.glass {
+  background: linear-gradient(
+    135deg,
+    rgba(242, 233, 215, 0.14),
+    rgba(242, 233, 215, 0.04)
+  );
+  border: 1px solid rgba(242, 233, 215, 0.18);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  box-shadow: 0 8px 32px rgba(33, 23, 16, 0.35);
+}
+
+.btn-cotto {
+  background: linear-gradient(135deg, var(--cotto), var(--candela));
+  color: var(--avorio);
+  box-shadow: 0 4px 18px rgba(176, 90, 48, 0.35);
+}
+
+.btn-cotto:hover {
+  background: linear-gradient(135deg, var(--candela), var(--oro-sera));
+  color: var(--notte);
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 8px 26px rgba(232, 177, 90, 0.45);
+}
+
+.btn-outline {
+  background: rgba(242, 233, 215, 0.06);
+  backdrop-filter: blur(10px);
+}
+
+.btn-outline:hover {
+  background: rgba(242, 233, 215, 0.1);
+  transform: translateY(-2px) scale(1.03);
+}
+
+.tilt-card {
+  transform-style: preserve-3d;
+  will-change: transform;
+  transition: transform 0.15s ease-out, box-shadow 0.3s ease;
+}
+
+.tilt-card:hover {
+  box-shadow: 0 18px 40px rgba(33, 23, 16, 0.5);
+}
+
 /* Lenis smooth scroll */
 html.lenis {
   height: auto;

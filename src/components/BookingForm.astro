@@ -75,10 +75,16 @@ const isTavolo = type === "tavolo";
     display: grid;
     grid-template-columns: 1.4fr 1fr;
     gap: 2.5rem;
-    background: rgba(74, 78, 84, 0.15);
-    border: 1px solid rgba(242, 233, 215, 0.12);
-    border-radius: 1rem;
+    border-radius: 1.25rem;
     padding: clamp(1.5rem, 4vw, 3rem);
+    background: linear-gradient(
+      135deg,
+      rgba(242, 233, 215, 0.1),
+      rgba(242, 233, 215, 0.03)
+    );
+    border: 1px solid rgba(242, 233, 215, 0.16);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
   }
 
   .booking-form {

@@ -62,3 +62,51 @@ export function initScroll() {
 
   return lenis;
 }
+
+export function initEmblem() {
+  const stage = document.getElementById("emblem-stage");
+  const emblem = document.getElementById("emblem-3d");
+  if (!stage || !emblem) return;
+
+  gsap.to(emblem, {
+    y: -18,
+    rotateZ: 3,
+    duration: 2.6,
+    ease: "sine.inOut",
+    yoyo: true,
+    repeat: -1,
+  });
+
+  const quickX = gsap.quickTo(emblem, "rotateY", { duration: 0.6, ease: "power3" });
+  const quickY = gsap.quickTo(emblem, "rotateX", { duration: 0.6, ease: "power3" });
+
+  window.addEventListener("pointermove", (event) => {
+    const { innerWidth, innerHeight } = window;
+    const relX = (event.clientX / innerWidth - 0.5) * 2;
+    const relY = (event.clientY / innerHeight - 0.5) * 2;
+    quickX(relX * 22);
+    quickY(relY * -16);
+  });
+}
+
+export function initTilt(selector = ".tilt-card") {
+  const cards = gsap.utils.toArray(selector);
+
+  cards.forEach((card) => {
+    const quickX = gsap.quickTo(card, "rotateY", { duration: 0.4, ease: "power3" });
+    const quickY = gsap.quickTo(card, "rotateX", { duration: 0.4, ease: "power3" });
+
+    card.addEventListener("pointermove", (event) => {
+      const rect = card.getBoundingClientRect();
+      const relX = (event.clientX - rect.left) / rect.width - 0.5;
+      const relY = (event.clientY - rect.top) / rect.height - 0.5;
+      quickX(relX * 14);
+      quickY(relY * -14);
+    });
+
+    card.addEventListener("pointerleave", () => {
+      quickX(0);
+      quickY(0);
+    });
+  });
+}

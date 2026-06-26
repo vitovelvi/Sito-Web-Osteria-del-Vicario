@@ -1,0 +1,63 @@
+---
+---
+
+<div class="emblem-stage" id="emblem-stage">
+  <div class="emblem-3d" id="emblem-3d">
+    <img src="/immagini/dettagli/logo.png" alt="Stemma Osteria del Vicario" />
+    <div class="emblem-glow"></div>
+  </div>
+</div>
+
+<style>
+  .emblem-stage {
+    position: absolute;
+    right: clamp(1rem, 6vw, 8rem);
+    top: 50%;
+    width: clamp(180px, 24vw, 340px);
+    height: clamp(180px, 24vw, 340px);
+    perspective: 900px;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  .emblem-3d {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+
+  .emblem-3d img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 25px 35px rgba(0, 0, 0, 0.55))
+      drop-shadow(0 0 30px rgba(232, 177, 90, 0.25));
+  }
+
+  .emblem-glow {
+    position: absolute;
+    inset: -20%;
+    background: radial-gradient(
+      circle,
+      rgba(232, 177, 90, 0.35),
+      transparent 70%
+    );
+    transform: translateZ(-60px);
+    filter: blur(8px);
+  }
+
+  @media (max-width: 760px) {
+    .emblem-stage {
+      right: 50%;
+      top: 30%;
+      transform: translateX(50%);
+      width: clamp(140px, 38vw, 220px);
+      height: clamp(140px, 38vw, 220px);
+      opacity: 0.85;
+    }
+  }
+</style>

@@ -13,7 +13,7 @@ const { items } = Astro.props;
 
 <div class="gallery">
   {items.map((item) => (
-    <div class="gallery-item">
+    <div class="gallery-item tilt-card">
       <img src={item.src} alt={item.alt} loading="lazy" />
     </div>
   ))}
@@ -24,12 +24,14 @@ const { items } = Astro.props;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 1rem;
+    perspective: 1000px;
   }
 
   .gallery-item {
     aspect-ratio: 4 / 3;
     overflow: hidden;
     border-radius: 0.5rem;
+    border: 1px solid rgba(242, 233, 215, 0.08);
   }
 
   .gallery-item img {

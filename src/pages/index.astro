@@ -2,6 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import NavFunnel from "../components/NavFunnel.astro";
 import Scene from "../components/Scene.astro";
+import FloatingEmblem from "../components/FloatingEmblem.astro";
 
 const journey = [
   {
@@ -55,15 +56,18 @@ const journey = [
   <NavFunnel />
 
   <main>
-    {journey.map((scene) => (
-      <Scene
-        image={scene.image}
-        alt={scene.alt}
-        eyebrow={scene.eyebrow}
-        title={scene.title}
-        text={scene.text}
-        cta={scene.cta}
-      />
+    {journey.map((scene, i) => (
+      <div class="scene-wrap">
+        <Scene
+          image={scene.image}
+          alt={scene.alt}
+          eyebrow={scene.eyebrow}
+          title={scene.title}
+          text={scene.text}
+          cta={scene.cta}
+        />
+        {i === 0 && <FloatingEmblem />}
+      </div>
     ))}
 
     <footer class="closing">
@@ -78,13 +82,19 @@ const journey = [
   </main>
 
   <script>
-    import { initScroll } from "../scripts/scroll.js";
+    import { initScroll, initEmblem } from "../scripts/scroll.js";
     initScroll();
+    initEmblem();
   </script>
 </Layout>
 
 <style>
+  .scene-wrap {
+    position: relative;
+  }
+
   .closing {
+    position: relative;
     min-height: 70vh;
     display: flex;
     flex-direction: column;
@@ -93,7 +103,12 @@ const journey = [
     text-align: center;
     gap: 1rem;
     padding: 4rem 1.5rem;
-    background: var(--notte);
+    background: radial-gradient(
+        circle at 50% 0%,
+        rgba(232, 177, 90, 0.12),
+        transparent 60%
+      ),
+      var(--notte);
   }
 
   .closing h2 {
