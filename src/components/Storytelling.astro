@@ -1,0 +1,51 @@
+---
+const righe = [
+  "Dormire in un monastero del 1100...",
+  "...non è semplicemente prenotare una camera.",
+  "È vivere Certaldo Alto.",
+];
+---
+
+<section class="storytelling" id="storytelling">
+  <div class="story-pin">
+    {righe.map((riga, i) => (
+      <p class="story-line" data-line={i}>{riga}</p>
+    ))}
+  </div>
+</section>
+
+<style>
+  .storytelling {
+    position: relative;
+    height: 300vh;
+    background: var(--notte);
+  }
+
+  .story-pin {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 0 clamp(1.5rem, 8vw, 8rem);
+  }
+
+  .story-line {
+    position: absolute;
+    max-width: 920px;
+    text-align: center;
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 5vw, 3.4rem);
+    line-height: 1.35;
+    color: var(--avorio);
+    margin: 0;
+  }
+
+  @media (max-width: 760px) {
+    .storytelling {
+      height: 240vh;
+    }
+  }
+</style>

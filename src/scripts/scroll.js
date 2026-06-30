@@ -99,6 +99,64 @@ export function initHero() {
   }
 }
 
+export function initHeroIntro() {
+  const hero = document.querySelector(".hero");
+  if (!hero) return;
+
+  const eyebrow = hero.querySelector(".eyebrow");
+  const h1 = hero.querySelector("h1");
+  const text = hero.querySelector(".hero-text");
+  const actions = hero.querySelector(".hero-actions");
+
+  gsap.set([eyebrow, h1, text, actions], { autoAlpha: 0, y: 30 });
+
+  const tl = gsap.timeline({ delay: 0.2 });
+  tl.to(eyebrow, { autoAlpha: 1, y: 0, duration: 0.8, ease: "power2.out" })
+    .to(h1, { autoAlpha: 1, y: 0, duration: 1, ease: "power2.out" }, "-=0.5")
+    .to(text, { autoAlpha: 1, y: 0, duration: 0.9, ease: "power2.out" }, "-=0.6")
+    .to(actions, { autoAlpha: 1, y: 0, duration: 0.7, ease: "power2.out" }, "+=0.5");
+}
+
+export function initNavScroll() {
+  const nav = document.querySelector(".nav-funnel.nav-transparent");
+  if (!nav) return;
+
+  const onScroll = () => {
+    nav.classList.toggle("scrolled", window.scrollY > 60);
+  };
+  onScroll();
+  window.addEventListener("scroll", onScroll, { passive: true });
+}
+
+export function initStorytelling(selector = ".storytelling") {
+  const section = document.querySelector(selector);
+  const pin = section?.querySelector(".story-pin");
+  if (!section || !pin) return;
+
+  const lines = gsap.utils.toArray(section.querySelectorAll(".story-line"));
+  if (!lines.length) return;
+
+  gsap.set(lines, { autoAlpha: 0, y: 30 });
+  gsap.set(lines[0], { autoAlpha: 1, y: 0 });
+
+  const tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: section,
+      start: "top top",
+      end: "bottom bottom",
+      pin,
+      pinSpacing: false,
+      scrub: 1,
+    },
+  });
+
+  lines.forEach((line, i) => {
+    if (i === 0) return;
+    tl.to(lines[i - 1], { autoAlpha: 0, y: -30, duration: 0.3 }, i - 0.5)
+      .to(line, { autoAlpha: 1, y: 0, duration: 0.3 }, i - 0.5);
+  });
+}
+
 export function initEmblem() {
   const stage = document.getElementById("emblem-stage");
   const emblem = document.getElementById("emblem-3d");

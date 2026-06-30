@@ -1,7 +1,12 @@
 ---
+interface Props {
+  transparent?: boolean;
+}
+
+const { transparent = false } = Astro.props;
 ---
 
-<nav class="nav-funnel">
+<nav class={`nav-funnel${transparent ? " nav-transparent" : ""}`} id="nav-funnel">
   <a class="brand" href="/">
     <img src="/immagini/dettagli/logo.png" alt="Osteria del Vicario" />
   </a>
@@ -26,6 +31,23 @@
     backdrop-filter: blur(14px) saturate(140%);
     -webkit-backdrop-filter: blur(14px) saturate(140%);
     border-bottom: 1px solid rgba(242, 233, 215, 0.08);
+    transition: background 0.4s ease, backdrop-filter 0.4s ease, border-color 0.4s ease,
+      box-shadow 0.4s ease;
+  }
+
+  .nav-funnel.nav-transparent {
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-bottom-color: transparent;
+  }
+
+  .nav-funnel.nav-transparent.scrolled {
+    background: rgba(242, 233, 215, 0.94);
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    border-bottom-color: rgba(33, 23, 16, 0.08);
+    box-shadow: 0 8px 24px rgba(33, 23, 16, 0.08);
   }
 
   .brand {
@@ -37,11 +59,33 @@
     height: 42px;
     width: auto;
     filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.5));
+    transition: filter 0.4s ease;
+  }
+
+  .nav-funnel.nav-transparent.scrolled .brand img {
+    filter: invert(1) brightness(0.3) drop-shadow(0 1px 2px rgba(255, 255, 255, 0.3));
   }
 
   .funnel-actions {
     display: flex;
     gap: 0.75rem;
+  }
+
+  .nav-funnel.nav-transparent .btn-outline {
+    color: var(--avorio);
+    border-color: rgba(242, 233, 215, 0.5);
+    transition: color 0.4s ease, border-color 0.4s ease, background 0.4s ease;
+  }
+
+  .nav-funnel.nav-transparent.scrolled .btn-outline {
+    color: var(--notte);
+    border-color: rgba(33, 23, 16, 0.3);
+    background: rgba(33, 23, 16, 0.04);
+  }
+
+  .nav-funnel.nav-transparent.scrolled .btn-outline:hover {
+    color: var(--cotto);
+    border-color: var(--cotto);
   }
 
   @media (max-width: 640px) {

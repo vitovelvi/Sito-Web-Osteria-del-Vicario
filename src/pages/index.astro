@@ -2,6 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import NavFunnel from "../components/NavFunnel.astro";
 import FloatingEmblem from "../components/FloatingEmblem.astro";
+import Storytelling from "../components/Storytelling.astro";
 import MagiaCertaldo from "../components/MagiaCertaldo.astro";
 import DormiNellaStoria from "../components/DormiNellaStoria.astro";
 import AssaporaToscana from "../components/AssaporaToscana.astro";
@@ -16,7 +17,7 @@ import Footer from "../components/Footer.astro";
 ---
 
 <Layout title="Osteria del Vicario — Certaldo Alto">
-  <NavFunnel />
+  <NavFunnel transparent />
 
   <main>
     <section class="hero">
@@ -46,6 +47,7 @@ import Footer from "../components/Footer.astro";
       <FloatingEmblem />
     </section>
 
+    <Storytelling />
     <MagiaCertaldo />
     <DormiNellaStoria />
     <AssaporaToscana />
@@ -61,9 +63,21 @@ import Footer from "../components/Footer.astro";
   <Footer />
 
   <script>
-    import { initScroll, initHero, initEmblem, initTilt, initCinemaGallery } from "../scripts/scroll.js";
+    import {
+      initScroll,
+      initHero,
+      initHeroIntro,
+      initNavScroll,
+      initStorytelling,
+      initEmblem,
+      initTilt,
+      initCinemaGallery,
+    } from "../scripts/scroll.js";
     initHero();
+    initHeroIntro();
+    initNavScroll();
     initScroll();
+    initStorytelling();
     initCinemaGallery();
     initEmblem();
     initTilt();
