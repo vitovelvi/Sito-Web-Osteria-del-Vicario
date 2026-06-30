@@ -203,6 +203,99 @@ export function initCinemaGallery(selector = ".cinema-pin") {
   });
 }
 
+export function initProgressBar() {
+  const bar = document.getElementById("progressBar");
+  if (!bar) return;
+
+  ScrollTrigger.create({
+    trigger: document.body,
+    start: "top top",
+    end: "bottom bottom",
+    onUpdate: (self) => {
+      bar.style.width = `${self.progress * 100}%`;
+    },
+  });
+}
+
+export function initStatement(selector = ".statement") {
+  const section = document.querySelector(selector);
+  const el = section?.querySelector(".statement-text");
+  if (!section || !el) return;
+
+  const text = el.textContent.trim();
+  el.innerHTML = text
+    .split(" ")
+    .map((w) => `<span class="word">${w}</span>`)
+    .join(" ");
+  const words = el.querySelectorAll(".word");
+
+  gsap.timeline({
+    scrollTrigger: { trigger: section, start: "top 70%", end: "top 20%", scrub: true },
+  }).to(words, { opacity: 1, stagger: { each: 0.04, from: "start" } });
+}
+
+export function initGrowImage(selector = ".grow-wrap") {
+  const wrap = document.querySelector(selector);
+  const img = wrap?.querySelector(".grow-img");
+  const caption = wrap?.querySelector(".grow-caption");
+  if (!wrap || !img) return;
+
+  gsap.timeline({
+    scrollTrigger: { trigger: wrap, start: "top top", end: "+=100%", scrub: true, pin: true },
+  })
+    .to(img, { width: "100%", height: "100%", borderRadius: "0rem", ease: "none" })
+    .to(caption, { opacity: 1, ease: "none" }, 0.5);
+}
+
+export function initMarquee(selector = ".marquee-pin") {
+  const wrap = document.querySelector(selector);
+  const track = wrap?.querySelector(".marquee-track");
+  if (!wrap || !track) return;
+
+  gsap.to(track, {
+    xPercent: -50,
+    ease: "none",
+    scrollTrigger: { trigger: wrap, start: "top top", end: "+=120%", scrub: true, pin: true },
+  });
+}
+
+export function initParallax(selector = ".parallax-img", triggerSelector = ".terrazza") {
+  const img = document.querySelector(selector);
+  const trigger = document.querySelector(triggerSelector);
+  if (!img || !trigger) return;
+
+  gsap.to(img, {
+    yPercent: 15,
+    ease: "none",
+    scrollTrigger: { trigger, start: "top bottom", end: "bottom top", scrub: true },
+  });
+}
+
+export function initCounters(selector = ".rec-stat") {
+  gsap.utils.toArray(selector).forEach((stat) => {
+    const target = parseFloat(stat.dataset.count);
+    const decimals = stat.dataset.decimals ? parseInt(stat.dataset.decimals, 10) : 0;
+
+    ScrollTrigger.create({
+      trigger: stat,
+      start: "top 85%",
+      once: true,
+      onEnter: () => {
+        gsap.to(
+          {},
+          {
+            duration: 1.6,
+            ease: "power2.out",
+            onUpdate: function () {
+              stat.textContent = (target * this.progress()).toFixed(decimals);
+            },
+          }
+        );
+      },
+    });
+  });
+}
+
 export function initPageHeader() {
   const header = document.querySelector(".page-header");
   const img = header?.querySelector(".page-header-img");

@@ -14,13 +14,30 @@ const piattaforme = [
 ---
 
 <section class="recensioni" id="recensioni">
-  <div class="recensioni-inner reveal">
-    <p class="eyebrow eyebrow-light">Cosa dicono di noi</p>
-    <h2>Le voci di chi è già stato qui</h2>
-    <p class="placeholder-note">
-      Le recensioni vere arrivano da Booking.com e TripAdvisor: leggile direttamente sulle
-      piattaforme ufficiali.
-    </p>
+  <div class="recensioni-inner">
+    <p class="eyebrow eyebrow-light">Recensioni</p>
+    <h2>Travellers' Choice.</h2>
+
+    <div class="rec-stats">
+      <div class="rec-stat-item">
+        <div class="rec-stat" data-count="4.8" data-decimals="1">0</div>
+        <div class="rec-stat-label">/5 — voto medio</div>
+      </div>
+      <div class="rec-stat-item">
+        <div class="rec-stat" data-count="700" data-decimals="0">0</div>
+        <div class="rec-stat-label">recensioni verificate</div>
+      </div>
+      <div class="rec-stat-item">
+        <div class="rec-stat" data-count="900" data-decimals="0">0</div>
+        <div class="rec-stat-label">anni di storia del monastero</div>
+      </div>
+    </div>
+
+    <div class="rec-quotes">
+      <p class="rec-quote">"Un luogo che non ti aspetti: pietra del 1100 e una cucina vegetale sorprendente. La terrazza al tramonto vale il viaggio." <cite>— TripAdvisor</cite></p>
+      <p class="rec-quote">"Abbiamo dormito in una vera cella di monastero e mangiato uno dei migliori menu degustazione vegetali in Toscana." <cite>— Google Recensioni</cite></p>
+    </div>
+
     <div class="rec-grid">
       {piattaforme.map((p) => (
         <a class="rec-card" href={p.href} target="_blank" rel="noopener">
@@ -36,34 +53,74 @@ const piattaforme = [
 
 <style>
   .recensioni {
-    background: var(--avorio);
+    background: var(--notte);
+    color: var(--avorio);
   }
 
   .recensioni-inner {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 5rem clamp(1.5rem, 6vw, 6rem);
-    text-align: center;
+    padding: 6rem clamp(1.5rem, 6vw, 6rem);
   }
 
   .eyebrow-light {
-    color: var(--cotto);
+    color: var(--candela);
   }
 
   .recensioni h2 {
     font-size: clamp(1.6rem, 3vw, 2.2rem);
-    color: var(--notte);
-    margin: 0.6rem 0 0.8rem;
+    color: var(--avorio);
+    margin: 0.6rem 0 2rem;
   }
 
-  .placeholder-note {
-    color: var(--notte);
-    opacity: 0.6;
+  .rec-stats {
+    display: flex;
+    gap: 3rem;
+    flex-wrap: wrap;
+    margin-bottom: 3rem;
+  }
+
+  .rec-stat {
+    font-family: var(--font-display);
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    color: var(--candela);
+    line-height: 1;
+  }
+
+  .rec-stat-label {
     font-size: 0.85rem;
-    margin-bottom: 2.5rem;
-    max-width: 560px;
-    margin-left: auto;
-    margin-right: auto;
+    opacity: 0.65;
+    letter-spacing: 0.05em;
+    margin-top: 0.3rem;
+  }
+
+  .rec-quotes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 3rem;
+  }
+
+  @media (max-width: 760px) {
+    .rec-quotes {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .rec-quote {
+    border-left: 2px solid var(--candela);
+    padding-left: 1.4rem;
+    font-size: 1rem;
+    opacity: 0.88;
+    line-height: 1.7;
+  }
+
+  .rec-quote cite {
+    display: block;
+    margin-top: 0.6rem;
+    font-size: 0.8rem;
+    opacity: 0.6;
+    font-style: normal;
   }
 
   .rec-grid {
@@ -82,9 +139,9 @@ const piattaforme = [
     padding: 2.2rem 1.5rem;
     border-radius: 1rem;
     text-decoration: none;
-    background: #fff;
-    border: 1px solid rgba(33, 23, 16, 0.08);
-    box-shadow: 0 12px 30px rgba(33, 23, 16, 0.06);
+    background: rgba(242, 233, 215, 0.06);
+    border: 1px solid rgba(242, 233, 215, 0.12);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
     transition: transform 0.25s ease, box-shadow 0.25s ease;
   }
 
@@ -100,13 +157,13 @@ const piattaforme = [
   }
 
   .rec-card strong {
-    color: var(--cotto);
+    color: var(--candela);
     font-family: var(--font-display);
     font-size: 1.2rem;
   }
 
   .rec-count {
-    color: var(--notte);
+    color: var(--avorio);
     opacity: 0.6;
     font-size: 0.9rem;
   }

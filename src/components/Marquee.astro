@@ -1,0 +1,40 @@
+---
+---
+
+<div class="marquee-pin" aria-hidden="true">
+  <div class="marquee-track">
+    <span>Vegetale</span><span class="fill"> · </span><span>Creativa</span><span class="fill"> · </span><span>Panoramica</span><span class="fill"> · </span><span>Antica</span><span class="fill"> · </span>
+    <span>Vegetale</span><span class="fill"> · </span><span>Creativa</span><span class="fill"> · </span><span>Panoramica</span><span class="fill"> · </span><span>Antica</span><span class="fill"> · </span>
+  </div>
+</div>
+
+<style>
+  .marquee-pin {
+    height: 30vh;
+    min-height: 200px;
+    overflow: hidden;
+    background: var(--avorio);
+    display: flex;
+    align-items: center;
+  }
+
+  .marquee-track {
+    display: flex;
+    gap: 2vw;
+    white-space: nowrap;
+    will-change: transform;
+    padding: 0 2vw;
+  }
+
+  .marquee-track span {
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 9vw, 7rem);
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--notte);
+  }
+
+  .marquee-track span.fill {
+    color: var(--cotto);
+    -webkit-text-stroke: none;
+  }
+</style>

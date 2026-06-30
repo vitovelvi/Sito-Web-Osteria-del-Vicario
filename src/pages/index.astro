@@ -3,6 +3,9 @@ import Layout from "../layouts/Layout.astro";
 import NavFunnel from "../components/NavFunnel.astro";
 import FloatingEmblem from "../components/FloatingEmblem.astro";
 import Storytelling from "../components/Storytelling.astro";
+import Statement from "../components/Statement.astro";
+import PiattoFirma from "../components/PiattoFirma.astro";
+import Marquee from "../components/Marquee.astro";
 import MagiaCertaldo from "../components/MagiaCertaldo.astro";
 import DormiNellaStoria from "../components/DormiNellaStoria.astro";
 import AssaporaToscana from "../components/AssaporaToscana.astro";
@@ -48,11 +51,14 @@ import Footer from "../components/Footer.astro";
     </section>
 
     <Storytelling />
+    <Statement />
     <MagiaCertaldo />
     <DormiNellaStoria />
     <AssaporaToscana />
     <Esperienze />
     <PiattiPreview />
+    <PiattoFirma />
+    <Marquee />
     <Terrazza />
     <GalleriaMix />
     <Recensioni />
@@ -72,6 +78,12 @@ import Footer from "../components/Footer.astro";
       initEmblem,
       initTilt,
       initCinemaGallery,
+      initProgressBar,
+      initStatement,
+      initGrowImage,
+      initMarquee,
+      initParallax,
+      initCounters,
     } from "../scripts/scroll.js";
     initHero();
     initHeroIntro();
@@ -81,6 +93,12 @@ import Footer from "../components/Footer.astro";
     initCinemaGallery();
     initEmblem();
     initTilt();
+    initProgressBar();
+    initStatement();
+    initGrowImage(".grow-wrap");
+    initMarquee();
+    initParallax(".parallax-img", ".terrazza");
+    initCounters();
   </script>
 </Layout>
 

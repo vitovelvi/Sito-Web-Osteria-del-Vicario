@@ -1,0 +1,33 @@
+---
+---
+
+<section class="statement" id="statement">
+  <p class="statement-text">La nostra tradizione è non essere tradizionali.</p>
+</section>
+
+<style>
+  .statement {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--notte);
+    padding: 8rem clamp(1.5rem, 8vw, 8rem);
+  }
+
+  .statement-text {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(1.8rem, 5.2vw, 4.2rem);
+    line-height: 1.25;
+    max-width: 18ch;
+    text-align: center;
+    color: var(--avorio);
+  }
+
+  .statement-text .word {
+    display: inline-block;
+    opacity: 0.1;
+  }
+</style>
