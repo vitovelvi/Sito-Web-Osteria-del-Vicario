@@ -19,7 +19,7 @@ import Footer from "../components/Footer.astro";
   />
 
   <main>
-    <section class="storia">
+    <section class="storia reveal">
       <h2>Un monastero del XII secolo</h2>
       <p>
         L'edificio che oggi ospita l'Osteria del Vicario nasce come monastero nel 1100,
@@ -34,7 +34,7 @@ import Footer from "../components/Footer.astro";
       </p>
     </section>
 
-    <section class="cucina">
+    <section class="cucina reveal">
       <h2>Una cucina interamente vegetale</h2>
       <p>
         La nostra cucina lavora esclusivamente verdure, legumi ed erbe del territorio.
@@ -44,7 +44,7 @@ import Footer from "../components/Footer.astro";
       </p>
     </section>
 
-    <section class="team">
+    <section class="team reveal">
       <h2>Chi ci accoglie</h2>
       <p>
         Un piccolo team che vive il monastero ogni giorno: in cucina, in sala e nella
@@ -55,6 +55,12 @@ import Footer from "../components/Footer.astro";
   </main>
 
   <Footer />
+
+  <script>
+    import { initPageHeader, initReveal } from "../scripts/scroll.js";
+    initPageHeader();
+    initReveal();
+  </script>
 </Layout>
 
 <style>

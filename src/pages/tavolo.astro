@@ -36,7 +36,7 @@ const piatti = [
   />
 
   <main>
-    <section class="intro">
+    <section class="intro reveal">
       <p>
         Verdure, legumi ed erbe del territorio diventano piatti che reinterpretano la
         tradizione toscana senza compromessi. La cucina dell'Osteria del Vicario cambia
@@ -47,11 +47,11 @@ const piatti = [
       </a>
     </section>
 
-    <section class="gallery-section">
+    <section class="gallery-section reveal">
       <Gallery items={piatti} />
     </section>
 
-    <section class="booking-section">
+    <section class="booking-section reveal">
       <h2>Richiedi la tua prenotazione</h2>
       <p class="booking-intro">
         Compila il modulo o contattaci direttamente: ti confermeremo la disponibilità il prima possibile.
@@ -63,7 +63,9 @@ const piatti = [
   <Footer />
 
   <script>
-    import { initTilt } from "../scripts/scroll.js";
+    import { initTilt, initPageHeader, initReveal } from "../scripts/scroll.js";
+    initPageHeader();
+    initReveal();
     initTilt();
   </script>
 </Layout>

@@ -33,7 +33,7 @@ const camere = [
   />
 
   <main>
-    <section class="intro">
+    <section class="intro reveal">
       <p>
         Ogni camera conserva il carattere delle mura originarie del 1100: soffitti a volta,
         pietra a vista, finestre che si affacciano sui tetti di Certaldo Alto. Il bagno
@@ -41,11 +41,11 @@ const camere = [
       </p>
     </section>
 
-    <section class="gallery-section">
+    <section class="gallery-section reveal">
       <Gallery items={camere} />
     </section>
 
-    <section class="booking-section">
+    <section class="booking-section reveal">
       <h2>Richiedi la tua camera</h2>
       <p class="booking-intro">
         Indicaci le date del soggiorno: ti risponderemo con la disponibilità e le tariffe.
@@ -66,7 +66,9 @@ const camere = [
   <Footer />
 
   <script>
-    import { initTilt } from "../scripts/scroll.js";
+    import { initTilt, initPageHeader, initReveal } from "../scripts/scroll.js";
+    initPageHeader();
+    initReveal();
     initTilt();
   </script>
 </Layout>

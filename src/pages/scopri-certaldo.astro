@@ -66,7 +66,7 @@ const itinerari = [
 
   <main>
     {sezioni.map((s, i) => (
-      <section class={`riga ${i % 2 === 1 ? "riga-inversa" : ""}`}>
+      <section class={`riga reveal ${i % 2 === 1 ? "riga-inversa" : ""}`}>
         <div class="riga-img">
           <img src={s.img} alt={s.titolo} loading="lazy" />
         </div>
@@ -77,7 +77,7 @@ const itinerari = [
       </section>
     ))}
 
-    <section class="itinerari">
+    <section class="itinerari reveal">
       <h2>Itinerari consigliati</h2>
       <div class="itinerari-grid">
         {itinerari.map((it) => (
@@ -96,6 +96,12 @@ const itinerari = [
   </main>
 
   <Footer />
+
+  <script>
+    import { initPageHeader, initReveal } from "../scripts/scroll.js";
+    initPageHeader();
+    initReveal();
+  </script>
 </Layout>
 
 <style>

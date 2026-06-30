@@ -118,6 +118,47 @@ export function initEmblem() {
   });
 }
 
+export function initPageHeader() {
+  const header = document.querySelector(".page-header");
+  const img = header?.querySelector(".page-header-img");
+  if (!header || !img) return;
+
+  gsap.set(img, { scale: 1.22 });
+
+  ScrollTrigger.create({
+    trigger: header,
+    start: "top top",
+    end: "bottom top",
+    scrub: true,
+    onUpdate: (self) => {
+      gsap.set(img, {
+        scale: 1.22 - self.progress * 0.16,
+        y: self.progress * 40,
+      });
+    },
+  });
+}
+
+export function initReveal(selector = ".reveal") {
+  gsap.utils.toArray(selector).forEach((el) => {
+    gsap.fromTo(
+      el,
+      { autoAlpha: 0, y: 48 },
+      {
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.9,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: el,
+          start: "top 85%",
+          toggleActions: "play none none reverse",
+        },
+      }
+    );
+  });
+}
+
 export function initTilt(selector = ".tilt-card") {
   const cards = gsap.utils.toArray(selector);
 

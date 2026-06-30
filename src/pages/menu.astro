@@ -20,7 +20,7 @@ import { piatti, risottoDelMese, dolci } from "../data/piatti.js";
   />
 
   <main>
-    <section class="pricing">
+    <section class="pricing reveal">
       <div class="pricing-card">
         <span class="pricing-n">2</span>
         <span class="pricing-label">portate</span>
@@ -43,7 +43,7 @@ import { piatti, risottoDelMese, dolci } from "../data/piatti.js";
       intolleranze specifiche, segnalacelo al momento della prenotazione.
     </p>
 
-    <section class="menu-sezione">
+    <section class="menu-sezione reveal">
       <div class="piatti-grid">
         {piatti.map((p) => (
           <a class="piatto-card tilt-card glass" href={`/piatti/${p.slug}`}>
@@ -60,7 +60,7 @@ import { piatti, risottoDelMese, dolci } from "../data/piatti.js";
       </div>
     </section>
 
-    <section class="menu-sezione">
+    <section class="menu-sezione reveal">
       <h2>{risottoDelMese.nome}</h2>
       <p class="sezione-sub">{risottoDelMese.nomeEn}</p>
       <div class="variant-gallery">
@@ -82,7 +82,7 @@ import { piatti, risottoDelMese, dolci } from "../data/piatti.js";
       </div>
     </section>
 
-    <section class="menu-sezione">
+    <section class="menu-sezione reveal">
       <h2>{dolci.nome}</h2>
       <p class="sezione-sub">{dolci.nomeEn}</p>
       <p class="dolci-testo">{dolci.testo}</p>
@@ -103,7 +103,9 @@ import { piatti, risottoDelMese, dolci } from "../data/piatti.js";
   <Footer />
 
   <script>
-    import { initTilt } from "../scripts/scroll.js";
+    import { initTilt, initPageHeader, initReveal } from "../scripts/scroll.js";
+    initPageHeader();
+    initReveal();
     initTilt();
   </script>
 </Layout>
