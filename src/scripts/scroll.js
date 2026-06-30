@@ -69,27 +69,28 @@ export function initHero() {
   const caption = hero?.querySelector(".hero-caption");
   if (!hero || !img) return;
 
-  gsap.set(img, { scale: 1.3, rotateX: 0, transformOrigin: "center 30%" });
+  gsap.set(img, { scale: 1.42, xPercent: 0, rotateX: 0, transformOrigin: "55% 38%" });
 
-  ScrollTrigger.create({
-    trigger: hero,
-    start: "top top",
-    end: "bottom top",
-    pin: true,
-    pinSpacing: false,
-    scrub: true,
-    onUpdate: (self) => {
-      const p = self.progress;
-      gsap.set(img, {
-        scale: 1.3 - p * 0.3,
-        rotateX: p * 8,
-        filter: `brightness(${1 - p * 0.45})`,
-      });
-      if (caption) {
-        gsap.set(caption, { autoAlpha: 1 - p * 1.6, y: -p * 80 });
-      }
+  // timeline pinnata multi-keyframe: simula uno "scrub" cinematico
+  // (zoom verso l'arco -> respiro laterale -> buio verso il contenuto sotto)
+  const tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: hero,
+      start: "top top",
+      end: "+=160%",
+      pin: true,
+      pinSpacing: false,
+      scrub: 1,
     },
   });
+
+  tl.to(img, { scale: 1.16, xPercent: -2, rotateX: 4, duration: 0.5, ease: "none" }, 0)
+    .to(
+      img,
+      { scale: 1, xPercent: 2, rotateX: 8, filter: "brightness(0.5)", duration: 0.5, ease: "none" },
+      0.5
+    )
+    .to(caption, { autoAlpha: 0, y: -80, duration: 0.3, ease: "power1.in" }, 0.45);
 }
 
 export function initEmblem() {
