@@ -80,7 +80,7 @@ export const piatti = [
     slug: "melanzana-hummus",
     nome: "Melanzana, hummus, uvetta e basilico",
     nomeEn: "Roasted eggplant, hummus, raisins and basil",
-    img: "/immagini/piatti/piatto-01.jpeg",
+    img: "/immagini/piatti/piatto-01.webp",
     ingredienti: ["Melanzana arrostita", "Hummus di ceci", "Uvetta", "Basilico"],
     allergeni: ["Sesamo (tahin)"],
     storia:

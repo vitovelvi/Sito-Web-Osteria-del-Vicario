@@ -12,9 +12,9 @@
   .emblem-stage {
     position: absolute;
     right: clamp(1rem, 6vw, 8rem);
-    top: 50%;
-    width: clamp(180px, 24vw, 340px);
-    height: clamp(180px, 24vw, 340px);
+    top: 55%;
+    width: clamp(180px, 20vw, 300px);
+    height: clamp(180px, 20vw, 300px);
     perspective: 900px;
     z-index: 3;
     pointer-events: none;
@@ -52,12 +52,7 @@
 
   @media (max-width: 760px) {
     .emblem-stage {
-      right: 50%;
-      top: 30%;
-      transform: translateX(50%);
-      width: clamp(140px, 38vw, 220px);
-      height: clamp(140px, 38vw, 220px);
-      opacity: 0.85;
+      display: none;
     }
   }
 </style>
