@@ -65,14 +65,16 @@ export function initScroll() {
 
 export function initHero() {
   const hero = document.querySelector(".hero");
-  const img = hero?.querySelector(".hero-img");
+  const imgs = hero?.querySelectorAll(".hero-img");
+  const day = hero?.querySelector(".hero-img-day");
+  const night = hero?.querySelector(".hero-img-night");
   const caption = hero?.querySelector(".hero-caption");
-  if (!hero || !img) return;
+  if (!hero || !imgs?.length) return;
 
-  gsap.set(img, { scale: 1.42, xPercent: 0, rotateX: 0, transformOrigin: "55% 38%" });
+  gsap.set(imgs, { scale: 1.42, xPercent: 0, rotateX: 0, transformOrigin: "55% 38%" });
 
   // timeline pinnata multi-keyframe: simula uno "scrub" cinematico
-  // (zoom verso l'arco -> respiro laterale -> buio verso il contenuto sotto)
+  // (zoom verso l'arco -> dissolvenza giorno/notte -> buio verso il contenuto sotto)
   const tl = gsap.timeline({
     scrollTrigger: {
       trigger: hero,
@@ -84,13 +86,17 @@ export function initHero() {
     },
   });
 
-  tl.to(img, { scale: 1.16, xPercent: -2, rotateX: 4, duration: 0.5, ease: "none" }, 0)
-    .to(
-      img,
-      { scale: 1, xPercent: 2, rotateX: 8, filter: "brightness(0.5)", duration: 0.5, ease: "none" },
-      0.5
-    )
+  tl.to(imgs, { scale: 1.16, xPercent: -2, rotateX: 4, duration: 0.5, ease: "none" }, 0)
+    .to(imgs, { scale: 1, xPercent: 2, rotateX: 8, duration: 0.5, ease: "none" }, 0.5)
     .to(caption, { autoAlpha: 0, y: -80, duration: 0.3, ease: "power1.in" }, 0.45);
+
+  if (day && night) {
+    tl.to(night, { opacity: 1, duration: 0.45, ease: "none" }, 0.3).to(
+      day,
+      { opacity: 0, duration: 0.45, ease: "none" },
+      0.3
+    );
+  }
 }
 
 export function initEmblem() {
@@ -116,6 +122,26 @@ export function initEmblem() {
     const relY = (event.clientY / innerHeight - 0.5) * 2;
     quickX(relX * 22);
     quickY(relY * -16);
+  });
+}
+
+export function initCinemaGallery(selector = ".cinema-pin") {
+  const wrap = document.querySelector(selector);
+  const track = wrap?.querySelector(".cinema-track");
+  if (!wrap || !track) return;
+
+  const mq = window.matchMedia("(max-width: 760px)");
+  if (mq.matches) return;
+
+  ScrollTrigger.create({
+    trigger: wrap,
+    start: "top top",
+    end: "bottom bottom",
+    scrub: 1,
+    onUpdate: (self) => {
+      const max = track.scrollWidth - track.clientWidth;
+      gsap.set(track, { x: -max * self.progress });
+    },
   });
 }
 

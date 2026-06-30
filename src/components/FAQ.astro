@@ -33,6 +33,11 @@ const faqJsonLd = {
       </details>
     ))}
   </div>
+
+  <div class="faq-cta">
+    <p>Non hai trovato la risposta che cercavi?</p>
+    <a class="btn btn-outline" href="#contatti">Scrivici direttamente →</a>
+  </div>
 </section>
 
 <script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />
@@ -93,5 +98,22 @@ const faqJsonLd = {
     line-height: 1.6;
     margin: 0.8rem 0 0;
     font-size: 0.92rem;
+  }
+
+  .faq-cta {
+    margin-top: 3rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid rgba(242, 233, 215, 0.12);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .faq-cta p {
+    color: var(--avorio);
+    opacity: 0.75;
+    font-size: 1rem;
+    margin: 0;
   }
 </style>

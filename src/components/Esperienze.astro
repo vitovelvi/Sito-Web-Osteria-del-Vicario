@@ -1,29 +1,68 @@
 ---
 const esperienze = [
-  { titolo: "Cammina lungo le mura", testo: "Un giro a piedi tra i vicoli e le mura del 1100, dalla Porta del Sole alla Torre." },
-  { titolo: "Casa di Boccaccio", testo: "La casa-museo dell'autore del Decameron, a pochi passi dall'Osteria." },
-  { titolo: "Funicolare panoramica", testo: "Sali o scendi dal borgo con la funicolare, con vista sulla Val d'Elsa." },
-  { titolo: "Tramonto in terrazza", testo: "L'ora dorata sulla campagna toscana, da vivere con un calice in mano." },
-  { titolo: "Cantine e degustazioni", testo: "Le cantine della Val d'Elsa, a pochi minuti di auto, per chi vuole approfondire i vini del territorio." },
-  { titolo: "Mercatini del borgo", testo: "I mercati e gli eventi stagionali animano le piazze di Certaldo Alto durante l'anno." },
+  {
+    titolo: "Cammina lungo le mura",
+    testo: "Un giro a piedi tra i vicoli e le mura del 1100, dalla Porta del Sole alla Torre.",
+    img: "/immagini/luogo/vicolo-alto.jpg",
+  },
+  {
+    titolo: "Casa di Boccaccio",
+    testo: "La casa-museo dell'autore del Decameron, a pochi passi dall'Osteria.",
+    img: null,
+  },
+  {
+    titolo: "Funicolare panoramica",
+    testo: "Sali o scendi dal borgo con la funicolare, con vista sulla Val d'Elsa.",
+    img: null,
+  },
+  {
+    titolo: "Tramonto in terrazza",
+    testo: "L'ora dorata sulla campagna toscana, da vivere con un calice in mano.",
+    img: "/immagini/luogo/terrazza-pranzo.jpg",
+  },
+  {
+    titolo: "Cantine e degustazioni",
+    testo: "Le cantine della Val d'Elsa, a pochi minuti di auto, per chi vuole approfondire i vini del territorio.",
+    img: "/immagini/luogo/paesaggio.webp",
+  },
+  {
+    titolo: "Mercatini del borgo",
+    testo: "I mercati e gli eventi stagionali animano le piazze di Certaldo Alto durante l'anno.",
+    img: "/immagini/luogo/osteria-vicolo-wide.jpg",
+  },
 ];
 ---
 
 <section class="esperienze" id="esperienze">
-  <p class="eyebrow">Oltre la tavola</p>
-  <h2>Esperienze a Certaldo Alto</h2>
-  <p class="esperienze-text">
-    Il soggiorno non finisce a tavola. Certaldo Alto si vive camminando, assaggiando, guardando il
-    sole calare sui colli.
-  </p>
+  <div class="cinema-pin">
+    <div class="cinema-intro">
+      <p class="eyebrow">Oltre la tavola</p>
+      <h2>Esperienze a Certaldo Alto</h2>
+      <p class="esperienze-text">
+        Il soggiorno non finisce a tavola. Certaldo Alto si vive camminando, assaggiando,
+        guardando il sole calare sui colli. Scorri per fare un giro nel borgo.
+      </p>
+    </div>
 
-  <div class="esperienze-grid">
-    {esperienze.map((e) => (
-      <div class="esperienza-card glass">
-        <h3>{e.titolo}</h3>
-        <p>{e.testo}</p>
-      </div>
-    ))}
+    <div class="cinema-track">
+      {esperienze.map((e) => (
+        <div class="cinema-card">
+          <div class="cinema-media">
+            {e.img ? (
+              <img src={e.img} alt={e.titolo} loading="lazy" />
+            ) : (
+              <div class="cinema-placeholder">
+                <span>Foto in arrivo</span>
+              </div>
+            )}
+          </div>
+          <div class="cinema-caption">
+            <h3>{e.titolo}</h3>
+            <p>{e.testo}</p>
+          </div>
+        </div>
+      ))}
+    </div>
   </div>
 
   <div class="esperienze-cta">
@@ -33,13 +72,27 @@ const esperienze = [
 
 <style>
   .esperienze {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 6rem clamp(1.5rem, 6vw, 6rem);
-    text-align: center;
+    position: relative;
   }
 
-  .esperienze h2 {
+  .cinema-pin {
+    height: 380vh;
+    position: relative;
+  }
+
+  .cinema-intro {
+    position: sticky;
+    top: 0;
+    height: 38vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0 clamp(1.5rem, 6vw, 6rem);
+  }
+
+  .cinema-intro h2 {
     font-size: clamp(1.8rem, 4vw, 2.6rem);
     color: var(--avorio);
     margin: 0.6rem 0 1rem;
@@ -49,42 +102,119 @@ const esperienze = [
     color: var(--avorio);
     opacity: 0.8;
     max-width: 640px;
-    margin: 0 auto 3rem;
+    margin: 0 auto;
     font-size: 1.05rem;
     line-height: 1.7;
   }
 
-  .esperienze-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.2rem;
-    text-align: left;
-    margin-bottom: 2.5rem;
+  .cinema-track {
+    position: sticky;
+    top: 38vh;
+    height: 56vh;
+    display: flex;
+    align-items: stretch;
+    gap: 1.5rem;
+    padding: 0 8vw;
+    will-change: transform;
   }
 
-  .esperienza-card {
+  .cinema-card {
+    position: relative;
+    flex: 0 0 min(64vw, 560px);
+    border-radius: 1.2rem;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .cinema-media,
+  .cinema-media img,
+  .cinema-placeholder {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .cinema-placeholder {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 1.5rem;
+    background:
+      radial-gradient(120% 120% at 70% 18%, rgba(212, 88, 43, 0.45), transparent 60%),
+      linear-gradient(135deg, #221913, #4f1820);
+  }
+
+  .cinema-placeholder span {
+    color: var(--avorio);
+    opacity: 0.55;
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .cinema-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(33, 23, 16, 0.92) 0%, rgba(33, 23, 16, 0.1) 55%);
+    z-index: 1;
+  }
+
+  .cinema-caption {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
     padding: 1.6rem;
-    border-radius: 1rem;
   }
 
-  .esperienza-card h3 {
+  .cinema-caption h3 {
     color: var(--oro-sera);
     font-family: var(--font-display);
-    font-size: 1.1rem;
+    font-size: 1.25rem;
     margin: 0 0 0.5rem;
   }
 
-  .esperienza-card p {
+  .cinema-caption p {
     color: var(--avorio);
-    opacity: 0.78;
-    font-size: 0.9rem;
+    opacity: 0.88;
+    font-size: 0.92rem;
     line-height: 1.5;
     margin: 0;
   }
 
+  .esperienze-cta {
+    display: flex;
+    justify-content: center;
+    padding: 0 0 5rem;
+  }
+
   @media (max-width: 760px) {
-    .esperienze-grid {
-      grid-template-columns: 1fr;
+    .cinema-pin {
+      height: auto;
+    }
+    .cinema-intro {
+      position: relative;
+      height: auto;
+      padding-top: 4rem;
+      padding-bottom: 2rem;
+    }
+    .cinema-track {
+      position: relative;
+      top: 0;
+      height: auto;
+      flex-direction: column;
+      padding: 0 1.5rem 3rem;
+      transform: none !important;
+    }
+    .cinema-card {
+      flex: none;
+      height: 50vh;
+      min-height: 320px;
     }
   }
 </style>

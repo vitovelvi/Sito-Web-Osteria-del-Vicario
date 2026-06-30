@@ -21,9 +21,14 @@ import Footer from "../components/Footer.astro";
   <main>
     <section class="hero">
       <img
-        class="hero-img"
+        class="hero-img hero-img-day"
         src="/immagini/luogo/terrazza-vista.jpg"
-        alt="Loggia in pietra dell'Osteria del Vicario affacciata sulle colline toscane"
+        alt="Loggia in pietra dell'Osteria del Vicario affacciata sulle colline toscane, di giorno"
+      />
+      <img
+        class="hero-img hero-img-night"
+        src="/immagini/luogo/terrazza-notte.jpeg"
+        alt="Terrazza dell'Osteria del Vicario apparecchiata per cena, di notte"
       />
       <div class="hero-overlay"></div>
       <div class="hero-caption">
@@ -56,9 +61,10 @@ import Footer from "../components/Footer.astro";
   <Footer />
 
   <script>
-    import { initScroll, initHero, initEmblem, initTilt } from "../scripts/scroll.js";
+    import { initScroll, initHero, initEmblem, initTilt, initCinemaGallery } from "../scripts/scroll.js";
     initHero();
     initScroll();
+    initCinemaGallery();
     initEmblem();
     initTilt();
   </script>
@@ -82,8 +88,12 @@ import Footer from "../components/Footer.astro";
     width: 100%;
     height: 100%;
     object-fit: cover;
-    will-change: transform, filter;
+    will-change: transform, filter, opacity;
     transform-style: preserve-3d;
+  }
+
+  .hero-img-night {
+    opacity: 0;
   }
 
   .hero-overlay {
