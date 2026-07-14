@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JARVIS — Dashboard</title>
+<style>
+  :root{
+    --bg:#0b1020; --panel:#121a30; --panel2:#0e1526; --line:#22304f;
+    --text:#dbe4ff; --dim:#7f8db3; --accent:#57c7ff; --ok:#4ade80;
+    --warn:#fbbf24; --crit:#f87171; --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  *{box-sizing:border-box;margin:0}
+  body{background:var(--bg);color:var(--text);font:14px/1.5 system-ui,Segoe UI,Roboto,sans-serif;padding:20px}
+  header{display:flex;align-items:baseline;gap:14px;margin-bottom:18px}
+  header h1{font-size:20px;letter-spacing:2px;color:var(--accent)}
+  header .sub{color:var(--dim);font-size:12px}
+  #uptime{margin-left:auto;color:var(--dim);font-family:var(--mono);font-size:12px}
+  .grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;overflow:hidden}
+  .card h2{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--dim);margin-bottom:10px}
+  .meters{display:flex;gap:18px}
+  .meter{flex:1}
+  .meter .val{font-size:26px;font-family:var(--mono)}
+  .meter .lbl{color:var(--dim);font-size:11px}
+  .bar{height:6px;background:var(--panel2);border-radius:3px;margin-top:6px;overflow:hidden}
+  .bar i{display:block;height:100%;background:var(--accent);border-radius:3px;transition:width .6s}
+  .bar i.warn{background:var(--warn)} .bar i.crit{background:var(--crit)}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  td,th{padding:4px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--dim);font-weight:500}
+  .scroll{max-height:260px;overflow-y:auto}
+  .pill{display:inline-block;padding:1px 8px;border-radius:99px;font-size:11px;font-family:var(--mono)}
+  .pill.ok{background:rgba(74,222,128,.12);color:var(--ok)}
+  .pill.warn{background:rgba(251,191,36,.12);color:var(--warn)}
+  .pill.crit{background:rgba(248,113,113,.12);color:var(--crit)}
+  .pill.dim{background:rgba(127,141,179,.12);color:var(--dim)}
+  .mono{font-family:var(--mono);font-size:11px;color:var(--dim);word-break:break-all}
+  .kv{display:flex;flex-wrap:wrap;gap:8px}
+  .kv span{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:2px 10px;font-family:var(--mono);font-size:12px}
+</style>
+</head>
+<body>
+<header>
+  <h1>J.A.R.V.I.S.</h1>
+  <span class="sub">Cognitive Operating System — dashboard</span>
+  <span id="uptime"></span>
+</header>
+
+<div class="grid">
+  <div class="card">
+    <h2>Sistema</h2>
+    <div class="meters">
+      <div class="meter"><div class="val" id="cpu">–</div><div class="lbl">CPU</div>
+        <div class="bar"><i id="cpu-bar" style="width:0%"></i></div></div>
+      <div class="meter"><div class="val" id="ram">–</div><div class="lbl">RAM</div>
+        <div class="bar"><i id="ram-bar" style="width:0%"></i></div></div>
+      <div class="meter"><div class="val" id="procs">–</div><div class="lbl">Processi</div></div>
+    </div>
+    <p class="mono" id="degraded" style="margin-top:8px"></p>
+  </div>
+
+  <div class="card">
+    <h2>Memoria</h2>
+    <div class="kv" id="memory"></div>
+  </div>
+
+  <div class="card">
+    <h2>Agenti</h2>
+    <div class="scroll"><table id="agents"><tr><th>agente</th><th>stato</th><th>eventi</th><th>errori</th></tr></table></div>
+  </div>
+
+  <div class="card">
+    <h2>Task</h2>
+    <div class="scroll"><table id="tasks"><tr><th>titolo</th><th>stato</th><th>prio</th></tr></table></div>
+  </div>
+
+  <div class="card">
+    <h2>Notifiche</h2>
+    <div class="scroll"><table id="notifications"><tr><th>ora</th><th>gravità</th><th>evento</th></tr></table></div>
+  </div>
+
+  <div class="card">
+    <h2>Eventi recenti</h2>
+    <div class="scroll"><table id="events"><tr><th>ora</th><th>topic</th><th>sorgente</th></tr></table></div>
+  </div>
+
+  <div class="card" style="grid-column:1/-1">
+    <h2>Log</h2>
+    <div class="scroll"><table id="logs"><tr><th>ora</th><th>livello</th><th>componente</th><th>messaggio</th></tr></table></div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const t = iso => (iso||"").slice(11,19);
+const lvl = p => p>=90?"crit":p>=70?"warn":"";
+
+function rows(table, header, items, render){
+  table.innerHTML = header;
+  for(const it of items) table.insertAdjacentHTML("beforeend", render(it));
+}
+
+async function refresh(){
+  let s;
+  try { s = await (await fetch("/api/state")).json(); }
+  catch { $("uptime").textContent = "connessione persa…"; return; }
+
+  $("uptime").textContent = `uptime ${s.uptime_seconds}s · eventi ${s.bus.published}`;
+  const cpu = s.system?.cpu?.percent ?? 0, ram = s.system?.memory?.percent ?? 0;
+  $("cpu").textContent = cpu.toFixed ? cpu.toFixed(0)+"%" : cpu+"%";
+  $("ram").textContent = ram.toFixed ? ram.toFixed(0)+"%" : ram+"%";
+  $("cpu-bar").style.width = cpu+"%"; $("cpu-bar").className = lvl(cpu);
+  $("ram-bar").style.width = ram+"%"; $("ram-bar").className = lvl(ram);
+  $("procs").textContent = s.system?.process_count ?? "–";
+  $("degraded").textContent = s.system?.degraded ? "modalità degradata: installare psutil per metriche complete" : "";
+
+  $("memory").innerHTML = Object.entries(s.memory||{})
+    .map(([k,v])=>`<span>${k}: <b>${v}</b></span>`).join("");
+
+  rows($("agents"), "<tr><th>agente</th><th>stato</th><th>eventi</th><th>errori</th></tr>",
+    s.agents||[], a=>`<tr><td>${a.name}</td>
+      <td><span class="pill ${a.active?"ok":"dim"}">${a.active?"attivo":"fermo"}</span></td>
+      <td>${a.handled}</td><td>${a.errors}</td></tr>`);
+
+  rows($("tasks"), "<tr><th>titolo</th><th>stato</th><th>prio</th></tr>",
+    (s.tasks?.recent)||[], k=>{
+      const cls = k.state==="completed"?"ok":k.state==="failed"?"crit":k.state==="running"?"warn":"dim";
+      return `<tr><td>${k.title}</td><td><span class="pill ${cls}">${k.state}</span></td><td>${k.priority}</td></tr>`;});
+
+  rows($("notifications"), "<tr><th>ora</th><th>gravità</th><th>evento</th></tr>",
+    (s.notifications||[]).slice().reverse(), n=>{
+      const cls = n.severity==="critical"?"crit":n.severity==="warning"?"warn":"dim";
+      return `<tr><td class="mono">${t(n.ts)}</td><td><span class="pill ${cls}">${n.severity}</span></td><td class="mono">${n.topic}</td></tr>`;});
+
+  rows($("events"), "<tr><th>ora</th><th>topic</th><th>sorgente</th></tr>",
+    (s.events||[]).slice().reverse().slice(0,30), e=>
+      `<tr><td class="mono">${t(e.timestamp)}</td><td>${e.topic}</td><td class="mono">${e.source}</td></tr>`);
+
+  rows($("logs"), "<tr><th>ora</th><th>livello</th><th>componente</th><th>messaggio</th></tr>",
+    (s.logs||[]).slice().reverse().slice(0,50), l=>{
+      const cls = l.level==="ERROR"?"crit":l.level==="WARNING"?"warn":"dim";
+      return `<tr><td class="mono">${t(l.ts)}</td><td><span class="pill ${cls}">${l.level}</span></td><td class="mono">${l.logger}</td><td>${l.message}</td></tr>`;});
+}
+refresh();
+setInterval(refresh, 2000);
+</script>
+</body>
+</html>

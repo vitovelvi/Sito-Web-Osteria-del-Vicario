@@ -1,0 +1,144 @@
+{
+  "identity": {
+    "name": "JARVIS",
+    "personality": {
+      "traits": ["calmo", "preciso", "sintetico", "elegante", "proattivo"],
+      "philosophy": "Servire l'utente con lucidità: anticipare, non imporre. Mai impulsivo.",
+      "tone": {
+        "register": "professionale-cordiale",
+        "verbosity": "sintetico",
+        "address": "diretto"
+      }
+    },
+    "operating_rules": [
+      "Mai eseguire operazioni distruttive senza conferma esplicita.",
+      "Ogni azione passa dal Security Layer: nessuna scorciatoia.",
+      "Riportare sempre lo stato reale, anche quando negativo.",
+      "In assenza di certezza, chiedere: mai improvvisare su operazioni di Livello 2+."
+    ],
+    "priorities": ["sicurezza", "affidabilita", "trasparenza", "velocita", "costo"],
+    "autonomy": {
+      "default_level": "supervised",
+      "levels": {
+        "manual": "Ogni step richiede conferma.",
+        "supervised": "Autonomo su Livello 0-1; conferma su Livello 2-3.",
+        "trusted": "Autonomo su Livello 0-2; conferma solo su Livello 3."
+      }
+    }
+  },
+
+  "logging": {
+    "level": "INFO",
+    "console": true,
+    "console_format": "human",
+    "file": "runtime/logs/jarvis.jsonl",
+    "max_bytes": 5242880,
+    "backup_count": 3
+  },
+
+  "memory": {
+    "backend": "json",
+    "data_dir": "runtime/memory",
+    "working": { "capacity": 64, "ttl_seconds": 900 },
+    "episodic": { "max_records": 5000 },
+    "semantic": { "max_records": 20000 },
+    "preference": { "max_records": 1000 },
+    "operational": { "max_records": 10000 }
+  },
+
+  "events": {
+    "history_size": 500,
+    "queue_size": 4096
+  },
+
+  "observation": {
+    "system": { "enabled": true, "interval_seconds": 5.0 },
+    "filesystem": {
+      "enabled": true,
+      "interval_seconds": 10.0,
+      "watch_paths": ["runtime/watched"],
+      "ignore_patterns": [".git", "__pycache__", "node_modules"]
+    },
+    "integrations": {
+      "wordpress": { "enabled": false, "base_url": "", "poll_seconds": 300 },
+      "woocommerce": { "enabled": false, "base_url": "", "poll_seconds": 300 },
+      "google_analytics": { "enabled": false, "property_id": "", "poll_seconds": 600 },
+      "meta_ads": { "enabled": false, "account_id": "", "poll_seconds": 600 }
+    }
+  },
+
+  "llm": {
+    "default_quality": "standard",
+    "providers": {
+      "ollama": {
+        "enabled": true,
+        "base_url": "http://127.0.0.1:11434",
+        "model": "llama3.2",
+        "timeout_seconds": 60
+      },
+      "free": {
+        "enabled": false,
+        "base_url": "",
+        "model": "",
+        "api_key_env": "FREE_LLM_API_KEY",
+        "timeout_seconds": 60
+      },
+      "claude": {
+        "enabled": true,
+        "base_url": "https://api.anthropic.com",
+        "model": "claude-sonnet-5",
+        "api_key_env": "ANTHROPIC_API_KEY",
+        "max_tokens": 2048,
+        "timeout_seconds": 120
+      }
+    },
+    "routing": {
+      "complexity_thresholds": { "simple": 0.35, "standard": 0.7 },
+      "prefer_local": true
+    }
+  },
+
+  "execution": {
+    "step_timeout_seconds": 30.0,
+    "sandbox": {
+      "allowed_read_roots": ["."],
+      "allowed_write_roots": ["runtime/sandbox"],
+      "max_output_bytes": 262144
+    }
+  },
+
+  "security": {
+    "confirmation_required_from_level": 2,
+    "auto_deny_when_unattended": true
+  },
+
+  "voice": {
+    "enabled": false,
+    "wake_word": "jarvis",
+    "language": "it-IT",
+    "stages": {
+      "wake_word": "null",
+      "vad": "null",
+      "stt": "console",
+      "intent": "keyword",
+      "tts": "console"
+    }
+  },
+
+  "tasks": {
+    "max_history": 200
+  },
+
+  "healing": {
+    "max_retries": 3,
+    "base_backoff_seconds": 0.5,
+    "backoff_multiplier": 2.0
+  },
+
+  "dashboard": {
+    "enabled": true,
+    "host": "127.0.0.1",
+    "port": 8765,
+    "refresh_seconds": 2
+  }
+}

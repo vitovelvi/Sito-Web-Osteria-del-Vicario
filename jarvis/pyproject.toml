@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jarvis-cos"
+version = "0.1.0"
+description = "JARVIS — Cognitive Operating System modulare, event-driven."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "JARVIS Project" }]
+
+# Il core gira con la sola libreria standard; questi extra abilitano funzioni avanzate.
+[project.optional-dependencies]
+metrics = ["psutil>=5.9"]
+yaml = ["PyYAML>=6.0"]
+llm = ["httpx>=0.27"]
+all = ["psutil>=5.9", "PyYAML>=6.0", "httpx>=0.27"]
+
+[project.scripts]
+jarvis = "jarvis.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["jarvis*"]

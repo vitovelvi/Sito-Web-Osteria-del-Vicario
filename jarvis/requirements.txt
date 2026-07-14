@@ -1,0 +1,3 @@
+# Dipendenze OPZIONALI: JARVIS si avvia anche senza (fallback su stdlib).
+psutil>=5.9        # metriche di sistema più ricche (CPU per-core, processi)
+PyYAML>=6.0        # configurazione in YAML oltre che JSON
