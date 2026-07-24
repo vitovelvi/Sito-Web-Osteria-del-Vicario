@@ -81,19 +81,27 @@ sul server e non finisce nel browser. Configura la voce in `openclaw.json`:
 {
   messages: {
     tts: {
-      enabled: true,
       provider: "elevenlabs",
       providers: {
         elevenlabs: {
           apiKey: "${ELEVENLABS_API_KEY}",
-          voiceId: "Nw7Rghp67eaUlozsAvCk",
-          modelId: "eleven_multilingual_v2",
+          speakerVoiceId: "Nw7Rghp67eaUlozsAvCk",
+          model: "eleven_multilingual_v2",
         },
       },
     },
   },
 }
 ```
+
+La chiave della voce è `speakerVoiceId`: `voiceId` è legacy e viene migrata da
+`openclaw doctor --fix`. Serve anche `ELEVENLABS_API_KEY` nell'ambiente del
+gateway.
+
+**Non serve** impostare `messages.tts.auto`. La RPC `tts.speak` sintetizza
+direttamente con il provider configurato senza passare dall'auto-TTS, quindi
+questa configurazione **non cambia il comportamento di Telegram**: le risposte
+là restano testo. Con `auto: "always"` diventerebbero invece note vocali.
 
 Le frasi vengono sintetizzate appena sono complete e riprodotte in ordine, così
 Jarvis comincia a parlare mentre il modello sta ancora scrivendo. Per disattivare
@@ -108,6 +116,26 @@ in caso contrario l'audio viene saltato con un warning e il testo resta a scherm
 Di default l'interfaccia usa la sessione `jarvis-interface`, separata dalla
 cronologia di Telegram ma sullo stesso agente. Per condividere la conversazione
 con una chat Telegram, passa `sessionKey: "telegram:<chatId>"`.
+
+## Ordine di avvio
+
+1. Copia i due `.js` accanto a `script.js`. **Da soli non fanno nulla**: la
+   simulazione va rimossa a mano da `script.js` (vedi sopra).
+2. Assicurati che `script.js` sia caricato come modulo:
+   `<script type="module" src="script.js"></script>`.
+3. Configura la voce in `openclaw.json`, esporta `ELEVENLABS_API_KEY` e
+   riavvia il gateway.
+4. Controlla `gateway.auth.mode`: se è `token` o `password`, passa la
+   credenziale al costruttore di `JarvisAgent`.
+5. Apri `http://localhost:3000` e guarda la console. Se compare
+   `PAIRING_REQUIRED`, approva il dispositivo e ricarica:
+
+   ```bash
+   openclaw devices list
+   openclaw devices approve <requestId>
+   ```
+
+Se lo stato in console arriva a `connected`, il collegamento è a posto.
 
 ## Se la connessione viene rifiutata
 
