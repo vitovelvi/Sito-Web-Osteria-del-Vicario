@@ -162,6 +162,18 @@ export class JarvisAgent {
     return finalText;
   }
 
+  /**
+   * Sintetizza il testo con il provider TTS configurato nel gateway e
+   * restituisce un data URL riproducibile con `new Audio(...)`.
+   *
+   * Serve a chi vuole gestire la riproduzione per conto proprio, per esempio
+   * per coordinarla con lo stato del microfono.
+   */
+  async synthesize(text) {
+    const { audioBase64, mimeType } = await this.client.speak(text);
+    return `data:${mimeType};base64,${audioBase64}`;
+  }
+
   abort() {
     this.speech.stop();
     return this.client.abort();
