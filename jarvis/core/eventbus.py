@@ -92,7 +92,7 @@ class Subscription:
     context manager per sottoscrizioni temporanee.
     """
 
-    __slots__ = ("_bus", "_key", "_token", "_active", "__weakref__")
+    __slots__ = ("__weakref__", "_active", "_bus", "_key", "_token")
 
     def __init__(self, bus: EventBus, key: str, token: int) -> None:
         self._bus = weakref.ref(bus)
@@ -131,7 +131,7 @@ class _HandlerRef:
     registrazione, cioe' non funzionerebbe mai.
     """
 
-    __slots__ = ("token", "_ref", "_strong", "once")
+    __slots__ = ("_ref", "_strong", "once", "token")
 
     def __init__(self, handler: Handler, token: int, *, once: bool = False) -> None:
         self.token = token
@@ -365,7 +365,7 @@ class EventBus(QtCore.QObject):
             handler(event)
             with self._lock:
                 self._delivered += 1
-        except Exception as exc:  # noqa: BLE001 - isolamento deliberato
+        except Exception as exc:
             with self._lock:
                 self._handler_errors += 1
             name = getattr(handler, "__qualname__", repr(handler))

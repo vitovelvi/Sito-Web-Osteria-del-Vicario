@@ -173,7 +173,7 @@ def _report(condition: ErrorCondition) -> None:
         return
     try:
         _error_sink(condition)
-    except Exception:  # noqa: BLE001 - il sink non deve poter propagare
+    except Exception:
         _log.exception("Il sink degli errori ha a sua volta fallito")
 
 
@@ -205,7 +205,7 @@ def safe_slot(
         def wrapper(*args: P.args, **kwargs: P.kwargs) -> R | Any:
             try:
                 return func(*args, **kwargs)
-            except Exception as exc:  # noqa: BLE001 - e' esattamente lo scopo
+            except Exception as exc:
                 _report(
                     ErrorCondition.from_exception(
                         f"{source}.{func.__name__}", exc, severity=severity, ttl=8.0

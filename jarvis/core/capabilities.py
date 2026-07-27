@@ -207,5 +207,5 @@ class CapabilityManager:
         for listener in listeners:
             try:
                 listener(granted)
-            except Exception:  # noqa: BLE001 - un ascoltatore rotto non blocca gli altri
+            except Exception:
                 _log.exception("Ascoltatore di capability fallito")

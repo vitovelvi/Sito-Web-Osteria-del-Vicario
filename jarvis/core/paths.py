@@ -12,6 +12,7 @@ della piattaforma.
 
 from __future__ import annotations
 
+import contextlib
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
@@ -76,10 +77,10 @@ class AppPaths:
         modalita' senza persistenza, e dirlo nel log.
         """
         for directory in (self.config_dir, self.data_dir, self.cache_dir, self.log_dir):
-            try:
+            # Permessi negati o disco pieno non sono fatali: si perde la
+            # persistenza, non l'avvio.
+            with contextlib.suppress(OSError):
                 directory.mkdir(parents=True, exist_ok=True)
-            except OSError:  # pragma: no cover - dipende dai permessi
-                pass
         return self
 
 

@@ -11,12 +11,12 @@ una GUI vecchia davanti a un backend nuovo ignora cio' che non conosce.
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 __all__ = ["CLIENT_CAPABILITIES", "Capability"]
 
 
-class Capability(str, Enum):
+class Capability(StrEnum):
     """Capability note a questa versione della GUI.
 
     Le stringhe non presenti qui non sono un errore: vengono conservate come

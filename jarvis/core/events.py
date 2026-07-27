@@ -15,13 +15,13 @@ sottoscrittori.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 __all__ = ["PAYLOAD_TYPES", "EventType"]
 
 
-class EventType(str, Enum):
+class EventType(StrEnum):
     """Eventi pubblicabili sul bus.
 
     Convenzione dei nomi: ``dominio.fatto``, sempre al passato — un evento

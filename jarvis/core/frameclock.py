@@ -145,7 +145,7 @@ class FrameClock(QtCore.QObject):
         # ridisegno non deve fermare il battito di tutti gli altri.
         try:
             self.tick.emit(dt)
-        except Exception:  # noqa: BLE001 - il clock non si ferma mai
+        except Exception:
             _log.exception("Errore durante la propagazione del tick")
 
     # ------------------------------------------------------------------ #

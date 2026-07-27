@@ -15,13 +15,13 @@ from __future__ import annotations
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 from typing import Protocol, runtime_checkable
 
 __all__ = ["BaseService", "Health", "IService", "ServiceState"]
 
 
-class ServiceState(str, Enum):
+class ServiceState(StrEnum):
     """Stato di salute di un servizio."""
 
     STOPPED = "stopped"
@@ -95,8 +95,12 @@ class BaseService(ABC):
     def _on_start(self) -> None:
         """Avvio effettivo. Sollevare un'eccezione porta lo stato a ``FAILED``."""
 
-    def _on_stop(self) -> None:
-        """Arresto effettivo. Default: nulla da fare."""
+    def _on_stop(self) -> None:  # noqa: B027 - volutamente non astratto
+        """Arresto effettivo.
+
+        Vuoto di proposito e **non** astratto: molti servizi non hanno risorse
+        da rilasciare, e obbligarli a scrivere un metodo vuoto sarebbe rumore.
+        """
 
     # -- ciclo di vita ---------------------------------------------------- #
 
@@ -106,7 +110,7 @@ class BaseService(ABC):
         self._state = ServiceState.STARTING
         try:
             self._on_start()
-        except Exception as exc:  # noqa: BLE001 - il guasto e' un esito previsto
+        except Exception as exc:
             self._state = ServiceState.FAILED
             self._detail = f"{type(exc).__name__}: {exc}"
             raise

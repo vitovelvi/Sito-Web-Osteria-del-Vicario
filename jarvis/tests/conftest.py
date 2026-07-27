@@ -21,16 +21,23 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from core.eventbus import EventBus  # noqa: E402
-from core.paths import AppPaths  # noqa: E402
-from core.qtcompat import QtCore  # noqa: E402
-from core.state import StateManager  # noqa: E402
+from core.eventbus import EventBus
+from core.paths import AppPaths
+from core.qtcompat import QtCore, QtWidgets
+from core.state import StateManager
 
 
 @pytest.fixture(scope="session")
 def qt_app() -> Iterator[QtCore.QCoreApplication]:
-    """Applicazione Qt minima, condivisa da tutta la sessione di test."""
-    app = QtCore.QCoreApplication.instance() or QtCore.QCoreApplication([])
+    """Applicazione Qt condivisa da tutta la sessione di test.
+
+    E' una ``QApplication`` e non una ``QCoreApplication`` benche' il nucleo non
+    usi widget: il renderer costruisce ``QPixmap``, e con una sola
+    ``QCoreApplication`` Qt **aborta il processo** invece di sollevare
+    un'eccezione — un fallimento che non produce nemmeno un test rosso
+    leggibile. Con la piattaforma ``offscreen`` non serve alcun display.
+    """
+    app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
     yield app  # type: ignore[misc]
 
 

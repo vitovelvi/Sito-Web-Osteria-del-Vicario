@@ -14,7 +14,6 @@ from core.identity import IdentityService
 from core.protocol import PROTOCOL_VERSION, Capability, Envelope, MessageType, parse_payload
 from core.protocol.messages import ServerHelloPayload
 
-
 # --------------------------------------------------------------------------- #
 # Envelope
 # --------------------------------------------------------------------------- #

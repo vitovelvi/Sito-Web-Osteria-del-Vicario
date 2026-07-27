@@ -22,12 +22,12 @@ come stato. La combinazione dei tre assi produce una singola
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 __all__ = ["AgentState", "AppState", "LinkState", "VisualMode"]
 
 
-class AppState(str, Enum):
+class AppState(StrEnum):
     """Ciclo di vita dell'applicazione."""
 
     BOOTING = "booting"
@@ -47,7 +47,7 @@ class AppState(str, Enum):
     """Chiusura in corso: i servizi si stanno fermando in ordine."""
 
 
-class LinkState(str, Enum):
+class LinkState(StrEnum):
     """Stato del canale verso il backend."""
 
     OFFLINE = "offline"
@@ -67,7 +67,7 @@ class LinkState(str, Enum):
     """
 
 
-class AgentState(str, Enum):
+class AgentState(StrEnum):
     """Cosa sta facendo l'assistente.
 
     La fonte di verita' e' **OpenClaw**. La GUI puo' anticipare localmente un
@@ -82,7 +82,7 @@ class AgentState(str, Enum):
     SPEAKING = "speaking"
 
 
-class VisualMode(str, Enum):
+class VisualMode(StrEnum):
     """Modalita' visiva risolta: cio' che nucleo, HUD e tema mostrano.
 
     E' l'unico enum che l'interfaccia consuma. I widget non leggono mai le tre

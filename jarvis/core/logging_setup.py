@@ -21,7 +21,7 @@ import sys
 from collections import deque
 from collections.abc import Iterable
 from dataclasses import dataclass
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 from typing import Final
 
@@ -38,7 +38,7 @@ _FORMAT: Final[str] = "%(asctime)s %(levelname)-8s %(name)-18s %(message)s"
 _DATEFMT: Final[str] = "%Y-%m-%d %H:%M:%S"
 
 
-class LogCategory(str, Enum):
+class LogCategory(StrEnum):
     """Categorie previste. Il valore e' il suffisso del nome del logger."""
 
     APP = "app"
@@ -86,7 +86,7 @@ class RedactionFilter(logging.Filter):
     def filter(self, record: logging.LogRecord) -> bool:
         try:
             message = record.getMessage()
-        except Exception:  # noqa: BLE001 - un log rotto non blocca l'app
+        except Exception:
             return True
 
         redacted = message
@@ -139,7 +139,7 @@ class RingBufferHandler(logging.Handler):
                     message=record.getMessage(),
                 )
             )
-        except Exception:  # noqa: BLE001 - un handler non deve mai propagare
+        except Exception:
             self.handleError(record)
 
     def snapshot(self) -> tuple[LogRecordSnapshot, ...]:

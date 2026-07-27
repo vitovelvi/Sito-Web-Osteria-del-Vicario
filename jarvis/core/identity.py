@@ -59,7 +59,7 @@ class ClientIdentity:
     comunque, perdendo solo la continuita' fra sessioni.
     """
 
-    __slots__ = ("instance_id", "device_name", "platform_name", "version", "persistent")
+    __slots__ = ("device_name", "instance_id", "persistent", "platform_name", "version")
 
     def __init__(self, paths: AppPaths | None = None) -> None:
         resolved = paths or app_paths()

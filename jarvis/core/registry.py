@@ -262,7 +262,7 @@ class ServiceRegistry:
             name = self._display_name(descriptor)
             try:
                 instance.start()
-            except Exception as exc:  # noqa: BLE001 - isolamento deliberato
+            except Exception as exc:
                 _log.exception("Avvio di '%s' fallito", name)
                 failed.append(name)
                 self._publish(name, ServiceState.FAILED, str(exc))
@@ -293,7 +293,7 @@ class ServiceRegistry:
             try:
                 descriptor.instance.stop()
                 self._publish(self._display_name(descriptor), ServiceState.STOPPED)
-            except Exception:  # noqa: BLE001
+            except Exception:
                 _log.exception("Arresto di '%s' fallito", self._display_name(descriptor))
         self._started.clear()
 
@@ -311,12 +311,12 @@ class ServiceRegistry:
         self._restarts[name] = self._restarts.get(name, 0) + 1
         try:
             service.stop()
-        except Exception:  # noqa: BLE001 - si tenta comunque il riavvio
+        except Exception:
             _log.exception("Arresto di '%s' fallito durante il riavvio", name)
 
         try:
             service.start()
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             _log.error("Riavvio di '%s' fallito: %s", name, exc)
             self._publish(name, ServiceState.FAILED, str(exc))
             return False
@@ -344,7 +344,7 @@ class ServiceRegistry:
         for _, service in self.services():
             try:
                 report[service.name] = service.health()
-            except Exception as exc:  # noqa: BLE001 - health() non deve mai rompere
+            except Exception as exc:
                 report[service.name] = Health(ServiceState.FAILED, f"health(): {exc}")
         return report
 

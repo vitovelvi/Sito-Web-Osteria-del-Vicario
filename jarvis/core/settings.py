@@ -297,7 +297,7 @@ class SettingsStore:
             candidate = load_settings(
                 self._paths, cli_overrides=_deep_merge(updated, {})
             )
-        except Exception as exc:  # noqa: BLE001 - la validazione non deve propagare
+        except Exception as exc:
             _log.error("Modifica di configurazione rifiutata: %s", exc)
             return ()
 
@@ -322,7 +322,9 @@ class SettingsStore:
         return _diff_keys(previous.model_dump(), self._settings.model_dump())
 
 
-def _diff_keys(before: Mapping[str, Any], after: Mapping[str, Any], prefix: str = "") -> tuple[str, ...]:
+def _diff_keys(
+    before: Mapping[str, Any], after: Mapping[str, Any], prefix: str = ""
+) -> tuple[str, ...]:
     """Elenca i percorsi puntati delle chiavi il cui valore e' cambiato."""
     changed: list[str] = []
     for key in set(before) | set(after):

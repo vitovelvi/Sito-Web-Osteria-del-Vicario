@@ -220,5 +220,5 @@ def parse_payload(message_type: str, payload: dict[str, Any]) -> _Payload | None
         return None
     try:
         return schema.model_validate(payload)
-    except Exception:  # noqa: BLE001 - un payload rotto non deve propagare
+    except Exception:
         return None

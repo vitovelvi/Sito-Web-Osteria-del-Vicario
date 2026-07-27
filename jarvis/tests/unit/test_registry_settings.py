@@ -12,7 +12,6 @@ from core.registry import ServiceRegistry
 from core.service import BaseService, ServiceState
 from core.settings import AppSettings, SettingsStore, load_settings
 
-
 # --------------------------------------------------------------------------- #
 # Service registry
 # --------------------------------------------------------------------------- #
