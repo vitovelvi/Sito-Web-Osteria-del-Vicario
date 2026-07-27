@@ -1,0 +1,94 @@
+# Default versionati di J.A.R.V.I.S.
+#
+# Questo file e' in sola lettura: le modifiche dell'utente finiscono in
+# settings.json nella directory di configurazione dell'OS (vedi core/paths.py).
+# Ordine di precedenza: defaults.toml → settings.json → variabili d'ambiente
+# → argomenti da riga di comando.
+#
+# NESSUNA CHIAVE API QUI. I segreti vivono nel keyring dell'OS; in sviluppo
+# possono stare in .env, mai versionato.
+
+[app]
+# Sospende animazioni e sensori quando la finestra e' nascosta a lungo.
+standby_after_hidden_s = 300
+single_instance = true
+
+[window]
+frameless = true
+# Le trasparenze danno l'estetica giusta ma disabilitano alcune accelerazioni
+# del compositor su Windows e possono causare tearing su X11 senza compositing.
+# Portare a false su macchine dove l'interfaccia risulta lenta (docs §10).
+translucent = true
+always_on_top = false
+start_minimized = false
+width = 1280
+height = 820
+min_width = 900
+min_height = 620
+corner_radius = 18
+opacity = 1.0
+
+[backend]
+# Trasporto: "websocket" per OpenClaw reale, "mock" per il backend simulato.
+transport = "mock"
+url = "ws://127.0.0.1:8765/jarvis"
+connect_timeout_s = 5.0
+# Heartbeat: intervallo di ping e soglia oltre la quale il canale e' DEGRADED.
+heartbeat_interval_s = 10.0
+heartbeat_timeout_s = 6.0
+degraded_latency_ms = 750.0
+# Riconnessione con backoff esponenziale e jitter.
+reconnect_initial_s = 1.0
+reconnect_max_s = 30.0
+reconnect_factor = 2.0
+reconnect_jitter = 0.3
+# Dopo quanti fallimenti consecutivi rallentare drasticamente i tentativi.
+circuit_breaker_threshold = 12
+
+[audio]
+enabled = true
+# "backend": OpenClaw sintetizza e streamma (default, nessuna chiave nella GUI).
+# "local":   la GUI usa un ITtsProvider locale. Fallback, non default.
+tts_mode = "backend"
+sample_rate = 24000
+channels = 1
+output_device = ""
+input_device = ""
+# Rilevamento locale del parlato: invia al backend solo i segmenti vocali
+# invece di streammare il microfono in continuazione.
+vad_enabled = true
+wake_word_enabled = false
+
+[vision]
+enabled = false
+device_index = 0
+target_fps = 24
+# I frame restano locali finche' non vengono richiesti esplicitamente.
+send_frames_to_backend = false
+mirror = true
+
+[ui]
+theme = "dark-mcu"
+language = "it"
+target_fps = 60
+# "auto" adatta la qualita' alle prestazioni misurate; "high"/"low" la forzano.
+quality = "auto"
+# Rispetta le preferenze di accessibilita': riduce o annulla i movimenti.
+reduced_motion = false
+show_panels = ["system", "backend", "log", "chat"]
+
+[logging]
+level = "INFO"
+console = true
+max_bytes = 5242880
+backup_count = 5
+ring_capacity = 500
+
+[telemetry]
+enabled = true
+sample_interval_s = 1.0
+
+[plugins]
+enabled = true
+# Plugin disattivati per id, anche se presenti sul disco.
+blocklist = []

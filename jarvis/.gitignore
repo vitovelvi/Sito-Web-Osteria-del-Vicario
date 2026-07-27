@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+
+# Configurazione e segreti locali: mai versionati (vedi docs §8).
+.env
+config/local.toml
+
+# I log vivono nella directory utente dell'OS, non nel repository.
+logs/
