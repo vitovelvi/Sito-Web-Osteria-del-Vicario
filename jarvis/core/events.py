@@ -59,6 +59,7 @@ class EventType(StrEnum):
     AUDIO_PLAYING = "audio.playing"
     AUDIO_FINISHED = "audio.finished"
     AUDIO_LEVEL = "audio.level"
+    AUDIO_STREAM_CHUNK = "audio.stream_chunk"
 
     # --- Visione ---
     VISION_UPDATED = "vision.updated"
@@ -196,6 +197,25 @@ class AudioLevel:
 
 
 @dataclass(frozen=True, slots=True)
+class AudioChunk:
+    """Blocco audio grezzo proveniente dal backend.
+
+    Il livello di rete si limita a **decodificare la codifica di trasporto**
+    (base64) e a pubblicare i byte. Analisi, buffering e riproduzione sono
+    responsabilita' del servizio audio: se il dispatcher calcolasse qui
+    l'inviluppo, la rete inizierebbe a fare elaborazione del segnale e il
+    confine fra i due livelli sarebbe perso.
+    """
+
+    stream_id: str
+    sequence: int
+    pcm: bytes
+    sample_rate: int = 24000
+    channels: int = 1
+    encoding: str = "pcm_s16le"
+
+
+@dataclass(frozen=True, slots=True)
 class VisionFrame:
     """Frame pronto per la visualizzazione.
 
@@ -305,6 +325,7 @@ PAYLOAD_TYPES: dict[EventType, type] = {
     EventType.AUDIO_PLAYING: Empty,
     EventType.AUDIO_FINISHED: Empty,
     EventType.AUDIO_LEVEL: AudioLevel,
+    EventType.AUDIO_STREAM_CHUNK: AudioChunk,
     EventType.VISION_UPDATED: VisionFrame,
     EventType.SYSTEM_STATUS: SystemStats,
     EventType.SERVICE_STATUS_CHANGED: ServiceStatus,

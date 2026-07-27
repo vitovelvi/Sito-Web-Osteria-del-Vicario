@@ -22,7 +22,7 @@ disabilitati, ma pannelli che non vengono proprio costruiti.
 | 0 | Fondamenta: bus, stati, identità, capability, protocollo, config, log | ✅ |
 | 1 | Guscio GUI: tema, finestra frameless, HUD, notifiche, tray | ✅ |
 | 2 | Nucleo animato: FrameClock, preset, dissolvenze, renderer | ✅ |
-| 3 | Rete: trasporto, MockBackend, heartbeat, riconnessione | ⏳ |
+| 3 | Rete: trasporto, MockBackend, handshake, heartbeat, riconnessione | ✅ |
 | 4 | Pannelli: PanelHost, registry, layout persistente | ⏳ |
 | 5 | Audio: riproduzione streaming, inviluppo, cattura, VAD | ⏳ |
 | 6 | Visione: cattura OpenCV, pipeline, pannello webcam | ⏳ |
@@ -79,11 +79,17 @@ core/              nucleo non visivo — non importa mai da ui/
   protocol/        envelope versionato, schemi, capability
   settings.py      configurazione stratificata e validata
   frameclock.py    sorgente unica del tempo a 60 FPS
+network/           comunicazione con OpenClaw
+  transport/       sposta buste, non le interpreta
+  mock/            backend simulato: handshake, streaming, cadute, latenza
+  dispatcher.py    unico punto che conosce i tipi di messaggio
+  reconnect.py     backoff esponenziale, jitter, interruttore
+  service.py       thread asyncio dedicato, sessione, heartbeat
 ui/                presentazione — può importare da core, mai il contrario
   theme/           design token in JSON → QSS generato
   frameless.py     finestra senza cornice, ombra in cache
   reactor/         nucleo: parametri, animatore, renderer, widget
-tests/             unit + ui
+tests/             unit + integration + ui
 ```
 
 ### Le cinque decisioni che spiegano il resto

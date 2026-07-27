@@ -33,6 +33,7 @@ from core.registry import ServiceRegistry
 from core.settings import AppSettings, SettingsStore
 from core.state.machines import AppState
 from core.state.manager import StateManager
+from network.service import NetworkService
 from ui.main_window import MainWindow
 from ui.theme.theme import Theme, load_theme
 
@@ -118,6 +119,22 @@ def build_registry(settings: AppSettings, bus: EventBus) -> ServiceRegistry:
         FrameClock,
         lambda _: FrameClock(target_fps=settings.ui.target_fps),
         name="frameclock",
+    )
+    # La rete non e' critica: se il backend non esiste, la GUI deve comunque
+    # partire e continuare a riprovare. E' il requisito centrale della sequenza
+    # di avvio descritta nel brief.
+    registry.register(
+        NetworkService,
+        lambda r: NetworkService(
+            r.resolve(EventBus),
+            r.resolve(StateManager),
+            r.resolve(IdentityService),
+            r.resolve(CapabilityManager),
+            settings.backend,
+        ),
+        name="network",
+        depends_on=[StateManager, IdentityService, CapabilityManager],
+        lazy=False,
     )
     return registry
 
