@@ -18,6 +18,8 @@ dependencies = [
     "psutil>=5.9",               # metriche di sistema
     "websockets>=12.0",          # trasporto
     "jarvis-protocol>=1.0",      # contratto JCP
+    "jarvis-sdk>=1.0",           # registrazione, replay, conformita'
+    "jarvis-sim>=1.0",           # backend simulato: e' il trasporto predefinito
     "jarvis-adapter-openclaw",   # adapter del primo backend
 ]
 
@@ -38,7 +40,17 @@ dev = [
 jarvis = "main:main"
 
 [tool.setuptools]
-packages = ["core", "network", "ui"]
+packages = ["core", "network", "ui", "core.missions", "core.state",
+            "network.adapters", "network.transport",
+            "ui.devtools", "ui.ops", "ui.reactor", "ui.reactor.renderers", "ui.theme"]
+# `main.py` non e' dentro un pacchetto ma e' il punto d'ingresso dichiarato in
+# [project.scripts]: senza dichiararlo qui il comando `jarvis` viene installato
+# e fallisce al primo avvio con "No module named 'main'".
+py-modules = ["main"]
+
+[tool.setuptools.package-data]
+"ui.theme" = ["*.json"]
+"*" = ["config/*.toml"]
 
 [tool.ruff]
 line-length = 100

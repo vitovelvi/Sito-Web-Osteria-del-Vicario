@@ -37,18 +37,23 @@ differenza fra un protocollo e un dettaglio interno di un'applicazione.
 
 ## Avvio
 
+Guida completa, con Windows e la lista dei problemi noti: [`AVVIO.md`](AVVIO.md).
+
 ```bash
 cd jarvis-desktop
 python -m venv .venv
 .venv/bin/pip install -e ../jarvis-protocol -e ../jarvis-sdk -e ../jarvis-sim \
                       -e ../openclaw-adapter -e ".[dev]"
-.venv/bin/python main.py --transport sim
+.venv/bin/jarvis
 ```
 
 ```bash
-.venv/bin/python main.py --transport sim --scenario rete-instabile
-.venv/bin/python main.py --url ws://127.0.0.1:8765/jarvis
+.venv/bin/jarvis --transport sim --scenario rete-instabile
+.venv/bin/jarvis --url ws://127.0.0.1:8765/jarvis
 ```
+
+I cinque pacchetti sono locali e non stanno su PyPI: vanno installati insieme,
+in un solo comando.
 
 ## Test
 
