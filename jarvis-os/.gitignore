@@ -1,0 +1,16 @@
+# Artefatti di build e ambienti locali: non appartengono al repository.
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+build/
+dist/
+
+# Cache degli strumenti
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Sessioni registrate: contengono il traffico di una macchina precisa e si
+# allegano a una segnalazione, non si versionano.
+*.jcpl

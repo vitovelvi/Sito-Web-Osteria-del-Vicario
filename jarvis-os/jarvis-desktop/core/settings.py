@@ -76,13 +76,17 @@ class WindowSettings(_Base):
 
 
 class BackendSettings(_Base):
-    transport: Literal["websocket", "mock"] = "mock"
+    transport: Literal["websocket", "sim", "mock"] = "sim"
+    """'mock' e' un sinonimo storico di 'sim', accettato per compatibilita'."""
+
+    scenario: str = "nominale"
+    """Scenario di simulazione, quando il trasporto e' 'sim'."""
     adapter: Literal["jcp-native", "openclaw"] = "jcp-native"
     """Dialetto del backend. 'jcp-native' per un backend conforme a JCP,
     'openclaw' per la traduzione verso il dialetto di OpenClaw."""
 
     auth_scheme: Literal["none", "token", "challenge"] = "none"
-    """Il segreto non sta qui: vive nel keyring dell'OS (vedi core/jcp/auth.py)."""
+    """Il segreto non sta qui: vive nel keyring dell'OS (vedi jarvis_protocol.auth)."""
 
     url: str = "ws://127.0.0.1:8765/jarvis"
     connect_timeout_s: float = Field(default=5.0, gt=0)

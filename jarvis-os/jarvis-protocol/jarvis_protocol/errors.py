@@ -11,7 +11,17 @@ from __future__ import annotations
 from enum import StrEnum
 from typing import Final
 
-__all__ = ["ErrorCode", "ProtocolError", "is_retryable"]
+__all__ = ["ErrorCode", "ProtocolError", "TransportError", "is_retryable"]
+
+
+class TransportError(Exception):
+    """Guasto del canale: connessione, invio, chiusura inattesa.
+
+    Vive nel contratto e non nell'applicazione perche' fa parte
+    dell'interfaccia del trasporto: chi implementa un trasporto — un socket,
+    una pipe, un simulatore — deve poter sollevare l'eccezione che il
+    chiamante si aspetta, senza dipendere dalla GUI.
+    """
 
 
 class ProtocolError(Exception):

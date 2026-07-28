@@ -8,5 +8,6 @@ nei log a posteriori.
 """
 
 from ui.devtools.console import DeveloperConsole
+from ui.devtools.session import SessionPanel
 
-__all__ = ["DeveloperConsole"]
+__all__ = ["DeveloperConsole", "SessionPanel"]

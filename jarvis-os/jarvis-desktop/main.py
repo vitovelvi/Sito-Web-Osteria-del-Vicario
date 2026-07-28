@@ -54,8 +54,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument(
         "--transport",
-        choices=("websocket", "mock"),
-        help="Trasporto verso il backend. 'mock' usa il backend simulato.",
+        choices=("websocket", "sim", "mock"),
+        help="Trasporto verso il backend. 'sim' usa l'ambiente di simulazione.",
+    )
+    parser.add_argument(
+        "--scenario", help="Scenario di simulazione (vedi `jarvis-sim --list`)."
     )
     parser.add_argument("--url", help="URL del backend OpenClaw.")
     parser.add_argument(
@@ -79,6 +82,8 @@ def _cli_overrides(args: argparse.Namespace) -> dict[str, Any]:
         overrides.setdefault("backend", {})["transport"] = args.transport
     if args.url:
         overrides.setdefault("backend", {})["url"] = args.url
+    if args.scenario:
+        overrides.setdefault("backend", {})["scenario"] = args.scenario
     if args.log_level:
         overrides.setdefault("logging", {})["level"] = args.log_level
     if args.no_translucent:

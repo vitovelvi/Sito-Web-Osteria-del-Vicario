@@ -24,6 +24,7 @@ from core.qtcompat import Qt, QtCore, QtGui, QtWidgets
 from core.registry import ServiceRegistry
 from core.state.manager import StateManager
 from ui.devtools.monitors import DiagnosticsPanel, ServiceMonitor
+from ui.devtools.session import SessionPanel
 from ui.devtools.timeline import EventInspector, EventTimeline
 from ui.devtools.traffic import TrafficView
 from ui.ops import MetricsDashboard, ToolInspector
@@ -84,6 +85,12 @@ class DeveloperConsole(QtWidgets.QWidget):
             self._tabs.addTab(self._wrap(self._tools, "Tool Inspector"), "Strumenti")
         if self._metrics is not None:
             self._tabs.addTab(self._wrap(self._metrics, "Metrics Dashboard"), "Metriche")
+
+        # Sessione: registrazione, replay, conformita'. Richiede la rete —
+        # senza canale non c'e' nulla da registrare ne' da verificare.
+        self._session = SessionPanel(network, theme, self) if network is not None else None
+        if self._session is not None:
+            self._tabs.addTab(self._wrap(self._session, "Sessione"), "Sessione")
         if self._traffic is not None:
             self._tabs.addTab(self._wrap(self._traffic, "Traffico JCP"), "Traffico JCP")
 

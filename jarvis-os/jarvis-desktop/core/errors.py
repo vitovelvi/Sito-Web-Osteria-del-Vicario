@@ -26,7 +26,7 @@ from dataclasses import dataclass, field
 from enum import IntEnum
 from typing import Any, ParamSpec, TypeVar
 
-from jarvis_protocol.errors import ProtocolError
+from jarvis_protocol.errors import ProtocolError, TransportError
 
 __all__ = [
     "AudioError",
@@ -62,17 +62,16 @@ class JarvisError(Exception):
     """
 
 
-#: Riesportata dal contratto: il resto dell'applicazione continua a scrivere
+#: Riesportate dal contratto: il resto dell'applicazione continua a scrivere
 #: ``from core.errors import ProtocolError`` senza conoscere il pacchetto JCP.
+#: Non derivano da :class:`JarvisError` perche' appartengono al protocollo, che
+#: non conosce la gerarchia di eccezioni dell'applicazione.
 ProtocolError = ProtocolError
+TransportError = TransportError
 
 
 class ConfigError(JarvisError):
     """Configurazione assente, malformata o non valida."""
-
-
-class TransportError(JarvisError):
-    """Guasto del canale di trasporto verso il backend (rete, socket, timeout)."""
 
 
 class ServiceError(JarvisError):

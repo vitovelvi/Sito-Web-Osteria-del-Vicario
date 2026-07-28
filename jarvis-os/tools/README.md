@@ -2,11 +2,25 @@
 
 Utilità di sviluppo per l'ecosistema JCP.
 
-Al momento il posto è predisposto ma vuoto: gli strumenti previsti sono un
-validatore di conformità (`jcp-validate`, che esegue i sei punti di §10 della
-specifica contro un backend reale) e un server JCP autonomo basato sul backend
-simulato già presente in `jarvis-desktop/network/mock/`.
+## `jcp_validate.py`
 
-Restano da scrivere perché finora il backend simulato è servito da dentro i
-test, dove è più comodo. Diventano utili quando ci sarà un backend esterno da
-verificare.
+Esegue i controlli di conformità della specifica contro un backend reale o
+simulato. Restituisce `0` se conforme, `1` altrimenti: utilizzabile in
+integrazione continua senza interpretare l'output.
+
+```bash
+python tools/jcp_validate.py --url ws://127.0.0.1:8765
+python tools/jcp_validate.py --scenario nominale --json
+```
+
+## `jarvis-sim`
+
+Installato dal pacchetto `jarvis-sim`: server JCP autonomo guidato da scenari
+riproducibili.
+
+```bash
+jarvis-sim --list                        # elenca gli scenari
+jarvis-sim --scenario tempesta           # avvia il server
+jarvis-sim --scenario nominale --export scenario.json
+jarvis-sim --file scenario.json --seed 42
+```

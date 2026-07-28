@@ -9,12 +9,14 @@ from __future__ import annotations
 
 import asyncio
 import base64
+import logging
 import time
 
 import pytest
 from jarvis_protocol.envelope import Envelope
 from jarvis_protocol.messages import MessageType
 from jarvis_protocol.version import PROTOCOL_VERSION
+from jarvis_sim import SimTransport, by_name
 
 from core.capabilities import CapabilityManager
 from core.errors import TransportError
@@ -25,9 +27,30 @@ from core.settings import BackendSettings
 from core.state.machines import AgentState, AppState, LinkState
 from core.state.manager import StateManager
 from network.dispatcher import MessageDispatcher
-from network.mock.backend import MockScenario, MockTransport
 from network.reconnect import BackoffPolicy
 from network.service import NetworkService
+
+
+def _scenario(**overrides):
+    """Scenario nominale con il canale adattato al test.
+
+    I test devono essere veloci e deterministici: latenza e ritardo di
+    handshake vanno a zero salvo quando sono proprio l'oggetto della prova.
+    """
+    canale = {"latency": 0.0, "handshake_delay": 0.0}
+    comportamento = {}
+    for chiave in ("emit_audio", "emit_missions", "confirm_probability", "task_probability"):
+        if chiave in overrides:
+            comportamento[chiave] = overrides.pop(chiave)
+    seme = overrides.pop("seed", 7)
+    canale.update(overrides)
+
+    scenario = by_name("nominale").with_channel(**canale)
+    if comportamento:
+        scenario = scenario.with_behaviour(**comportamento)
+    from dataclasses import replace
+    return replace(scenario, seed=seme)
+
 
 # --------------------------------------------------------------------------- #
 # Backoff
@@ -83,7 +106,7 @@ def test_reset_dopo_connessione_riuscita() -> None:
 # --------------------------------------------------------------------------- #
 
 
-async def _collect_until(transport: MockTransport, wanted: str, timeout: float = 5.0):
+async def _collect_until(transport: SimTransport, wanted: str, timeout: float = 5.0):
     """Raccoglie finché non compare un messaggio del tipo atteso.
 
     Contare i messaggi sarebbe fragile: il simulatore inserisce a caso un ciclo
@@ -103,7 +126,7 @@ async def _collect_until(transport: MockTransport, wanted: str, timeout: float =
 
 
 async def test_mock_risponde_all_handshake() -> None:
-    transport = MockTransport(MockScenario(handshake_delay=0.01, latency=0.0))
+    transport = SimTransport(_scenario(handshake_delay=0.01, latency=0.0))
     await transport.connect()
     hello = Envelope.make(MessageType.SESSION_HELLO, {})
     await transport.send(hello.to_wire())
@@ -117,7 +140,7 @@ async def test_mock_risponde_all_handshake() -> None:
 
 
 async def test_mock_risponde_al_ping() -> None:
-    transport = MockTransport(MockScenario(latency=0.0))
+    transport = SimTransport(_scenario(latency=0.0))
     await transport.connect()
     ping = Envelope.make(MessageType.PING)
     await transport.send(ping.to_wire())
@@ -131,9 +154,7 @@ async def test_mock_risponde_al_ping() -> None:
 async def test_mock_streamma_la_risposta() -> None:
     # Senza missioni: qui si verifica lo streaming della risposta, non il
     # livello operativo, che ha test propri.
-    transport = MockTransport(
-        MockScenario(latency=0.0, emit_audio=False, emit_missions=False, seed=1)
-    )
+    transport = SimTransport(_scenario(emit_audio=False, emit_missions=False, seed=1))
     await transport.connect()
     await transport.send(
         Envelope.make(MessageType.CHAT_SEND, {"text": "ciao", "message_id": "m1"}).to_wire()
@@ -148,7 +169,7 @@ async def test_mock_streamma_la_risposta() -> None:
 
 async def test_mock_usa_stream_generici_per_l_audio() -> None:
     """L'audio passa da ``stream.*``, non da messaggi propri."""
-    transport = MockTransport(MockScenario(latency=0.0, emit_missions=False, seed=1))
+    transport = SimTransport(_scenario(latency=0.0, emit_missions=False, seed=1))
     await transport.connect()
     await transport.send(
         Envelope.make(MessageType.CHAT_SEND, {"text": "x", "message_id": "m1"}).to_wire()
@@ -164,12 +185,12 @@ async def test_mock_usa_stream_generici_per_l_audio() -> None:
 
 async def test_mock_connessione_rifiutata() -> None:
     with pytest.raises(TransportError):
-        await MockTransport(MockScenario(fail_connect=True)).connect()
+        await SimTransport(_scenario(fail_connect=True)).connect()
 
 
 async def test_mock_invio_a_canale_chiuso() -> None:
     with pytest.raises(TransportError):
-        await MockTransport().send({"t": "link.ping"})
+        await SimTransport(_scenario()).send({"t": "link.ping"})
 
 
 # --------------------------------------------------------------------------- #
@@ -456,7 +477,7 @@ def test_sessione_completa(bus, state, temp_paths, qt_app) -> None:
         service.start()
         assert _wait_until(qt_app, lambda: state.link_state is LinkState.ONLINE)
         assert identity.is_confirmed
-        assert identity.backend.model == "jcp-mock"
+        assert identity.backend.model == "simulato"
         assert "chat.stream" in capabilities.granted
     finally:
         service.stop()
@@ -472,7 +493,7 @@ def test_disconnessione_azzera_identita_e_capability(bus, state, temp_paths, qt_
         identity,
         capabilities,
         _settings(),
-        scenario=MockScenario(handshake_delay=0.0, latency=0.0, drop_after=0.4),
+        scenario=_scenario(handshake_delay=0.0, latency=0.0, drop_after=0.4),
     )
     state.set_app_state(AppState.RUNNING)
 
@@ -489,7 +510,7 @@ def test_backend_che_non_si_presenta_va_in_timeout(bus, state, temp_paths, qt_ap
     """Connessione accettata ma nessun handshake: caso reale, timeout dedicato."""
     service = _service(
         bus, state, temp_paths,
-        scenario=MockScenario(refuse_handshake=True),
+        scenario=_scenario(refuse_handshake=True),
         settings=_settings(connect_timeout_s=0.3),
     )
     state.set_app_state(AppState.RUNNING)
@@ -503,7 +524,7 @@ def test_backend_che_non_si_presenta_va_in_timeout(bus, state, temp_paths, qt_ap
 
 def test_connessione_fallita_non_blocca_e_riprova(bus, state, temp_paths, qt_app) -> None:
     """Requisito centrale: senza backend la GUI resta viva e continua a provare."""
-    service = _service(bus, state, temp_paths, scenario=MockScenario(fail_connect=True))
+    service = _service(bus, state, temp_paths, scenario=_scenario(fail_connect=True))
     state.set_app_state(AppState.RUNNING)
 
     tentativi: list[object] = []
@@ -523,7 +544,7 @@ def test_versione_incompatibile_sospende_i_tentativi(bus, state, temp_paths, qt_
     """Un rifiuto permanente ferma il ciclo invece di riempire i log."""
     service = _service(
         bus, state, temp_paths,
-        scenario=MockScenario(
+        scenario=_scenario(
             handshake_delay=0.0, latency=0.0, protocol_major=PROTOCOL_VERSION.major + 4
         ),
     )
@@ -541,7 +562,7 @@ def test_token_rifiutato_sospende_i_tentativi(bus, state, temp_paths, qt_app) ->
     """Insistere con un token sbagliato non lo rende valido."""
     service = _service(
         bus, state, temp_paths,
-        scenario=MockScenario(handshake_delay=0.0, latency=0.0, require_auth=True),
+        scenario=_scenario(handshake_delay=0.0, latency=0.0, require_auth=True),
     )
     state.set_app_state(AppState.RUNNING)
 
@@ -558,7 +579,7 @@ def test_messaggi_sconosciuti_non_interrompono_la_sessione(
     """Un tipo del futuro e un'estensione non negoziata: entrambi ignorati."""
     service = _service(
         bus, state, temp_paths,
-        scenario=MockScenario(handshake_delay=0.0, latency=0.0, emit_unknown=True),
+        scenario=_scenario(handshake_delay=0.0, latency=0.0, emit_unknown=True),
     )
     state.set_app_state(AppState.RUNNING)
 
@@ -575,7 +596,7 @@ def test_messaggi_sconosciuti_non_interrompono_la_sessione(
 def test_traffico_registrato_per_la_console(bus, state, temp_paths, qt_app) -> None:
     """La Developer Console legge da qui: senza storico, non mostrerebbe nulla."""
     service = _service(
-        bus, state, temp_paths, scenario=MockScenario(handshake_delay=0.0, latency=0.0)
+        bus, state, temp_paths, scenario=_scenario(handshake_delay=0.0, latency=0.0)
     )
     state.set_app_state(AppState.RUNNING)
 
@@ -598,3 +619,43 @@ def test_stop_e_idempotente(bus, state, temp_paths) -> None:
     service = _service(bus, state, temp_paths)
     service.stop()
     service.stop()
+
+
+def test_arresto_ordinato_non_registra_guasti(bus, state, temp_paths, qt_app, caplog) -> None:
+    """Chiudere l'applicazione è un evento normale, non un errore.
+
+    Fermando il loop da sotto, ``asyncio.run`` usciva con un ``RuntimeError`` e
+    ogni chiusura finiva nei log con una traccia: in log dove ogni uscita sembra
+    un guasto, i guasti veri smettono di distinguersi.
+    """
+    service = _service(
+        bus, state, temp_paths, scenario=_scenario(handshake_delay=0.0, latency=0.0)
+    )
+    state.set_app_state(AppState.RUNNING)
+    service.start()
+    assert _wait_until(qt_app, lambda: state.link_state is LinkState.ONLINE)
+
+    with caplog.at_level(logging.WARNING, logger="jarvis"):
+        service.stop()
+
+    assert [r.message for r in caplog.records] == []
+
+
+def test_arresto_durante_il_backoff_non_attende_il_tentativo(
+    bus, state, temp_paths, qt_app
+) -> None:
+    """Chi chiude durante un'attesa di trenta secondi non deve aspettarla."""
+    service = _service(
+        bus,
+        state,
+        temp_paths,
+        scenario=_scenario(fail_connect=True),
+        settings=_settings(reconnect_initial_s=30.0, reconnect_max_s=30.0),
+    )
+    state.set_app_state(AppState.RUNNING)
+    service.start()
+    assert _wait_until(qt_app, lambda: state.link_state is LinkState.OFFLINE)
+
+    inizio = time.monotonic()
+    service.stop()
+    assert time.monotonic() - inizio < 2.0

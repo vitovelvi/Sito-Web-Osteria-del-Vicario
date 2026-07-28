@@ -25,6 +25,7 @@ disabilitati, ma pannelli che non vengono proprio costruiti.
 | 3 | Rete: trasporto, MockBackend, handshake, heartbeat, riconnessione | ✅ |
 | 3.5 | JCP, adapter layer, Developer Console | ✅ |
 | 3.6 | Mission Engine, Action Framework, Tool Inspector, Metrics | ✅ |
+| 3.7 | Consolidamento: documentazione, SDK, simulatore, registrazione e replay | ✅ |
 | 4 | Pannelli: PanelHost, registry, layout persistente | ⏳ |
 | 5 | Audio: riproduzione streaming, inviluppo, cattura, VAD | ⏳ |
 | 6 | Visione: cattura OpenCV, pipeline, pannello webcam | ⏳ |
@@ -32,7 +33,9 @@ disabilitati, ma pannelli che non vengono proprio costruiti.
 | 8 | Rifiniture: supervisor, telemetria, packaging, autostart | ⏳ |
 
 L'analisi architetturale che motiva ogni scelta è in
-[`docs/00-architettura-proposta.md`](docs/00-architettura-proposta.md).
+[`../jarvis-docs/00-architettura-proposta.md`](../jarvis-docs/00-architettura-proposta.md);
+la mappa dei moduli in
+[`../jarvis-docs/04-riferimento-tecnico.md`](../jarvis-docs/04-riferimento-tecnico.md).
 
 ---
 
@@ -40,24 +43,30 @@ L'analisi architetturale che motiva ogni scelta è in
 
 ```bash
 python -m venv .venv
-.venv/bin/pip install -e ".[dev]"
+.venv/bin/pip install -e ../jarvis-protocol -e ../jarvis-sdk -e ../jarvis-sim \
+                      -e ../openclaw-adapter -e ".[dev]"
 .venv/bin/python main.py
 ```
 
 Argomenti utili:
 
 ```bash
-python main.py --transport mock        # backend JCP simulato (default)
-python main.py --url ws://host:8765/j  # backend reale (vedi backend.adapter)
-python main.py --no-translucent        # su hardware senza compositing
+python main.py --transport sim                    # backend simulato (default)
+python main.py --transport sim --scenario tempesta # uno scenario preciso
+python main.py --url ws://host:8765/j             # backend reale (vedi backend.adapter)
+python main.py --no-translucent                   # su hardware senza compositing
 python main.py --log-level DEBUG
 ```
+
+`jarvis-sim --list` elenca gli scenari disponibili. `mock` resta accettato come
+sinonimo storico di `sim`.
 
 ## Test
 
 ```bash
 QT_QPA_PLATFORM=offscreen .venv/bin/python -m pytest tests -q
-.venv/bin/ruff check .
+.venv/bin/python -m pytest ../jarvis-sdk/tests ../jarvis-sim/tests -q
+.venv/bin/ruff check . ../jarvis-protocol ../jarvis-sdk ../jarvis-sim ../openclaw-adapter
 ```
 
 I test del nucleo girano **senza display**. È anche una verifica implicita
@@ -81,22 +90,25 @@ core/              nucleo non visivo — non importa mai da ui/
   missions/        Mission Engine: proiezione degli eventi operativi
   settings.py      configurazione stratificata e validata
   frameclock.py    sorgente unica del tempo a 60 FPS
-  jcp/             JARVIS Communication Protocol 1.0 (vedi docs/01-…)
 network/           comunicazione con il backend
   transport/       muove dizionari, non conosce JCP
   adapters/        traducono dialetto ↔ JCP: native, openclaw
-  mock/            backend JCP simulato, riferimento eseguibile della specifica
   dispatcher.py    unico punto che conosce i tipi di messaggio
   reconnect.py     backoff esponenziale, jitter, interruttore
-  service.py       thread asyncio dedicato, sessione, heartbeat
+  service.py       thread asyncio dedicato, sessione, heartbeat, registrazione
 ui/                presentazione — può importare da core, mai il contrario
   theme/           design token in JSON → QSS generato
   frameless.py     finestra senza cornice, ombra in cache
   reactor/         nucleo: parametri, animatore, renderer, widget
-  devtools/        Developer Console (F12): timeline, ispettore, diagnostica
+  devtools/        Developer Console (F12): timeline, ispettore, sessione
   ops/             livello operativo (F9): missioni, coda, conferme, strumenti
 tests/             unit + integration + ui
 ```
+
+Il protocollo, l'SDK e il backend simulato **non stanno qui**: sono pacchetti
+autonomi (`../jarvis-protocol`, `../jarvis-sdk`, `../jarvis-sim`) che non
+importano Qt, perché chi implementa un backend non deve installare un toolkit
+grafico.
 
 ### Le cinque decisioni che spiegano il resto
 
@@ -174,13 +186,26 @@ misurare il backend, non a usarlo.
 ## Developer Console
 
 **F12** apre timeline degli eventi, Event Inspector, monitor dei servizi,
-diagnostica in tempo reale, vista del traffico JCP, Tool Inspector e Metrics
-Dashboard. Si aggiorna solo quando è
-visibile. Si disattiva con `app.developer_tools = false`.
+diagnostica in tempo reale, vista del traffico JCP, Tool Inspector, Metrics
+Dashboard e il pannello **Sessione**. Si aggiorna solo quando è visibile. Si
+disattiva con `app.developer_tools = false`.
 
 È lo strumento che distingue "l'evento non è arrivato alla GUI" da "il backend
 non l'ha mai inviato" — la prima domanda quando qualcosa non funziona, e quella
 a cui senza questi pannelli si risponde per congetture.
+
+Il pannello Sessione fa tre cose distinte:
+
+* **registra** la sessione JCP in un file `.jcpl` — segreti e blocchi audio
+  redatti, perché una registrazione nasce per essere allegata a una
+  segnalazione;
+* **riproduce** una registrazione. Durante il replay l'interfaccia non reagisce
+  ai comandi: una registrazione riproduce, non simula. Per la reattività si usa
+  `--transport sim`;
+* **verifica** la conformità del backend alla specifica, in un thread proprio.
+
+Dettagli in
+[`../jarvis-docs/03-simulazione-e-replay.md`](../jarvis-docs/03-simulazione-e-replay.md).
 
 ---
 

@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jarvis-sim"
+version = "1.0.0"
+description = "Ambiente di simulazione JCP con scenari riproducibili"
+requires-python = ">=3.11"
+dependencies = ["jarvis-protocol>=1.0", "jarvis-sdk>=1.0"]
+
+[project.optional-dependencies]
+server = ["websockets>=12.0"]
+dev = ["pytest>=8.0", "pytest-asyncio>=0.23", "ruff>=0.4"]
+
+[project.scripts]
+jarvis-sim = "jarvis_sim.server:main"
+
+[tool.setuptools]
+packages = ["jarvis_sim"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM", "RUF"]
+ignore = ["BLE001"]

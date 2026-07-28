@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jarvis-sdk"
+version = "1.0.0"
+description = "SDK ufficiale J.A.R.V.I.S.: adapter, plugin, backend, registrazione e conformità"
+requires-python = ">=3.11"
+
+# Solo il contratto. Un autore di plugin o di adapter non deve installare Qt.
+dependencies = ["jarvis-protocol>=1.0"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "ruff>=0.4", "mypy>=1.9"]
+
+[tool.setuptools]
+packages = ["jarvis_sdk"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM", "RUF"]
+ignore = ["BLE001"]

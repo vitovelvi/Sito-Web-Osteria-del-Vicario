@@ -29,6 +29,8 @@ from jarvis_adapter_openclaw import OpenClawAdapter
 from jarvis_protocol.auth import Credentials, load_credentials
 from jarvis_protocol.envelope import Envelope
 from jarvis_protocol.messages import MessageType
+from jarvis_sdk.recording import Recording, SessionRecorder, SessionReplayer
+from jarvis_sim import Scenario, SimTransport
 
 from core.capabilities import CapabilityManager
 from core.errors import ErrorCondition, ErrorSeverity, TransportError
@@ -45,7 +47,6 @@ from core.state.manager import StateManager
 from network.adapters.base import IBackendAdapter
 from network.adapters.native import NativeJcpAdapter
 from network.dispatcher import MessageDispatcher
-from network.mock.backend import MockScenario, MockTransport
 from network.reconnect import BackoffPolicy
 from network.transport.base import ITransport
 from network.transport.websocket import WebSocketTransport
@@ -88,7 +89,7 @@ class NetworkService(QtCore.QObject):
         capabilities: CapabilityManager,
         settings: BackendSettings,
         *,
-        scenario: MockScenario | None = None,
+        scenario: Scenario | None = None,
         adapter: IBackendAdapter | None = None,
         missions: MissionEngine | None = None,
         parent: QtCore.QObject | None = None,
@@ -110,6 +111,9 @@ class NetworkService(QtCore.QObject):
         self._thread: QtCore.QThread | None = None
         self._loop: asyncio.AbstractEventLoop | None = None
         self._stopping = threading.Event()
+        self._wakeup: asyncio.Event | None = None
+        """Interrompe le attese del ciclo di rete. Creato nel thread di rete e
+        toccato solo da lì: un ``asyncio.Event`` non e' thread-safe."""
         self._halted = False
         """Vero dopo un rifiuto non ritentabile: si smette di riprovare."""
 
@@ -129,6 +133,10 @@ class NetworkService(QtCore.QObject):
         self._service_state = ServiceState.STOPPED
         self._detail: str | None = None
         self._limits: dict[str, int] = {}
+
+        self._recorder = SessionRecorder(client=f"jarvis-desktop {identity.client.version}")
+        self._replay: Recording | None = None
+        """Registrazione da riprodurre al posto del backend, se impostata."""
 
         _log.info(
             "Adapter '%s', autenticazione: %s",
@@ -163,6 +171,10 @@ class NetworkService(QtCore.QObject):
             def run(self) -> None:
                 try:
                     asyncio.run(service._main())
+                except asyncio.CancelledError:
+                    # Arresto forzato: il loop e' stato fermato mentre il ciclo
+                    # attendeva. Non e' un guasto e non va registrato come tale.
+                    _log.info("Ciclo di rete interrotto")
                 except Exception:
                     _log.exception("Il ciclo di rete è terminato in modo anomalo")
 
@@ -177,20 +189,60 @@ class NetworkService(QtCore.QObject):
         )
 
     def stop(self) -> None:
-        """Ferma il thread di rete in modo ordinato. Idempotente."""
+        """Ferma il thread di rete in modo ordinato. Idempotente.
+
+        Il ciclo viene **invitato** a finire — si chiude il canale e si sveglia
+        l'attesa fra due tentativi — invece di fermare il loop da sotto. Un
+        ``loop.stop()`` mentre il ciclo attende fa uscire ``asyncio.run`` con un
+        ``RuntimeError``: un arresto normale finirebbe nei log come un guasto,
+        e i log in cui ogni chiusura sembra un errore smettono di segnalarli.
+        """
         thread, self._thread = self._thread, None
         self._stopping.set()
 
         loop = self._loop
         if loop is not None and not loop.is_closed():
             # Il loop gira in un altro thread: lo si sveglia da lì.
-            loop.call_soon_threadsafe(loop.stop)
+            loop.call_soon_threadsafe(self._request_stop)
 
         if thread is not None and not thread.wait(3000):
-            _log.warning("Il thread di rete non si è fermato entro 3 s")
+            _log.warning("Il thread di rete non si è fermato entro 3 s: lo si forza")
+            if loop is not None and not loop.is_closed():
+                loop.call_soon_threadsafe(loop.stop)
+            thread.wait(1000)
 
         self._loop = None
+        self._wakeup = None
         self._service_state = ServiceState.STOPPED
+
+    def _request_stop(self) -> None:
+        """Gira nel thread di rete: sveglia le attese e chiude il canale."""
+        if self._wakeup is not None:
+            self._wakeup.set()
+
+        transport = self._transport
+        if transport is not None:
+            # La chiusura termina l'iterazione dei messaggi, e la sessione
+            # finisce da sé lungo il percorso ordinario.
+            asyncio.get_running_loop().create_task(self._close_quietly(transport))
+
+    @staticmethod
+    async def _close_quietly(transport: ITransport) -> None:
+        """Chiude senza propagare: durante l'arresto un guasto non interessa."""
+        with contextlib.suppress(Exception):
+            await transport.close()
+
+    async def _sleep(self, delay: float) -> None:
+        """Attende, ma si interrompe subito se il servizio si sta fermando.
+
+        Senza questo, chiudere l'applicazione durante un backoff da trenta
+        secondi la lascerebbe appesa fino allo scadere dell'attesa.
+        """
+        if self._wakeup is None:
+            await asyncio.sleep(delay)
+            return
+        with contextlib.suppress(TimeoutError):
+            await asyncio.wait_for(self._wakeup.wait(), delay)
 
     def health(self) -> Health:
         """Salute del servizio, senza mai sollevare."""
@@ -247,6 +299,7 @@ class NetworkService(QtCore.QObject):
     async def _main(self) -> None:
         """Ciclo di connessione e riconnessione. Gira nel thread di rete."""
         self._loop = asyncio.get_running_loop()
+        self._wakeup = asyncio.Event()
 
         while not self._stopping.is_set() and not self._halted:
             self._state.set_link_state(LinkState.CONNECTING, reason=self._backoff.describe())
@@ -278,15 +331,38 @@ class NetworkService(QtCore.QObject):
 
             delay = self._backoff.next_delay()
             _log.info("Nuovo tentativo fra %.1f s", delay)
-            await asyncio.sleep(delay)
+            await self._sleep(delay)
 
         if self._halted:
             _log.error("Tentativi sospesi: %s", self._detail or "rifiuto non ritentabile")
 
+    def _named_scenario(self) -> Scenario | None:
+        """Scenario indicato dalla configurazione, se esiste."""
+        from jarvis_sim import by_name
+
+        try:
+            return by_name(self._settings.scenario)
+        except KeyError as exc:
+            _log.warning("%s", exc)
+            return None
+
+    def transport_factory(self):
+        """Restituisce un costruttore di trasporti nuovi.
+
+        Serve alla verifica di conformita', che richiede una connessione pulita
+        per controllo: riusarne una sola renderebbe ogni esito dipendente dai
+        precedenti.
+        """
+        return self._make_transport
+
     def _make_transport(self) -> ITransport:
         """Costruisce il trasporto scelto dalla configurazione."""
-        if self._settings.transport == "mock":
-            return MockTransport(self._scenario)
+        if self._replay is not None:
+            return SessionReplayer(self._replay)
+        if self._settings.transport in ("sim", "mock"):
+            # "mock" resta accettato come sinonimo storico: rinominare una
+            # voce di configurazione non deve invalidare i file gia' scritti.
+            return SimTransport(self._scenario or self._named_scenario())
         return WebSocketTransport(
             self._settings.url, connect_timeout=self._settings.connect_timeout_s
         )
@@ -309,7 +385,7 @@ class NetworkService(QtCore.QObject):
                     severity=ErrorSeverity.WARNING,
                 )
             )
-        await asyncio.sleep(delay)
+        await self._sleep(delay)
 
     async def _session(self, transport: ITransport) -> None:
         """Handshake, heartbeat e lettura dei messaggi."""
@@ -485,10 +561,61 @@ class NetworkService(QtCore.QObject):
     # ------------------------------------------------------------------ #
 
     def _record(self, direction: str, envelope: Envelope) -> None:
-        """Registra una busta per la Developer Console."""
+        """Registra una busta per la Developer Console e per la sessione."""
         with self._traffic_lock:
             self._traffic.append((time.time(), direction, envelope))
+        self._recorder.record(direction, envelope)
         self.traffic.emit(direction, envelope)
+
+    # ------------------------------------------------------------------ #
+    # Registrazione e replay
+    # ------------------------------------------------------------------ #
+
+    @property
+    def recorder(self) -> SessionRecorder:
+        """Registratore della sessione, per gli strumenti di ispezione."""
+        return self._recorder
+
+    def start_recording(self, note: str = "") -> None:
+        """Avvia la registrazione della sessione."""
+        self._recorder.set_backend(self._identity.backend.backend_name)
+        self._recorder.start(note)
+        _log.info("Registrazione della sessione avviata")
+
+    def stop_recording(self) -> Recording:
+        """Ferma la registrazione e restituisce quanto raccolto."""
+        registrazione = self._recorder.stop()
+        _log.info("Registrazione fermata: %d messaggi", len(registrazione))
+        return registrazione
+
+    def set_replay(self, recording: Recording | None) -> None:
+        """Sostituisce il backend con una registrazione, o ripristina il canale.
+
+        Riavvia il servizio: il trasporto si sceglie all'apertura della
+        sessione, e cambiarlo a canale aperto lascerebbe l'interfaccia con uno
+        stato a meta' fra le due sorgenti.
+        """
+        era_attivo = self._thread is not None
+        if era_attivo:
+            self.stop()
+
+        self._replay = recording
+        if recording is not None:
+            _log.info(
+                "Modalita' replay: %d messaggi, %.1fs. La sessione non reagira' "
+                "ai comandi — riproduce, non simula.",
+                len(recording),
+                recording.duration,
+            )
+        else:
+            _log.info("Replay terminato: si torna al backend configurato")
+
+        if era_attivo:
+            self.start()
+
+    @property
+    def is_replaying(self) -> bool:
+        return self._replay is not None
 
     def traffic_history(self) -> tuple[tuple[float, str, Envelope], ...]:
         """Copia dello storico del traffico."""
@@ -514,6 +641,8 @@ class NetworkService(QtCore.QObject):
                 else None
             ),
             "buste_registrate": traffic_count,
+            "registrazione": "attiva" if self._recorder.is_recording else "ferma",
+            "replay": "attivo" if self._replay is not None else "no",
             "limiti": self._limits,
         }
 

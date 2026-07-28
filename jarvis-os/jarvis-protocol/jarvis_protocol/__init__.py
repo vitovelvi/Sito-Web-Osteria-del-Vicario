@@ -12,7 +12,12 @@ La specifica completa è in ``jarvis-docs/01-jcp-specifica.md``. Il backend simu
 from jarvis_protocol.auth import AuthScheme, Credentials, load_credentials
 from jarvis_protocol.capabilities import CLIENT_CAPABILITIES, Capability
 from jarvis_protocol.envelope import Envelope, new_message_id
-from jarvis_protocol.errors import ErrorCode, ProtocolError, is_retryable
+from jarvis_protocol.errors import (
+    ErrorCode,
+    ProtocolError,
+    TransportError,
+    is_retryable,
+)
 from jarvis_protocol.messages import (
     EXT_PREFIX,
     MessageType,
@@ -44,6 +49,7 @@ __all__ = [
     "ProtocolError",
     "ProtocolVersion",
     "RiskLevel",
+    "TransportError",
     "coerce_status",
     "is_extension",
     "is_retryable",
