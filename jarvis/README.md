@@ -23,6 +23,7 @@ disabilitati, ma pannelli che non vengono proprio costruiti.
 | 1 | Guscio GUI: tema, finestra frameless, HUD, notifiche, tray | ✅ |
 | 2 | Nucleo animato: FrameClock, preset, dissolvenze, renderer | ✅ |
 | 3 | Rete: trasporto, MockBackend, handshake, heartbeat, riconnessione | ✅ |
+| 3.5 | JCP, adapter layer, Developer Console | ✅ |
 | 4 | Pannelli: PanelHost, registry, layout persistente | ⏳ |
 | 5 | Audio: riproduzione streaming, inviluppo, cattura, VAD | ⏳ |
 | 6 | Visione: cattura OpenCV, pipeline, pannello webcam | ⏳ |
@@ -45,8 +46,8 @@ python -m venv .venv
 Argomenti utili:
 
 ```bash
-python main.py --transport mock        # backend simulato (default in fase 0-2)
-python main.py --url ws://host:8765/j  # backend reale
+python main.py --transport mock        # backend JCP simulato (default)
+python main.py --url ws://host:8765/j  # backend reale (vedi backend.adapter)
 python main.py --no-translucent        # su hardware senza compositing
 python main.py --log-level DEBUG
 ```
@@ -76,12 +77,13 @@ core/              nucleo non visivo — non importa mai da ui/
   registry.py      service registry con DI e ordine topologico
   identity.py      identità locale persistente e identità del backend
   capabilities.py  negoziazione delle funzioni disponibili
-  protocol/        envelope versionato, schemi, capability
   settings.py      configurazione stratificata e validata
   frameclock.py    sorgente unica del tempo a 60 FPS
-network/           comunicazione con OpenClaw
-  transport/       sposta buste, non le interpreta
-  mock/            backend simulato: handshake, streaming, cadute, latenza
+  jcp/             JARVIS Communication Protocol 1.0 (vedi docs/01-…)
+network/           comunicazione con il backend
+  transport/       muove dizionari, non conosce JCP
+  adapters/        traducono dialetto ↔ JCP: native, openclaw
+  mock/            backend JCP simulato, riferimento eseguibile della specifica
   dispatcher.py    unico punto che conosce i tipi di messaggio
   reconnect.py     backoff esponenziale, jitter, interruttore
   service.py       thread asyncio dedicato, sessione, heartbeat
@@ -89,6 +91,7 @@ ui/                presentazione — può importare da core, mai il contrario
   theme/           design token in JSON → QSS generato
   frameless.py     finestra senza cornice, ombra in cache
   reactor/         nucleo: parametri, animatore, renderer, widget
+  devtools/        Developer Console (F12): timeline, ispettore, diagnostica
 tests/             unit + integration + ui
 ```
 
@@ -115,9 +118,15 @@ software a ogni frame: su un cerchio grande costa da solo l'intero budget di
 quantizzata su colore *e* raggio — senza quantizzare il raggio, il respiro
 manca la cache a ogni frame.
 
-**Contratto di protocollo versionato.** Envelope con versione, handshake con
-capability, schemi tolleranti ai campi sconosciuti. È ciò che permette di
-aggiornare GUI e backend in momenti diversi.
+**JCP indipendente dal backend.** Envelope versionato `major.minor`, handshake
+con capability, autenticazione, stream generici, spazio `ext.` per le
+estensioni. `major` diverso rifiuta la sessione; `minor` diverso la accetta —
+è la regola che permette di aggiornare GUI e backend in momenti diversi. Un
+backend con un dialetto proprio si collega scrivendo **un solo adapter**.
+
+**Un solo meccanismo di stream.** `stream.open/data/close` con un campo `kind`:
+audio, video e file condividono lo stesso framing. Tre famiglie di messaggi
+quasi identiche sarebbero tre da mantenere in parallelo.
 
 ---
 
@@ -137,6 +146,18 @@ Override da ambiente: `JARVIS_<SEZIONE>__<CHIAVE>`, ad esempio
 **Nessuna chiave API nel codice, nella configurazione o nei log.** I segreti
 vivono nel keyring dell'OS; il formatter di logging redige automaticamente i
 pattern noti.
+
+---
+
+## Developer Console
+
+**F12** apre timeline degli eventi, Event Inspector, monitor dei servizi,
+diagnostica in tempo reale e vista del traffico JCP. Si aggiorna solo quando è
+visibile. Si disattiva con `app.developer_tools = false`.
+
+È lo strumento che distingue "l'evento non è arrivato alla GUI" da "il backend
+non l'ha mai inviato" — la prima domanda quando qualcosa non funziona, e quella
+a cui senza questi pannelli si risponde per congetture.
 
 ---
 

@@ -57,6 +57,9 @@ class _Base(BaseModel):
 class AppGeneralSettings(_Base):
     standby_after_hidden_s: int = Field(default=300, ge=0)
     single_instance: bool = True
+    developer_tools: bool = True
+    """Developer Console richiamabile con F12. Da disattivare nelle build
+    distribuite a utenti finali."""
 
 
 class WindowSettings(_Base):
@@ -74,6 +77,13 @@ class WindowSettings(_Base):
 
 class BackendSettings(_Base):
     transport: Literal["websocket", "mock"] = "mock"
+    adapter: Literal["jcp-native", "openclaw"] = "jcp-native"
+    """Dialetto del backend. 'jcp-native' per un backend conforme a JCP,
+    'openclaw' per la traduzione verso il dialetto di OpenClaw."""
+
+    auth_scheme: Literal["none", "token", "challenge"] = "none"
+    """Il segreto non sta qui: vive nel keyring dell'OS (vedi core/jcp/auth.py)."""
+
     url: str = "ws://127.0.0.1:8765/jarvis"
     connect_timeout_s: float = Field(default=5.0, gt=0)
     heartbeat_interval_s: float = Field(default=10.0, gt=0)

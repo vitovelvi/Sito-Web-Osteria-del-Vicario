@@ -12,6 +12,8 @@
 # Sospende animazioni e sensori quando la finestra e' nascosta a lungo.
 standby_after_hidden_s = 300
 single_instance = true
+# Developer Console (F12): timeline eventi, ispettore, servizi, diagnostica.
+developer_tools = true
 
 [window]
 frameless = true
@@ -29,8 +31,13 @@ corner_radius = 18
 opacity = 1.0
 
 [backend]
-# Trasporto: "websocket" per OpenClaw reale, "mock" per il backend simulato.
+# Trasporto: "websocket" per un backend reale, "mock" per quello simulato.
 transport = "mock"
+# Dialetto del backend: "jcp-native" (conforme a JCP) oppure "openclaw".
+adapter = "jcp-native"
+# Autenticazione: "none", "token" o "challenge". Il segreto vive nel keyring
+# dell'OS, mai in questo file.
+auth_scheme = "none"
 url = "ws://127.0.0.1:8765/jarvis"
 connect_timeout_s = 5.0
 # Heartbeat: intervallo di ping e soglia oltre la quale il canale e' DEGRADED.

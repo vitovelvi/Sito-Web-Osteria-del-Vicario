@@ -136,7 +136,10 @@ class CapabilitySet:
     """Insieme delle funzioni dichiarate disponibili dal backend."""
 
     granted: frozenset[str] = frozenset()
-    protocol_version: int = 0
+    protocol_version: str = ""
+    """Versione JCP concordata, nella forma ``major.minor``. Vuota prima
+    dell'handshake: mostrare ``0`` suggerirebbe una versione zero esistente."""
+
     unknown: frozenset[str] = frozenset()
 
 

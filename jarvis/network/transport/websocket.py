@@ -1,14 +1,14 @@
-"""Trasporto WebSocket verso OpenClaw."""
+"""Trasporto WebSocket."""
 
 from __future__ import annotations
 
 import asyncio
+import json
 from collections.abc import AsyncIterator
 from typing import Any
 
-from core.errors import ProtocolError, TransportError
+from core.errors import TransportError
 from core.logging_setup import LogCategory, get_logger
-from core.protocol.envelope import Envelope
 
 __all__ = ["WebSocketTransport"]
 
@@ -51,10 +51,10 @@ class WebSocketTransport:
             self._socket = await asyncio.wait_for(
                 websockets.connect(
                     self._url,
-                    # Il ping di protocollo è disattivato: l'heartbeat
-                    # applicativo misura la latenza end-to-end, che è
-                    # l'informazione utile. Due meccanismi sovrapposti darebbero
-                    # numeri diversi e nessuno saprebbe quale credere.
+                    # Il ping di protocollo è disattivato: l'heartbeat JCP misura
+                    # la latenza end-to-end, che è l'informazione utile. Due
+                    # meccanismi sovrapposti darebbero numeri diversi e nessuno
+                    # saprebbe quale credere.
                     ping_interval=None,
                     max_size=8 * 1024 * 1024,
                 ),
@@ -70,7 +70,6 @@ class WebSocketTransport:
         _log.info("Connesso a %s", self._url)
 
     async def close(self) -> None:
-        """Chiude il canale senza mai sollevare."""
         socket, self._socket = self._socket, None
         if socket is None:
             return
@@ -79,21 +78,21 @@ class WebSocketTransport:
         except Exception:
             _log.debug("Chiusura del socket non pulita", exc_info=True)
 
-    async def send(self, envelope: Envelope) -> None:
+    async def send(self, message: dict[str, Any]) -> None:
         socket = self._socket
         if socket is None:
             raise TransportError("Canale non aperto")
         try:
-            await socket.send(envelope.to_json())
+            await socket.send(json.dumps(message, separators=(",", ":")))
         except Exception as exc:
             raise TransportError(f"Invio non riuscito: {exc}") from exc
 
-    async def receive(self) -> AsyncIterator[Envelope]:
-        """Itera sulle buste valide in arrivo.
+    async def receive(self) -> AsyncIterator[dict[str, Any]]:
+        """Itera sui messaggi decodificati.
 
-        Un messaggio malformato viene loggato e **saltato**: il ciclo prosegue.
-        Interrompere la connessione per un payload sbagliato darebbe a un bug
-        del backend il potere di scollegare l'interfaccia.
+        Un frame non decodificabile viene loggato e **saltato**: il ciclo
+        prosegue. Interrompere la connessione per un frame sbagliato darebbe a
+        un bug del backend il potere di scollegare l'interfaccia.
         """
         socket = self._socket
         if socket is None:
@@ -102,9 +101,14 @@ class WebSocketTransport:
         try:
             async for raw in socket:
                 try:
-                    yield Envelope.from_json(raw)
-                except ProtocolError as exc:
-                    _log.warning("Messaggio scartato: %s", exc)
+                    decoded = json.loads(raw)
+                except (json.JSONDecodeError, UnicodeDecodeError, TypeError) as exc:
+                    _log.warning("Frame non decodificabile: %s", exc)
+                    continue
+                if not isinstance(decoded, dict):
+                    _log.warning("Frame di tipo %s: atteso un oggetto", type(decoded).__name__)
+                    continue
+                yield decoded
         except asyncio.CancelledError:
             raise
         except Exception as exc:

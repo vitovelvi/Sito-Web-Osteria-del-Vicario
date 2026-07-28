@@ -1,13 +1,14 @@
-"""Backend OpenClaw simulato.
+"""Backend simulato: riferimento eseguibile di JCP 1.0.
 
-Non è un accessorio: senza, la GUI non è sviluppabile né testabile a backend
-spento, e non si possono riprodurre in modo deterministico latenza,
-disconnessioni a metà risposta, payload malformati o versioni di protocollo
-incompatibili. Sono esattamente i casi in cui un'interfaccia si comporta male,
-e sono quelli che con un backend reale non si sanno provocare a comando.
+Non è un accessorio. Senza, la GUI non è sviluppabile né testabile a backend
+spento, e non si possono riprodurre in modo deterministico i casi in cui
+un'interfaccia si comporta male: latenza, handshake omesso, caduta a metà
+risposta, payload malformato, versione di protocollo incompatibile,
+autenticazione rifiutata. Con un backend reale, quei casi non si sanno
+provocare a comando.
 
-Implementa :class:`~network.transport.base.ITransport`, quindi il resto
-dell'applicazione non distingue questo oggetto da una connessione vera.
+Parla JCP nativamente e implementa i sei punti di conformità della specifica
+(§10), quindi funziona con :class:`~network.adapters.native.NativeJcpAdapter`.
 """
 
 from __future__ import annotations
@@ -24,10 +25,12 @@ from pathlib import Path
 from typing import Any
 
 from core.errors import TransportError
+from core.jcp.capabilities import Capability
+from core.jcp.envelope import Envelope
+from core.jcp.errors import ErrorCode
+from core.jcp.messages import MessageType
+from core.jcp.version import PROTOCOL_VERSION
 from core.logging_setup import LogCategory, get_logger
-from core.protocol.capabilities import Capability
-from core.protocol.envelope import PROTOCOL_VERSION, Envelope
-from core.protocol.messages import MessageType
 
 __all__ = ["MockScenario", "MockTransport"]
 
@@ -46,16 +49,14 @@ _REPLIES: tuple[str, ...] = (
 class MockScenario:
     """Parametri di simulazione.
 
-    Ogni campo esiste per riprodurre un caso limite osservato con backend reali.
+    Ogni campo riproduce un caso limite reale.
     """
 
     handshake_delay: float = 0.4
-    """Ritardo prima di ``server.hello``. Alzarlo mostra "Connessione a Jarvis…"
-    abbastanza a lungo da poterlo valutare."""
+    """Ritardo prima di ``session.welcome``. Alzarlo mostra "Connessione a
+    Jarvis…" abbastanza a lungo da poterlo valutare."""
 
     latency: float = 0.05
-    """Ritardo applicato a ogni risposta."""
-
     capabilities: tuple[str, ...] = (
         Capability.CHAT_STREAM.value,
         Capability.CHAT_CANCEL.value,
@@ -64,24 +65,28 @@ class MockScenario:
         Capability.IDENTITY.value,
     )
 
-    protocol_version: int = PROTOCOL_VERSION
-    """Portarlo fuori dalla finestra supportata verifica il rifiuto pulito."""
+    protocol_major: int = PROTOCOL_VERSION.major
+    protocol_minor: int = PROTOCOL_VERSION.minor
+    """Cambiare ``major`` verifica il rifiuto pulito; cambiare ``minor``
+    verifica che una differenza additiva **non** interrompa la sessione."""
+
+    require_auth: bool = False
+    accepted_token: str = "segreto-di-prova"
+    """Con ``require_auth`` attivo, un token diverso produce ``session.denied``."""
 
     refuse_handshake: bool = False
     """Il backend accetta la connessione ma non si presenta mai: verifica il
-    timeout dell'handshake, che è diverso dal timeout di connessione."""
+    timeout dell'handshake, distinto da quello di connessione."""
 
     drop_after: float | None = None
-    """Secondi dopo i quali il canale cade, anche a metà risposta."""
-
     fail_connect: bool = False
-    """La connessione fallisce: verifica il backoff."""
-
     malformed_every: int = 0
     """Ogni quanti messaggi inviarne uno non conforme (0 = mai)."""
 
     emit_audio: bool = True
-    """Se generare uno stream audio sintetico dopo ogni risposta."""
+    emit_unknown: bool = False
+    """Invia anche un messaggio di tipo sconosciuto e un ``ext.*``: verifica che
+    la GUI li ignori invece di inciampare."""
 
     seed: int = 7
     _rng: random.Random | None = field(default=None, repr=False)
@@ -99,13 +104,13 @@ class MockScenario:
     def from_file(cls, path: Path) -> MockScenario:
         """Carica uno scenario da JSON.
 
-        Formato JSON e non YAML per non aggiungere una dipendenza a un
-        componente di sola diagnostica: le chiavi sono i campi di questa classe.
+        JSON e non YAML per non aggiungere una dipendenza a un componente di
+        sola diagnostica: le chiavi sono i campi di questa classe.
         """
         try:
             data = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError) as exc:
-            _log.warning("Scenario '%s' non leggibile (%s): si usa quello di default", path, exc)
+            _log.warning("Scenario '%s' non leggibile (%s): si usa il default", path, exc)
             return cls()
 
         known = {f for f in cls.__slots__ if not f.startswith("_")}  # type: ignore[attr-defined]
@@ -113,15 +118,15 @@ class MockScenario:
 
 
 class MockTransport:
-    """Backend simulato che parla il dialetto canonico."""
+    """Backend JCP simulato, sul contratto di :class:`ITransport`."""
 
     def __init__(self, scenario: MockScenario | None = None) -> None:
         self._scenario = scenario or MockScenario()
-        self._outbox: asyncio.Queue[Envelope | None] = asyncio.Queue()
+        self._outbox: asyncio.Queue[dict[str, Any] | None] = asyncio.Queue()
         self._connected = False
         self._tasks: set[asyncio.Task[None]] = set()
         self._sent_count = 0
-        self._audio_stream = 0
+        self._stream_seq = 0
 
     # ------------------------------------------------------------------ #
     # Contratto del trasporto
@@ -129,7 +134,7 @@ class MockTransport:
 
     @property
     def endpoint(self) -> str:
-        return "mock://openclaw-simulato"
+        return "mock://jcp-simulato"
 
     @property
     def is_connected(self) -> bool:
@@ -139,8 +144,7 @@ class MockTransport:
         if self._scenario.fail_connect:
             raise TransportError("Backend simulato: connessione rifiutata (scenario)")
         self._connected = True
-        _log.info("Backend simulato connesso (scenario: %s)", self._describe_scenario())
-
+        _log.info("Backend simulato connesso (%s)", self._describe_scenario())
         if self._scenario.drop_after is not None:
             self._spawn(self._drop_later(self._scenario.drop_after))
 
@@ -151,17 +155,25 @@ class MockTransport:
         self._tasks.clear()
         await self._outbox.put(None)  # sblocca il ciclo di lettura
 
-    async def send(self, envelope: Envelope) -> None:
-        """Riceve una busta dalla GUI e programma la risposta."""
+    async def send(self, message: dict[str, Any]) -> None:
+        """Riceve un messaggio dalla GUI e programma la risposta."""
         if not self._connected:
             raise TransportError("Backend simulato: canale non aperto")
 
-        if envelope.type == MessageType.CLIENT_HELLO:
-            self._spawn(self._handshake(envelope))
-        elif envelope.type == MessageType.PING:
-            self._spawn(self._pong(envelope))
-        elif envelope.type == MessageType.CHAT_SEND:
-            self._spawn(self._converse(envelope))
+        try:
+            envelope = Envelope.from_wire(message)
+        except Exception:
+            _log.warning("Messaggio in ingresso non conforme: ignorato")
+            return
+
+        handlers = {
+            MessageType.SESSION_HELLO: self._handshake,
+            MessageType.PING: self._pong,
+            MessageType.CHAT_SEND: self._converse,
+        }
+        handler = handlers.get(envelope.type)
+        if handler is not None:
+            self._spawn(handler(envelope))
         elif envelope.type == MessageType.VOICE_START:
             self._spawn(self._emit_state("listening"))
         elif envelope.type == MessageType.VOICE_STOP:
@@ -171,12 +183,12 @@ class MockTransport:
         else:
             _log.debug("Messaggio ignorato dal simulatore: %s", envelope.type)
 
-    async def receive(self) -> AsyncIterator[Envelope]:
+    async def receive(self) -> AsyncIterator[dict[str, Any]]:
         while True:
-            envelope = await self._outbox.get()
-            if envelope is None:
+            message = await self._outbox.get()
+            if message is None:
                 return
-            yield envelope
+            yield message
 
     # ------------------------------------------------------------------ #
     # Simulazione
@@ -193,7 +205,9 @@ class MockTransport:
         self._tasks.add(task)
         task.add_done_callback(self._tasks.discard)
 
-    async def _emit(self, type_: str, payload: dict | None = None, corr: str | None = None) -> None:
+    async def _emit(
+        self, type_: str, payload: dict[str, Any] | None = None, corr: str | None = None
+    ) -> None:
         """Accoda un messaggio verso la GUI, applicando la latenza simulata."""
         if not self._connected:
             return
@@ -202,12 +216,14 @@ class MockTransport:
         self._sent_count += 1
         every = self._scenario.malformed_every
         if every and self._sent_count % every == 0:
-            # Busta valida ma payload della forma sbagliata: verifica che il
+            # Busta valida, payload della forma sbagliata: verifica che il
             # dispatcher scarti invece di propagare.
-            await self._outbox.put(Envelope(type=type_, payload={"__malformato__": True}))
+            await self._outbox.put(
+                Envelope.make(type_, {"__malformato__": True}).to_wire()
+            )
             return
 
-        await self._outbox.put(Envelope(type=type_, payload=payload or {}, corr=corr))
+        await self._outbox.put(Envelope.make(type_, payload or {}, corr=corr).to_wire())
 
     async def _handshake(self, request: Envelope) -> None:
         if self._scenario.refuse_handshake:
@@ -215,21 +231,51 @@ class MockTransport:
             return
 
         await asyncio.sleep(self._scenario.handshake_delay)
+
+        if self._scenario.require_auth:
+            auth = request.payload.get("auth", {})
+            token = auth.get("token") if isinstance(auth, dict) else None
+            if token != self._scenario.accepted_token:
+                await self._emit(
+                    MessageType.SESSION_DENIED,
+                    {
+                        "code": ErrorCode.AUTH_DENIED.value,
+                        "message": "Token non valido",
+                        "retryable": False,
+                    },
+                    corr=request.id,
+                )
+                self._connected = False
+                await self._outbox.put(None)
+                return
+
         await self._emit(
-            MessageType.SERVER_HELLO,
+            MessageType.SESSION_WELCOME,
             {
-                "protocol_version": self._scenario.protocol_version,
-                "backend_name": "OpenClaw",
-                "backend_version": "0.0.0-simulato",
-                "assistant_name": "J.A.R.V.I.S.",
-                "model": "openclaw-mock",
-                "persona": "assistente personale",
+                "protocol": {
+                    "major": self._scenario.protocol_major,
+                    "minor": self._scenario.protocol_minor,
+                },
+                "server": {
+                    "name": "OpenClaw",
+                    "version": "0.0.0-simulato",
+                    "assistant_name": "J.A.R.V.I.S.",
+                    "model": "jcp-mock",
+                    "persona": "assistente personale",
+                },
                 "capabilities": list(self._scenario.capabilities),
                 "session_id": f"mock-{self._scenario.seed}",
+                "limits": {"max_message_bytes": 4 * 1024 * 1024},
             },
             corr=request.id,
         )
         await self._emit(MessageType.AGENT_STATE, {"state": "idle"})
+
+        if self._scenario.emit_unknown:
+            # Un tipo del futuro e un'estensione non negoziata: entrambi devono
+            # essere ignorati senza conseguenze.
+            await self._emit("funzione.del.futuro", {"x": 1})
+            await self._emit("ext.acme.telemetria", {"y": 2})
 
     async def _pong(self, request: Envelope) -> None:
         await self._emit(MessageType.PONG, {}, corr=request.id)
@@ -238,36 +284,20 @@ class MockTransport:
         await self._emit(MessageType.AGENT_STATE, {"state": state})
 
     async def _converse(self, request: Envelope) -> None:
-        """Simula il ciclo completo: elaborazione, risposta, voce."""
+        """Ciclo completo: elaborazione, eventuale task, risposta, voce."""
         message_id = str(request.payload.get("message_id", "?"))
 
         await self._emit_state("thinking")
         await asyncio.sleep(0.35)
 
         if self._scenario.rng.random() < 0.25:
-            task_id = f"t-{self._sent_count}"
-            await self._emit_state("executing")
-            await self._emit(
-                MessageType.TASK_UPDATE,
-                {"task_id": task_id, "label": "Consultazione del calendario", "progress": 0.0},
-            )
-            for progress in (0.4, 0.8, 1.0):
-                await asyncio.sleep(0.2)
-                await self._emit(
-                    MessageType.TASK_UPDATE,
-                    {
-                        "task_id": task_id,
-                        "label": "Consultazione del calendario",
-                        "progress": progress,
-                        "status": "done" if progress >= 1.0 else "running",
-                    },
-                )
+            await self._run_task()
 
         reply = self._scenario.rng.choice(_REPLIES)
         await self._emit_state("speaking")
 
-        # Streaming parola per parola: è il comportamento che rende la chat
-        # viva, ed è anche quello che mette in luce i difetti di scorrimento.
+        # Streaming parola per parola: è ciò che rende viva la chat, ed è anche
+        # ciò che mette in luce i difetti di scorrimento.
         for word in reply.split(" "):
             await asyncio.sleep(0.045)
             await self._emit(
@@ -277,34 +307,51 @@ class MockTransport:
         if self._scenario.emit_audio:
             await self._stream_audio(reply, message_id)
 
-        await self._emit(
-            MessageType.CHAT_DONE, {"text": "", "message_id": message_id, "final": True}
-        )
+        await self._emit(MessageType.CHAT_DONE, {"message_id": message_id})
         await self._emit_state("idle")
+
+    async def _run_task(self) -> None:
+        task_id = f"t-{self._sent_count}"
+        label = "Consultazione del calendario"
+        await self._emit_state("executing")
+        await self._emit(
+            MessageType.TASK_UPDATE, {"task_id": task_id, "label": label, "progress": 0.0}
+        )
+        for progress in (0.4, 0.8, 1.0):
+            await asyncio.sleep(0.2)
+            await self._emit(
+                MessageType.TASK_UPDATE,
+                {
+                    "task_id": task_id,
+                    "label": label,
+                    "progress": progress,
+                    "status": "done" if progress >= 1.0 else "running",
+                },
+            )
 
     async def _stream_audio(self, text: str, message_id: str) -> None:
         """Genera uno stream PCM sintetico con ampiezza variabile.
 
         Non è voce vera, ma ha un **inviluppo plausibile**: serve a verificare
-        che l'equalizzatore del nucleo segua l'ampiezza reale invece di
-        muoversi per conto proprio. Con un flusso a volume costante quel difetto
+        che l'equalizzatore del nucleo segua l'ampiezza reale invece di muoversi
+        per conto proprio. Con un flusso a volume costante quel difetto
         resterebbe invisibile fino al primo collegamento al backend reale.
         """
-        self._audio_stream += 1
-        stream_id = f"a-{self._audio_stream}"
+        self._stream_seq += 1
+        stream_id = f"a-{self._stream_seq}"
         sample_rate = 24000
-        chunk_ms = 60
-        samples_per_chunk = sample_rate * chunk_ms // 1000
+        samples_per_chunk = sample_rate * 60 // 1000  # blocchi da 60 ms
         chunks = max(4, min(60, len(text) // 3))
 
         await self._emit(
-            MessageType.AUDIO_START,
+            MessageType.STREAM_OPEN,
             {
                 "stream_id": stream_id,
+                "kind": "audio",
+                "encoding": "pcm_s16le",
                 "sample_rate": sample_rate,
                 "channels": 1,
-                "encoding": "pcm_s16le",
-                "message_id": message_id,
+                "related_id": message_id,
             },
         )
 
@@ -322,29 +369,36 @@ class MockTransport:
                 samples += struct.pack("<h", int(math.sin(phase) * amplitude * 32767))
 
             await self._emit(
-                MessageType.AUDIO_CHUNK,
+                MessageType.STREAM_DATA,
                 {
                     "stream_id": stream_id,
-                    "sequence": index,
+                    "seq": index,
                     "data": base64.b64encode(bytes(samples)).decode("ascii"),
                 },
             )
 
-        await self._emit(MessageType.AUDIO_END, {"stream_id": stream_id})
+        await self._emit(MessageType.STREAM_CLOSE, {"stream_id": stream_id})
 
     async def _drop_later(self, delay: float) -> None:
-        """Fa cadere il canale dopo un tempo dato."""
         await asyncio.sleep(delay)
         _log.info("Backend simulato: caduta programmata del canale")
         self._connected = False
         await self._outbox.put(None)
 
     def _describe_scenario(self) -> str:
-        parts = [f"latenza {self._scenario.latency * 1000:.0f} ms"]
-        if self._scenario.drop_after:
-            parts.append(f"caduta a {self._scenario.drop_after:.0f}s")
-        if self._scenario.refuse_handshake:
+        s = self._scenario
+        parts = [f"latenza {s.latency * 1000:.0f} ms"]
+        if s.drop_after:
+            parts.append(f"caduta a {s.drop_after:.0f}s")
+        if s.refuse_handshake:
             parts.append("handshake omesso")
-        if self._scenario.malformed_every:
-            parts.append(f"1 messaggio su {self._scenario.malformed_every} malformato")
+        if s.require_auth:
+            parts.append("autenticazione richiesta")
+        if s.malformed_every:
+            parts.append(f"1 messaggio su {s.malformed_every} malformato")
+        if (s.protocol_major, s.protocol_minor) != (
+            PROTOCOL_VERSION.major,
+            PROTOCOL_VERSION.minor,
+        ):
+            parts.append(f"protocollo {s.protocol_major}.{s.protocol_minor}")
         return ", ".join(parts)

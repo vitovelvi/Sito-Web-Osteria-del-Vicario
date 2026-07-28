@@ -78,6 +78,7 @@ class MainWindow(FramelessWindow):
         self._standby_timer.timeout.connect(self._enter_standby)
         self._standby_delay_ms = settings.app.standby_after_hidden_s * 1000
 
+        self._console: QtWidgets.QWidget | None = None
         self._restore_geometry()
         if settings.window.always_on_top:
             self.set_always_on_top(True)
@@ -116,6 +117,28 @@ class MainWindow(FramelessWindow):
         footer.setContentsMargins(14, 0, 14, 14)
         footer.addWidget(self._status)
         layout.addLayout(footer)
+
+    def attach_developer_console(self, console: QtWidgets.QWidget) -> None:
+        """Collega la Developer Console alla scorciatoia F12 e al menu di sistema.
+
+        La finestra non sa come si costruisce la console: la riceve gia' pronta.
+        E' cio' che permette di avviare Jarvis senza strumenti di sviluppo — in
+        una build distribuita basta non chiamare questo metodo.
+        """
+        self._console = console
+        shortcut = QtGui.QShortcut(QtGui.QKeySequence("F12"), self)
+        # ApplicationShortcut: la scorciatoia funziona anche quando il fuoco e'
+        # sulla console stessa, cosi' F12 la chiude come l'ha aperta.
+        shortcut.setContext(Qt.ShortcutContext.ApplicationShortcut)
+        shortcut.activated.connect(console.toggle)
+
+        if self._tray is not None and (menu := self._tray.contextMenu()) is not None:
+            # Va inserita prima di "Esci": il comando di uscita resta l'ultimo,
+            # dove l'utente si aspetta di trovarlo.
+            quit_action = menu.actions()[-1]
+            action = QtGui.QAction("Developer Console", menu)
+            action.triggered.connect(console.toggle)
+            menu.insertAction(quit_action, action)
 
     @property
     def stage(self) -> QtWidgets.QWidget:
@@ -262,6 +285,8 @@ class MainWindow(FramelessWindow):
         self._save_geometry()
 
         if getattr(self, "_closing_for_real", False) or self._tray is None:
+            if self._console is not None:
+                self._console.close()
             for subscription in self._subscriptions:
                 subscription.unsubscribe()
             super().closeEvent(event)

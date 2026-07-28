@@ -34,6 +34,7 @@ from core.settings import AppSettings, SettingsStore
 from core.state.machines import AppState
 from core.state.manager import StateManager
 from network.service import NetworkService
+from ui.devtools import DeveloperConsole
 from ui.main_window import MainWindow
 from ui.theme.theme import Theme, load_theme
 
@@ -222,6 +223,15 @@ def main(argv: list[str] | None = None) -> int:
     _install_error_bridge(bus, state)
 
     window = MainWindow(bus, state, clock, theme, settings)
+
+    # Gli strumenti di sviluppo sono opzionali: in una build distribuita basta
+    # non collegarli, e la GUI non ne conserva traccia.
+    if settings.app.developer_tools:
+        window.attach_developer_console(
+            DeveloperConsole(
+                bus, state, clock, registry, theme, registry.try_resolve(NetworkService)
+            )
+        )
 
     # Ctrl+C da terminale: senza questo, il ciclo di eventi Qt ignora SIGINT e
     # l'unico modo di fermare l'applicazione in sviluppo e' ucciderla.

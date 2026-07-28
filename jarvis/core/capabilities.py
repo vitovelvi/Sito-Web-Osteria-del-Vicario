@@ -26,8 +26,9 @@ from collections.abc import Callable, Iterable
 from core.errors import JarvisError
 from core.eventbus import EventBus, Subscription
 from core.events import CapabilitySet, EventType
+from core.jcp.capabilities import CLIENT_CAPABILITIES, Capability
+from core.jcp.messages import EXT_PREFIX
 from core.logging_setup import LogCategory, get_logger
-from core.protocol.capabilities import CLIENT_CAPABILITIES, Capability
 
 __all__ = ["CapabilityManager", "MissingCapabilityError"]
 
@@ -46,7 +47,7 @@ class CapabilityManager:
         self._lock = threading.RLock()
         self._granted: frozenset[str] = frozenset()
         self._unknown: frozenset[str] = frozenset()
-        self._protocol_version = 0
+        self._protocol_version = ""
         self._listeners: list[Callable[[frozenset[str]], None]] = []
 
     # ------------------------------------------------------------------ #
@@ -94,8 +95,8 @@ class CapabilityManager:
             return self._unknown
 
     @property
-    def protocol_version(self) -> int:
-        """Versione di protocollo concordata; ``0`` prima dell'handshake."""
+    def protocol_version(self) -> str:
+        """Versione JCP concordata; stringa vuota prima dell'handshake."""
         with self._lock:
             return self._protocol_version
 
@@ -108,7 +109,7 @@ class CapabilityManager:
     # Aggiornamento
     # ------------------------------------------------------------------ #
 
-    def apply(self, declared: Iterable[str], *, protocol_version: int) -> CapabilitySet:
+    def apply(self, declared: Iterable[str], *, protocol_version: str = "") -> CapabilitySet:
         """Registra le capability dichiarate dal backend.
 
         :param declared: elenco grezzo ricevuto in ``server.hello``.
@@ -117,8 +118,15 @@ class CapabilityManager:
         """
         known = {c.value for c in Capability}
         received = {str(c) for c in declared}
-        granted = frozenset(received & known)
-        unknown = frozenset(received - known)
+
+        # Lo spazio ``ext.`` è aperto per definizione: un'estensione dichiarata
+        # è **concessa**, anche se questa build non la conosce — è il core a non
+        # doverla interpretare, non il backend a non poterla offrire. Trattarla
+        # come sconosciuta impedirebbe a qualunque estensione di funzionare, che
+        # è l'opposto del meccanismo previsto dalla specifica (§6).
+        extensions = {c for c in received if c.startswith(EXT_PREFIX)}
+        granted = frozenset((received & known) | extensions)
+        unknown = frozenset(received - known - extensions)
 
         with self._lock:
             previous = self._granted
@@ -128,8 +136,13 @@ class CapabilityManager:
 
         if granted:
             _log.info("Capability disponibili: %s", ", ".join(sorted(granted)))
+        elif received:
+            _log.warning(
+                "Nessuna capability riconosciuta fra quelle dichiarate: %s",
+                ", ".join(sorted(received)),
+            )
         else:
-            _log.warning("Il backend non ha dichiarato alcuna capability nota")
+            _log.warning("Il backend non ha dichiarato alcuna capability")
         if unknown:
             _log.info(
                 "Capability dichiarate ma non supportate da questa versione: %s",
@@ -158,7 +171,7 @@ class CapabilityManager:
                 return
             self._granted = frozenset()
             self._unknown = frozenset()
-            self._protocol_version = 0
+            self._protocol_version = ""
 
         _log.info("Capability azzerate: nessun backend connesso")
         self._bus.publish(

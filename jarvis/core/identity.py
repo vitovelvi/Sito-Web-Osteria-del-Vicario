@@ -28,11 +28,11 @@ from dataclasses import replace
 
 from core.eventbus import EventBus
 from core.events import BackendIdentity, EventType
+from core.jcp.capabilities import CLIENT_CAPABILITIES
+from core.jcp.messages import ClientInfo, ProtocolField, SessionHelloPayload, SessionWelcomePayload
+from core.jcp.version import PROTOCOL_VERSION
 from core.logging_setup import LogCategory, get_logger
 from core.paths import AppPaths, app_paths
-from core.protocol.capabilities import CLIENT_CAPABILITIES
-from core.protocol.envelope import PROTOCOL_VERSION
-from core.protocol.messages import ClientHelloPayload, ServerHelloPayload
 
 __all__ = ["ClientIdentity", "IdentityService"]
 
@@ -100,15 +100,20 @@ class ClientIdentity:
             return generated, False
         return generated, True
 
-    def to_hello(self) -> ClientHelloPayload:
-        """Costruisce il messaggio di presentazione per l'handshake."""
-        return ClientHelloPayload(
-            protocol_version=PROTOCOL_VERSION,
-            client_version=self.version,
-            instance_id=self.instance_id,
-            device_name=self.device_name,
-            platform=self.platform_name,
+    def to_hello(self, auth: dict[str, str] | None = None) -> SessionHelloPayload:
+        """Costruisce il messaggio ``session.hello``."""
+        return SessionHelloPayload(
+            protocol=ProtocolField(
+                major=PROTOCOL_VERSION.major, minor=PROTOCOL_VERSION.minor
+            ),
+            client=ClientInfo(
+                version=self.version,
+                instance_id=self.instance_id,
+                device=self.device_name,
+                platform=self.platform_name,
+            ),
             capabilities=sorted(CLIENT_CAPABILITIES),
+            auth=auth or {"scheme": "none"},  # type: ignore[arg-type]
         )
 
     def __repr__(self) -> str:  # pragma: no cover - diagnostica
@@ -144,9 +149,9 @@ class IdentityService:
         """Identita' di questa installazione."""
         return self._client
 
-    def hello_payload(self) -> ClientHelloPayload:
-        """Payload di presentazione da inviare all'apertura del canale."""
-        return self._client.to_hello()
+    def hello_payload(self, auth: dict[str, str] | None = None) -> SessionHelloPayload:
+        """Payload di ``session.hello`` da inviare all'apertura del canale."""
+        return self._client.to_hello(auth)
 
     # ------------------------------------------------------------------ #
     # Identita' remota
@@ -180,19 +185,20 @@ class IdentityService:
         with self._lock:
             return self._backend.assistant_name
 
-    def apply_server_hello(self, payload: ServerHelloPayload) -> BackendIdentity:
-        """Registra l'identita' dichiarata dal backend e la pubblica.
+    def apply_welcome(self, payload: SessionWelcomePayload) -> BackendIdentity:
+        """Registra l'identita' dichiarata in ``session.welcome`` e la pubblica.
 
         :returns: l'identita' risultante.
         """
+        server = payload.server
         identity = BackendIdentity(
-            assistant_name=payload.assistant_name or _PLACEHOLDER.assistant_name,
-            backend_name=payload.backend_name or _PLACEHOLDER.backend_name,
-            backend_version=payload.backend_version,
-            model=payload.model,
-            persona=payload.persona,
-            accent_color=payload.accent_color,
-            instance_id=payload.instance_id,
+            assistant_name=server.assistant_name or _PLACEHOLDER.assistant_name,
+            backend_name=server.name or _PLACEHOLDER.backend_name,
+            backend_version=server.version,
+            model=server.model,
+            persona=server.persona,
+            accent_color=server.accent_color,
+            instance_id=server.instance_id,
         )
 
         with self._lock:

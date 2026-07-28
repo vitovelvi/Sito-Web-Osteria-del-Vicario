@@ -1,20 +1,19 @@
-"""Servizio di rete: unico ponte fra la GUI e OpenClaw.
+"""Servizio di rete: unico ponte fra la GUI e il backend.
 
 **Modello di concorrenza.** Il loop asyncio vive in un thread dedicato; la
 frontiera con l'interfaccia è fatta solo di pubblicazioni sul bus, che
 marshalla da sé verso il thread GUI. La conseguenza è strutturale: nessuna
 coroutine può bloccare il rendering, qualunque cosa faccia la rete.
 
-L'alternativa — ``qasync``, un unico loop condiviso — è più elegante sulla
-carta, ma una coroutine lenta blocca l'interfaccia e gli stack misti Qt/asyncio
-sono penosi da leggere. Qui il costo è un ``run_coroutine_threadsafe`` per
-l'invio, incapsulato in :meth:`NetworkService.send`.
+**Catena.** Trasporto (dizionari) → adapter (dialetto ↔ JCP) → dispatcher (JCP
+→ eventi di dominio). Il servizio orchestra la sessione e non conosce né il
+dialetto del backend né i tipi di messaggio.
 
-**Ciclo di vita di una sessione**: connessione → ``client.hello`` →
-``server.hello`` (con timeout proprio, distinto da quello di connessione) →
-heartbeat → lettura dei messaggi. Alla caduta: identità azzerata, capability
-svuotate, backoff e nuovo tentativo. Il tutto senza mai bloccare l'avvio della
-GUI, che parte e resta reattiva anche se il backend non esiste.
+**Ciclo di una sessione**: connessione → ``session.hello`` → ``session.welcome``
+(con timeout proprio) → heartbeat → lettura. Alla caduta: identità azzerata,
+capability svuotate, backoff, nuovo tentativo. Un rifiuto non ritentabile —
+token sbagliato, versione incompatibile — **ferma i tentativi** e lo dice:
+insistere non renderebbe valido il token, riempirebbe solo i log.
 """
 
 from __future__ import annotations
@@ -31,14 +30,18 @@ from core.errors import ErrorCondition, ErrorSeverity, TransportError
 from core.eventbus import EventBus
 from core.events import Empty, EventType, LatencySample, LinkStatus
 from core.identity import IdentityService
+from core.jcp.auth import Credentials, load_credentials
+from core.jcp.envelope import Envelope
+from core.jcp.messages import MessageType
 from core.logging_setup import LogCategory, get_logger
-from core.protocol.envelope import Envelope
-from core.protocol.messages import MessageType
 from core.qtcompat import QtCore
 from core.service import Health, ServiceState
 from core.settings import BackendSettings
 from core.state.machines import LinkState
 from core.state.manager import StateManager
+from network.adapters.base import IBackendAdapter
+from network.adapters.native import NativeJcpAdapter
+from network.adapters.openclaw import OpenClawAdapter
 from network.dispatcher import MessageDispatcher
 from network.mock.backend import MockScenario, MockTransport
 from network.reconnect import BackoffPolicy
@@ -49,11 +52,16 @@ __all__ = ["NetworkService"]
 
 _log = get_logger(LogCategory.NETWORK)
 
-#: Campione di latenza conservati per la media mobile mostrata in HUD.
+#: Campioni di latenza conservati per la media mobile mostrata in HUD.
 _LATENCY_WINDOW = 10
 
 #: Heartbeat mancati consecutivi dopo i quali la sessione si considera persa.
 _MAX_MISSED_BEATS = 3
+
+#: Buste conservate per la Developer Console. Un tetto è necessario: uno stream
+#: audio produce decine di messaggi al secondo, e senza limite la memoria
+#: crescerebbe per tutta la sessione.
+_TRAFFIC_HISTORY = 400
 
 
 class NetworkService(QtCore.QObject):
@@ -66,6 +74,10 @@ class NetworkService(QtCore.QObject):
 
     name = "network"
 
+    #: Emesso per ogni busta transitata, con direzione. Alimenta la Developer
+    #: Console senza che il resto dell'applicazione veda il traffico grezzo.
+    traffic = QtCore.Signal(str, object)
+
     def __init__(
         self,
         bus: EventBus,
@@ -75,6 +87,7 @@ class NetworkService(QtCore.QObject):
         settings: BackendSettings,
         *,
         scenario: MockScenario | None = None,
+        adapter: IBackendAdapter | None = None,
         parent: QtCore.QObject | None = None,
     ) -> None:
         super().__init__(parent)
@@ -84,12 +97,15 @@ class NetworkService(QtCore.QObject):
         self._capabilities = capabilities
         self._settings = settings
         self._scenario = scenario
+        self._adapter: IBackendAdapter = adapter or self._make_adapter(settings)
         self._dispatcher = MessageDispatcher(bus, state, identity, capabilities)
+        self._credentials: Credentials = load_credentials(settings.auth_scheme)
 
         self._thread: QtCore.QThread | None = None
         self._loop: asyncio.AbstractEventLoop | None = None
-        self._loop_ready = threading.Event()
         self._stopping = threading.Event()
+        self._halted = False
+        """Vero dopo un rifiuto non ritentabile: si smette di riprovare."""
 
         self._transport: ITransport | None = None
         self._backoff = BackoffPolicy(
@@ -102,8 +118,24 @@ class NetworkService(QtCore.QObject):
 
         self._pending_pings: dict[str, float] = {}
         self._latencies: deque[float] = deque(maxlen=_LATENCY_WINDOW)
+        self._traffic: deque[tuple[float, str, Envelope]] = deque(maxlen=_TRAFFIC_HISTORY)
+        self._traffic_lock = threading.Lock()
         self._service_state = ServiceState.STOPPED
         self._detail: str | None = None
+        self._limits: dict[str, int] = {}
+
+        _log.info(
+            "Adapter '%s', autenticazione: %s",
+            self._adapter.name,
+            self._credentials.describe(),
+        )
+
+    @staticmethod
+    def _make_adapter(settings: BackendSettings) -> IBackendAdapter:
+        """Sceglie l'adapter in base alla configurazione."""
+        if settings.adapter == "openclaw":
+            return OpenClawAdapter()
+        return NativeJcpAdapter()
 
     # ------------------------------------------------------------------ #
     # Ciclo di vita del servizio
@@ -115,9 +147,8 @@ class NetworkService(QtCore.QObject):
             return
 
         self._stopping.clear()
-        self._loop_ready.clear()
+        self._halted = False
         self._service_state = ServiceState.STARTING
-
         service = self
 
         class _NetworkThread(QtCore.QThread):
@@ -133,7 +164,11 @@ class NetworkService(QtCore.QObject):
         self._thread.setObjectName("jarvis-network")
         self._thread.start()
         self._service_state = ServiceState.RUNNING
-        _log.info("Servizio di rete avviato (trasporto: %s)", self._settings.transport)
+        _log.info(
+            "Servizio di rete avviato (trasporto %s, adapter %s)",
+            self._settings.transport,
+            self._adapter.name,
+        )
 
     def stop(self) -> None:
         """Ferma il thread di rete in modo ordinato. Idempotente."""
@@ -145,17 +180,16 @@ class NetworkService(QtCore.QObject):
             # Il loop gira in un altro thread: lo si sveglia da lì.
             loop.call_soon_threadsafe(loop.stop)
 
-        if thread is not None:
-            if not thread.wait(3000):
-                _log.warning("Il thread di rete non si è fermato entro 3 s")
-            else:
-                _log.info("Servizio di rete fermato")
+        if thread is not None and not thread.wait(3000):
+            _log.warning("Il thread di rete non si è fermato entro 3 s")
 
         self._loop = None
         self._service_state = ServiceState.STOPPED
 
     def health(self) -> Health:
         """Salute del servizio, senza mai sollevare."""
+        if self._halted:
+            return Health(state=ServiceState.FAILED, detail=self._detail)
         return Health(state=self._service_state, detail=self._detail)
 
     # ------------------------------------------------------------------ #
@@ -163,18 +197,18 @@ class NetworkService(QtCore.QObject):
     # ------------------------------------------------------------------ #
 
     def send(self, message_type: str, payload: dict[str, Any] | None = None) -> bool:
-        """Invia un messaggio al backend. Chiamabile dal thread GUI.
+        """Invia un messaggio JCP. Chiamabile dal thread GUI.
 
         :returns: ``False`` se il canale non è disponibile. Non solleva: chi
-            chiama è un widget, e un pulsante premuto a canale chiuso non deve
-            produrre un'eccezione ma un'indicazione visiva.
+            chiama è un widget, e un pulsante premuto a canale chiuso deve
+            produrre un'indicazione visiva, non un'eccezione.
         """
         loop = self._loop
         if loop is None or loop.is_closed() or self._transport is None:
             _log.debug("Invio di '%s' scartato: canale non disponibile", message_type)
             return False
 
-        envelope = Envelope(type=message_type, payload=payload or {})
+        envelope = Envelope.make(message_type, payload)
         try:
             asyncio.run_coroutine_threadsafe(self._send(envelope), loop)
         except RuntimeError as exc:  # loop fermato fra il controllo e l'invio
@@ -183,11 +217,20 @@ class NetworkService(QtCore.QObject):
         return True
 
     async def _send(self, envelope: Envelope) -> None:
+        """Traduce e invia una busta."""
         transport = self._transport
         if transport is None:
             return
+
+        messages = self._adapter.to_backend(envelope)
+        if not messages:
+            _log.debug("'%s' non ha corrispondenza nel backend: non inviato", envelope.type)
+            return
+
+        self._record(">", envelope)
         try:
-            await transport.send(envelope)
+            for message in messages:
+                await transport.send(message)
         except TransportError as exc:
             _log.warning("Invio non riuscito: %s", exc)
 
@@ -198,9 +241,8 @@ class NetworkService(QtCore.QObject):
     async def _main(self) -> None:
         """Ciclo di connessione e riconnessione. Gira nel thread di rete."""
         self._loop = asyncio.get_running_loop()
-        self._loop_ready.set()
 
-        while not self._stopping.is_set():
+        while not self._stopping.is_set() and not self._halted:
             self._state.set_link_state(LinkState.CONNECTING, reason=self._backoff.describe())
 
             transport = self._make_transport()
@@ -225,12 +267,15 @@ class NetworkService(QtCore.QObject):
             finally:
                 await self._teardown(transport)
 
-            if self._stopping.is_set():
+            if self._stopping.is_set() or self._halted:
                 break
 
             delay = self._backoff.next_delay()
             _log.info("Nuovo tentativo fra %.1f s", delay)
             await asyncio.sleep(delay)
+
+        if self._halted:
+            _log.error("Tentativi sospesi: %s", self._detail or "rifiuto non ritentabile")
 
     def _make_transport(self) -> ITransport:
         """Costruisce il trasporto scelto dalla configurazione."""
@@ -262,22 +307,22 @@ class NetworkService(QtCore.QObject):
 
     async def _session(self, transport: ITransport) -> None:
         """Handshake, heartbeat e lettura dei messaggi."""
-        messages = transport.receive().__aiter__()
+        messages = self._read(transport)
 
-        await transport.send(
-            Envelope(
-                type=MessageType.CLIENT_HELLO,
-                payload=self._identity.hello_payload().model_dump(),
+        await self._send(
+            Envelope.make(
+                MessageType.SESSION_HELLO,
+                self._identity.hello_payload(self._credentials.to_payload()).model_dump(),
             )
         )
 
-        # L'handshake ha un timeout **proprio**: un backend che accetta la
-        # connessione TCP ma non si presenta è un caso reale (servizio in avvio,
-        # porta occupata da un altro processo) e non va confuso con un host
-        # irraggiungibile, che fallisce prima.
+        # L'handshake ha un timeout **proprio**: un backend che accetta il socket
+        # ma non si presenta è un caso reale (servizio in avvio, porta occupata)
+        # e non va confuso con un host irraggiungibile, che fallisce prima.
         try:
             await asyncio.wait_for(
-                self._await_handshake(messages), timeout=self._settings.connect_timeout_s * 2
+                self._await_handshake(messages),
+                timeout=self._settings.connect_timeout_s * 2,
             )
         except TimeoutError as exc:
             raise TransportError("Il backend non si è presentato entro il timeout") from exc
@@ -297,6 +342,8 @@ class NetworkService(QtCore.QObject):
                 if envelope.type == MessageType.PONG:
                     self._on_pong(envelope)
                     continue
+                if envelope.type == MessageType.SESSION_CLOSE:
+                    raise TransportError("Sessione chiusa dal backend")
                 self._dispatcher.dispatch(envelope)
         finally:
             heartbeat.cancel()
@@ -305,22 +352,53 @@ class NetworkService(QtCore.QObject):
             with contextlib.suppress(asyncio.CancelledError):
                 await heartbeat
 
+    async def _read(self, transport: ITransport):
+        """Legge dal trasporto e traduce in JCP tramite l'adapter."""
+        async for message in transport.receive():
+            for envelope in self._adapter.from_backend(message):
+                self._record("<", envelope)
+                yield envelope
+
     async def _await_handshake(self, messages: Any) -> None:
-        """Consuma i messaggi finché non arriva una presentazione valida."""
+        """Consuma i messaggi finché la sessione non è stabilita o rifiutata."""
         async for envelope in messages:
-            if envelope.type != MessageType.SERVER_HELLO:
+            if envelope.type == MessageType.SESSION_DENIED:
+                result = self._dispatcher.apply_denied(envelope)
+                self._halt_if_permanent(result.retryable, result.reason)
+                raise TransportError(f"Handshake rifiutato: {result.reason}")
+
+            if envelope.type != MessageType.SESSION_WELCOME:
                 _log.debug("In attesa dell'handshake, ignorato: %s", envelope.type)
                 continue
-            if self._dispatcher.apply_server_hello(envelope) is None:
-                raise TransportError("Presentazione del backend rifiutata")
+
+            result = self._dispatcher.apply_welcome(envelope)
+            if not result.accepted:
+                self._halt_if_permanent(result.retryable, result.reason)
+                raise TransportError(f"Handshake rifiutato: {result.reason}")
+
+            if result.payload is not None:
+                self._limits = result.payload.limits.model_dump()
             return
+
         raise TransportError("Canale chiuso prima dell'handshake")
+
+    def _halt_if_permanent(self, retryable: bool, reason: str) -> None:
+        """Sospende i tentativi quando insistere non può funzionare."""
+        if retryable:
+            return
+        self._halted = True
+        self._detail = reason
+        _log.error("Rifiuto non ritentabile: %s. Tentativi sospesi.", reason)
 
     async def _teardown(self, transport: ITransport) -> None:
         """Chiude la sessione e riporta l'interfaccia allo stato reale."""
         self._transport = None
         self._pending_pings.clear()
         self._latencies.clear()
+        self._dispatcher.reset()
+        reset = getattr(self._adapter, "reset", None)
+        if callable(reset):
+            reset()
 
         await transport.close()
 
@@ -348,29 +426,24 @@ class NetworkService(QtCore.QObject):
         l'HUD su "Jarvis online" finché l'utente non prova a parlargli.
         """
         missed = 0
-        interval = self._settings.heartbeat_interval_s
 
         while True:
-            await asyncio.sleep(interval)
+            await asyncio.sleep(self._settings.heartbeat_interval_s)
 
-            ping = Envelope(type=MessageType.PING)
+            ping = Envelope.make(MessageType.PING)
             self._pending_pings[ping.id] = time.monotonic()
-            try:
-                await transport.send(ping)
-            except TransportError as exc:
-                raise TransportError(f"Heartbeat non inviato: {exc}") from exc
+            await self._send(ping)
 
             await asyncio.sleep(self._settings.heartbeat_timeout_s)
 
             if self._pending_pings.pop(ping.id, None) is None:
-                missed = 0  # la risposta è arrivata: lo stato lo gestisce _on_pong
+                missed = 0  # la risposta è arrivata; se ne occupa _on_pong
                 continue
 
             missed += 1
             _log.warning("Heartbeat senza risposta (%d/%d)", missed, _MAX_MISSED_BEATS)
             if missed >= _MAX_MISSED_BEATS:
                 raise TransportError("Il backend non risponde all'heartbeat")
-
             self._state.set_link_state(LinkState.DEGRADED, reason="heartbeat mancato")
 
     def _on_pong(self, envelope: Envelope) -> None:
@@ -397,18 +470,53 @@ class NetworkService(QtCore.QObject):
             self._state.set_link_state(LinkState.ONLINE, reason="latenza rientrata")
 
     # ------------------------------------------------------------------ #
+    # Traffico e diagnostica
+    # ------------------------------------------------------------------ #
+
+    def _record(self, direction: str, envelope: Envelope) -> None:
+        """Registra una busta per la Developer Console."""
+        with self._traffic_lock:
+            self._traffic.append((time.time(), direction, envelope))
+        self.traffic.emit(direction, envelope)
+
+    def traffic_history(self) -> tuple[tuple[float, str, Envelope], ...]:
+        """Copia dello storico del traffico."""
+        with self._traffic_lock:
+            return tuple(self._traffic)
+
+    def diagnostics(self) -> dict[str, Any]:
+        """Riepilogo per la Developer Console."""
+        with self._traffic_lock:
+            traffic_count = len(self._traffic)
+        return {
+            "trasporto": self._settings.transport,
+            "endpoint": self._transport.endpoint if self._transport else "—",
+            "adapter": self._adapter.describe(),
+            "autenticazione": self._credentials.describe(),
+            "protocollo": self._capabilities.protocol_version or "—",
+            "tentativi_falliti": self._backoff.attempts,
+            "interruttore": self._backoff.circuit_open,
+            "sospeso": self._halted,
+            "latenza_media_ms": (
+                round(sum(self._latencies) / len(self._latencies), 1)
+                if self._latencies
+                else None
+            ),
+            "buste_registrate": traffic_count,
+            "limiti": self._limits,
+        }
+
+    # ------------------------------------------------------------------ #
     # Comandi di alto livello
     # ------------------------------------------------------------------ #
 
     def send_chat(self, text: str, message_id: str) -> bool:
         """Invia un messaggio dell'utente."""
-        return self.send(
-            MessageType.CHAT_SEND, {"text": text, "message_id": message_id}
-        )
+        return self.send(MessageType.CHAT_SEND, {"text": text, "message_id": message_id})
 
-    def cancel(self) -> bool:
+    def cancel(self, message_id: str | None = None) -> bool:
         """Chiede l'interruzione della risposta in corso."""
-        return self.send(MessageType.CHAT_CANCEL)
+        return self.send(MessageType.CHAT_CANCEL, {"message_id": message_id})
 
     def voice_start(self) -> bool:
         """Segnala l'inizio dell'ascolto."""

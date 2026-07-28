@@ -1,24 +1,25 @@
-"""Contratto del trasporto verso il backend.
+"""Contratto del trasporto.
 
-Il trasporto sposta buste. Non le interpreta, non conosce l'handshake, non sa
-cosa sia una capability. Questa povertà è deliberata: è ciò che permette di
-sostituire WebSocket con il backend simulato — o domani con una pipe locale o
-gRPC — senza che nulla sopra se ne accorga.
+Il trasporto muove **dizionari già decodificati**, non buste JCP. È il confine
+corretto: il trasporto sa di byte, frame e connessioni; l'adapter sa di
+dialetti; solo sopra l'adapter si parla JCP.
+
+Se il trasporto conoscesse JCP, un backend con un dialetto diverso richiederebbe
+un trasporto diverso — e si perderebbe la possibilità di usare lo stesso
+WebSocket con backend differenti, che è metà del valore dell'adapter layer.
 """
 
 from __future__ import annotations
 
 from collections.abc import AsyncIterator
-from typing import Protocol, runtime_checkable
-
-from core.protocol.envelope import Envelope
+from typing import Any, Protocol, runtime_checkable
 
 __all__ = ["ITransport"]
 
 
 @runtime_checkable
 class ITransport(Protocol):
-    """Canale bidirezionale di buste."""
+    """Canale bidirezionale di messaggi decodificati."""
 
     @property
     def endpoint(self) -> str:
@@ -35,21 +36,21 @@ class ITransport(Protocol):
         ...
 
     async def close(self) -> None:
-        """Chiude il canale. Deve essere idempotente e non sollevare."""
+        """Chiude il canale. Idempotente, non solleva mai."""
         ...
 
-    async def send(self, envelope: Envelope) -> None:
-        """Invia una busta.
+    async def send(self, message: dict[str, Any]) -> None:
+        """Invia un messaggio.
 
         :raises TransportError: se il canale non è utilizzabile.
         """
         ...
 
-    def receive(self) -> AsyncIterator[Envelope]:
-        """Itera sulle buste in arrivo finché il canale resta aperto.
+    def receive(self) -> AsyncIterator[dict[str, Any]]:
+        """Itera sui messaggi in arrivo finché il canale resta aperto.
 
-        Le buste malformate **non** compaiono qui: vengono scartate e loggate
-        dal trasporto. Un backend che sbaglia non deve poter interrompere il
+        I frame non decodificabili **non** compaiono qui: vengono scartati e
+        loggati. Un backend che invia spazzatura non deve poter interrompere il
         ciclo di lettura.
         """
         ...
