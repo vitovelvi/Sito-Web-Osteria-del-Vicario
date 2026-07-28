@@ -61,6 +61,20 @@ python main.py --log-level DEBUG
 `jarvis-sim --list` elenca gli scenari disponibili. `mock` resta accettato come
 sinonimo storico di `sim`.
 
+### Su Linux minimale (container, CI)
+
+Il plugin `xcb` di Qt ha dipendenze che una distribuzione ridotta non installa,
+e l'errore che produce — "Could not load the Qt platform plugin xcb" — non dice
+quale manchi:
+
+```bash
+apt-get install -y libxcb-cursor0 libxkbcommon-x11-0 libegl1 libgl1 \
+                   libxcb-icccm4 libxcb-keysyms1 libxcb-shape0 libxcb-xkb1
+xvfb-run -s "-screen 0 1600x1000x24" python main.py --transport sim
+```
+
+Per i soli test non serve nulla di tutto questo: `QT_QPA_PLATFORM=offscreen`.
+
 ## Test
 
 ```bash

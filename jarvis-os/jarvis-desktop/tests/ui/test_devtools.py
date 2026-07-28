@@ -89,6 +89,27 @@ def test_timeline_mostra_lo_storico_precedente(qt_app, bus: EventBus, theme) -> 
     assert timeline._list.count() >= 1
 
 
+def test_evento_gia_nello_storico_non_compare_due_volte(qt_app, bus: EventBus, theme) -> None:
+    """Consegna in ritardo di un evento gia' mostrato: una riga, non due.
+
+    Un evento pubblicato da un altro thread e' gia' nello storico quando la
+    console si apre, ma Qt lo consegna al thread grafico dopo. Comparivano due
+    righe con lo stesso istante, e una timeline che mostra eventi mai avvenuti
+    e' peggio che non averla.
+    """
+    bus.publish(EventType.NOTIFICATION_REQUESTED, NotificationRequest(title="in volo"))
+    qt_app.processEvents()
+    in_volo = bus.history()[-1]
+
+    timeline = EventTimeline(bus, theme)
+    righe = timeline._list.count()
+
+    timeline._on_event(in_volo)  # la consegna arriva ora, in ritardo
+
+    assert timeline._list.count() == righe
+    assert sum(timeline._counts.values()) == righe
+
+
 def test_pausa_trattiene_senza_perdere(qt_app, bus: EventBus, theme) -> None:
     """Alla ripresa non si deve essere perso nulla."""
     timeline = EventTimeline(bus, theme)

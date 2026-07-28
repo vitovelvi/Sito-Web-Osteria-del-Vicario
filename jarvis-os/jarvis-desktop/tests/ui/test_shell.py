@@ -6,7 +6,7 @@ import pytest
 
 from core.eventbus import EventBus
 from core.events import EventType, NotificationRequest
-from core.qtcompat import QtWidgets
+from core.qtcompat import QtGui, QtWidgets
 from core.state.machines import VisualMode
 from ui.theme.theme import Theme, load_theme
 
@@ -123,3 +123,44 @@ def test_finestra_translucida_riserva_spazio(widgets_app, theme: Theme) -> None:
 
     window = FramelessWindow(theme, translucent=True)
     assert window.layout().contentsMargins().left() > 0
+
+
+# --------------------------------------------------------------------------- #
+# Finestra principale
+# --------------------------------------------------------------------------- #
+
+
+def test_la_barra_operativa_si_riapre_senza_console(qt_app, bus: EventBus, theme) -> None:
+    """F9 e' una funzione dell'utente, non uno strumento di sviluppo.
+
+    Registrata insieme alla Developer Console, in una build distribuita — dove
+    la console non viene collegata — la scorciatoia non esisterebbe: chi avesse
+    nascosto la barra operativa non avrebbe piu' alcun modo di riaprirla.
+    """
+    from core.capabilities import CapabilityManager
+    from core.frameclock import FrameClock
+    from core.missions.engine import MissionEngine
+    from core.settings import AppSettings
+    from core.state.manager import StateManager
+    from ui.main_window import MainWindow
+
+    finestra = MainWindow(
+        bus,
+        StateManager(bus),
+        FrameClock(target_fps=60),
+        theme,
+        AppSettings(),
+        missions=MissionEngine(bus),
+        capabilities=CapabilityManager(bus),
+    )
+    try:
+        assert finestra._sidebar is not None
+        scorciatoie = {s.key().toString() for s in finestra.findChildren(QtGui.QShortcut)}
+
+        assert "F9" in scorciatoie  # senza attach_developer_console
+
+        voluta = finestra._sidebar.is_wanted
+        finestra.toggle_sidebar()
+        assert finestra._sidebar.is_wanted is not voluta
+    finally:
+        finestra.close()

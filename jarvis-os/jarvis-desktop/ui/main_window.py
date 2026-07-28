@@ -83,6 +83,14 @@ class MainWindow(FramelessWindow):
         )
         self._tray = self._build_tray()
 
+        # F9 appartiene alla finestra, non agli strumenti di sviluppo: la barra
+        # operativa e' una funzione dell'utente. Registrarla insieme alla
+        # console la farebbe sparire in una build distribuita, dove la console
+        # non viene collegata — e chi avesse nascosto la barra non avrebbe piu'
+        # alcun modo di riaprirla.
+        self._sidebar_shortcut = QtGui.QShortcut(QtGui.QKeySequence("F9"), self)
+        self._sidebar_shortcut.activated.connect(self.toggle_sidebar)
+
         self._subscriptions: list[Subscription] = [
             bus.subscribe(EventType.LINK_STATE_CHANGED, self._on_link),
         ]
@@ -149,7 +157,10 @@ class MainWindow(FramelessWindow):
         """Mostra o nasconde la barra operativa (F9)."""
         if self._sidebar is None:
             return
-        self._sidebar.set_wanted(not self._sidebar.isVisible())
+        # Si commuta la *preferenza*, non la visibilita': con un backend che non
+        # dichiara missioni la barra e' nascosta comunque, e derivare la scelta
+        # da cio' che si vede la bloccherebbe su "voluta" per sempre.
+        self._sidebar.set_wanted(not self._sidebar.is_wanted)
 
     def attach_developer_console(self, console: QtWidgets.QWidget) -> None:
         """Collega la Developer Console alla scorciatoia F12 e al menu di sistema.
@@ -159,9 +170,6 @@ class MainWindow(FramelessWindow):
         una build distribuita basta non chiamare questo metodo.
         """
         self._console = console
-        sidebar_shortcut = QtGui.QShortcut(QtGui.QKeySequence("F9"), self)
-        sidebar_shortcut.activated.connect(self.toggle_sidebar)
-
         shortcut = QtGui.QShortcut(QtGui.QKeySequence("F12"), self)
         # ApplicationShortcut: la scorciatoia funziona anche quando il fuoco e'
         # sulla console stessa, cosi' F12 la chiude come l'ha aperta.

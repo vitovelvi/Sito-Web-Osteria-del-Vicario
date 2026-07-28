@@ -15,6 +15,8 @@ from __future__ import annotations
 
 from typing import Final
 
+from jarvis_protocol.missions import ActionStatus
+
 from core.errors import safe_slot
 from core.eventbus import Event, EventBus, Subscription
 from core.events import ActionSnapshot, EventType, MissionSnapshot
@@ -25,7 +27,6 @@ from ui.ops.common import (
     ACTION_TOKEN,
     MISSION_LABEL,
     MISSION_TOKEN,
-    RISK_LABEL,
     RISK_TOKEN,
     format_duration,
 )
@@ -35,6 +36,16 @@ __all__ = ["MissionPanel"]
 
 #: Missioni concluse mostrate in cronologia.
 _HISTORY_SHOWN: Final[int] = 12
+
+#: Stati in cui l'esito di un'azione non e' ancora deciso. Solo qui il rischio
+#: dichiarato dal backend ha ancora qualcosa da dire: dopo, conta com'e' andata.
+_APERTI: Final[frozenset[str]] = frozenset(
+    {
+        ActionStatus.QUEUED.value,
+        ActionStatus.WAITING_CONFIRMATION.value,
+        ActionStatus.RUNNING.value,
+    }
+)
 
 
 class _ActionRow(QtWidgets.QWidget):
@@ -67,12 +78,19 @@ class _ActionRow(QtWidgets.QWidget):
         if action.duration_ms is not None:
             parti.append(format_duration(action.duration_ms))
         self._meta.setText(" · ".join(parti))
-        if action.risk in RISK_LABEL and action.risk != "low":
-            # Il rischio si vede dal colore dello stato, non da altro testo:
-            # la riga e' stretta e la ridondanza la spezzerebbe su due righe.
-            self._meta.setStyleSheet(
-                f"color: {self._theme.color(RISK_TOKEN[action.risk]).name()};"
-            )
+
+        # Il rischio si vede dal colore, non da altro testo: la riga e' stretta
+        # e la ridondanza la spezzerebbe su due righe. Ma vale **solo finche'
+        # l'esito e' aperto**: su un'azione conclusa il colore del rischio
+        # mostrerebbe in rosso un'operazione riuscita, cioe' il contrario di
+        # quello che e' successo. E va sempre riazzerato, perche' le righe
+        # vengono riusate e il foglio di stile di un'azione rischiosa
+        # resterebbe addosso alla successiva.
+        aperta = action.status in _APERTI
+        rischiosa = aperta and action.risk in RISK_TOKEN and action.risk != "low"
+        self._meta.setStyleSheet(
+            f"color: {self._theme.color(RISK_TOKEN[action.risk]).name()};" if rischiosa else ""
+        )
 
         tooltip = [f"Strumento: {action.tool}"]
         if action.args_preview:

@@ -95,6 +95,17 @@ class OperationsSidebar(QtWidgets.QWidget):
         self._apply_visibility()
 
     @property
+    def is_wanted(self) -> bool:
+        """Cosa ha chiesto l'utente, a prescindere da cosa si vede.
+
+        Distinta dalla visibilita': una barra nascosta perche' il backend non
+        dichiara missioni non e' una barra che l'utente ha chiuso, e alla
+        connessione con un backend che le dichiara deve tornare come l'aveva
+        lasciata.
+        """
+        return self._wanted
+
+    @property
     def is_supported(self) -> bool:
         return self._capabilities.has(Capability.MISSIONS) or self._capabilities.has(
             Capability.ACTIONS

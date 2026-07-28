@@ -225,6 +225,35 @@ QMenu::item {{
 QMenu::item:selected {{ background-color: {t.hex("bg.hover")}; }}
 QMenu::separator {{ height: 1px; background: {t.hex("border.subtle")};
                     margin: {t.px("space.xs", 4)}px 0; }}
+
+/* Tabelle: senza queste regole l'intestazione resta quella di sistema — un
+   rettangolo nero pieno sopra un pannello scuro, l'unico punto della finestra
+   che non appartiene al tema. */
+QTableView, QTableWidget {{
+    background-color: transparent;
+    alternate-background-color: {t.hex("bg.panel")};
+    gridline-color: transparent;
+    border: none;
+    selection-background-color: {t.hex("bg.active")};
+    selection-color: {t.hex("text.primary")};
+}}
+
+QHeaderView {{ background-color: transparent; }}
+
+QHeaderView::section {{
+    background-color: transparent;
+    color: {t.hex("text.muted")};
+    border: none;
+    border-bottom: 1px solid {t.hex("border.subtle")};
+    padding: {t.px("space.xs", 4)}px {t.px("space.sm", 8)}px;
+    font-size: {t.px("font.size.xs", 10)}px;
+    letter-spacing: {t.raw("font.tracking.hud", 1.6)}px;
+}}
+
+QTableCornerButton::section {{
+    background-color: transparent;
+    border: none;
+}}
 """
 
 

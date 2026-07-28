@@ -130,17 +130,20 @@ class ActionQueue(QtWidgets.QWidget):
         in_corso = sum(1 for a in attive if a.status is ActionStatus.RUNNING)
         in_attesa = sum(1 for a in attive if a.status is ActionStatus.WAITING_CONFIRMATION)
 
-        if not attive:
-            self._header.setText("Coda vuota")
-        else:
-            parti = []
-            if in_corso:
-                parti.append(f"{in_corso} in esecuzione")
-            if in_coda:
-                parti.append(f"{in_coda} in coda")
-            if in_attesa:
-                parti.append(f"{in_attesa} in attesa di conferma")
-            self._header.setText(" · ".join(parti))
+        parti = []
+        if in_corso:
+            parti.append(f"{in_corso} in esecuzione")
+        if in_coda:
+            parti.append(f"{in_coda} in coda")
+        if in_attesa:
+            parti.append(f"{in_attesa} in attesa di conferma")
+        if not parti:
+            parti.append("coda vuota")
+        # La cronologia va dichiarata: "coda vuota" sopra una tabella con dentro
+        # tre righe fa dubitare di quello che si sta guardando.
+        if recenti:
+            parti.append(f"{len(recenti)} in cronologia")
+        self._header.setText(" · ".join(parti).capitalize())
 
     def _fill_row(self, riga: int, action, annullabile: bool) -> None:
         titolo = QtWidgets.QTableWidgetItem(action.title)

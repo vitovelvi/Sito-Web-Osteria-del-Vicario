@@ -70,6 +70,14 @@ class EventTimeline(QtWidgets.QWidget):
         self._counts: Counter[str] = Counter()
         self._buffer: deque[Event[Any]] = deque(maxlen=_PAUSE_BUFFER)
         self._start = time.time()
+        self._seeded = 0
+        """Numero d'ordine più alto già mostrato dallo storico.
+
+        Un evento pubblicato da un altro thread è *già* nello storico quando la
+        console si apre, ma la sua consegna al thread grafico avviene dopo:
+        senza questa soglia comparirebbe due volte, e una timeline che mostra
+        eventi che non sono avvenuti è peggio che non averla.
+        """
 
         self._search = QtWidgets.QLineEdit()
         self._search.setPlaceholderText("Filtra per tipo o contenuto…")
@@ -115,6 +123,7 @@ class EventTimeline(QtWidgets.QWidget):
             # risulterebbe inferiore alle righe visibili, e un contatore
             # incoerente toglie fiducia a tutto il pannello.
             self._counts[event.key] += 1
+            self._seeded = max(self._seeded, event.seq)
             self._append(event)
         self._update_status()
 
@@ -126,6 +135,8 @@ class EventTimeline(QtWidgets.QWidget):
 
     @safe_slot("devtools.timeline")
     def _on_event(self, event: Event[Any]) -> None:
+        if event.seq <= self._seeded:
+            return  # già mostrato dallo storico: la consegna è solo in ritardo
         self._counts[event.key] += 1
         if self._paused:
             self._buffer.append(event)
