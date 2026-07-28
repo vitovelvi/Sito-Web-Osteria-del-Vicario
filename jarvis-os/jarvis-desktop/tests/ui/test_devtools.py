@@ -271,3 +271,36 @@ def test_traffico_nasconde_il_rumore_per_default(qt_app, theme) -> None:
 
     view._noise.setChecked(True)
     assert view._list.count() == 3
+
+
+# --------------------------------------------------------------------------- #
+# Sessione
+# --------------------------------------------------------------------------- #
+
+
+def test_il_pulsante_legge_lo_stato_del_registratore(qt_app, theme) -> None:
+    """Una registrazione può partire da altrove: il pannello non ricorda, legge.
+
+    Un pulsante che dicesse "Avvia" mentre la registrazione è già in corso
+    mentirebbe su cosa succede premendolo.
+    """
+    from jarvis_sdk.recording import SessionRecorder
+
+    from ui.devtools.session import SessionPanel
+
+    class _Rete:
+        def __init__(self) -> None:
+            self.recorder = SessionRecorder(client="prova")
+
+        def transport_factory(self):
+            return None
+
+    rete = _Rete()
+    panel = SessionPanel(rete, theme)
+    panel._refresh_status()
+    assert panel._record_button.text() == "Avvia registrazione"
+
+    rete.recorder.start()  # avviata fuori dal pannello
+    panel._refresh_status()
+
+    assert panel._record_button.text() == "Ferma registrazione"

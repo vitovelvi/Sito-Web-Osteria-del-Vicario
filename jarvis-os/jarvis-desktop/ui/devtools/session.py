@@ -106,11 +106,9 @@ class SessionPanel(QtWidgets.QWidget):
             return
         if self._network.recorder.is_recording:
             registrazione = self._network.stop_recording()
-            self._record_button.setText("Avvia registrazione")
             self._save_button.setEnabled(len(registrazione) > 0)
         else:
             self._network.start_recording()
-            self._record_button.setText("Ferma registrazione")
             self._save_button.setEnabled(False)
         self._refresh_status()
 
@@ -138,10 +136,20 @@ class SessionPanel(QtWidgets.QWidget):
         _log.info("Sessione salvata in %s", percorso)
 
     def _refresh_status(self) -> None:
+        """Riallinea i comandi allo stato reale del registratore.
+
+        Il pulsante non ricorda cosa ha fatto: legge. Una registrazione puo'
+        essere avviata da altrove — dalla riga di comando, da un altro
+        pannello — e un pulsante che dicesse "Avvia" mentre la registrazione
+        e' gia' in corso mentirebbe su cosa succede premendolo.
+        """
         if self._network is None:
             return
         registratore = self._network.recorder
         registrazione = registratore.current
+        self._record_button.setText(
+            "Ferma registrazione" if registratore.is_recording else "Avvia registrazione"
+        )
         if registratore.is_recording:
             testo = f"In corso · {len(registrazione)} messaggi"
             if registratore.truncated:
