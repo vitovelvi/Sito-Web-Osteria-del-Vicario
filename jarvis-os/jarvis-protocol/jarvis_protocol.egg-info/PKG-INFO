@@ -1,0 +1,12 @@
+Metadata-Version: 2.4
+Name: jarvis-protocol
+Version: 1.0.0
+Summary: JARVIS Communication Protocol (JCP) — contratto fra interfaccia e backend
+Requires-Python: >=3.11
+Requires-Dist: pydantic>=2.6
+Provides-Extra: keyring
+Requires-Dist: keyring>=25.0; extra == "keyring"
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0; extra == "dev"
+Requires-Dist: ruff>=0.4; extra == "dev"
+Requires-Dist: mypy>=1.9; extra == "dev"

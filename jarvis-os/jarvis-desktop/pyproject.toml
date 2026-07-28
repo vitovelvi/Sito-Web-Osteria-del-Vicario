@@ -1,0 +1,71 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jarvis-desktop"
+version = "0.4.0"
+description = "J.A.R.V.I.S. — interfaccia desktop per il backend OpenClaw"
+requires-python = ">=3.11"
+readme = "README.md"
+
+# La GUI non contiene logica AI: le dipendenze coprono solo presentazione,
+# trasporto, riproduzione audio/video e osservabilita'.
+dependencies = [
+    "PySide6>=6.6",              # binding Qt (LGPL) — vedi core/qtcompat.py
+    "pydantic>=2.6",             # validazione della configurazione
+    "platformdirs>=4.2",         # percorsi config/log/cache conformi all'OS
+    "psutil>=5.9",               # metriche di sistema
+    "websockets>=12.0",          # trasporto
+    "jarvis-protocol>=1.0",      # contratto JCP
+    "jarvis-adapter-openclaw",   # adapter del primo backend
+]
+
+[project.optional-dependencies]
+vision = ["opencv-python-headless>=4.9"]
+audio = ["sounddevice>=0.4.6", "numpy>=1.26"]
+gpu = ["nvidia-ml-py>=12.535"]
+secrets = ["keyring>=25.0"]
+dev = [
+    "pytest>=8.0",
+    "pytest-qt>=4.4",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.4",
+    "mypy>=1.9",
+]
+
+[project.scripts]
+jarvis = "main:main"
+
+[tool.setuptools]
+packages = ["core", "network", "ui"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM", "RUF"]
+ignore = [
+    "N802",  # i nomi Qt (paintEvent, closeEvent) non seguono PEP 8
+    "N815",
+    # BLE001 (except Exception) resta disattivo per scelta architetturale: il
+    # progetto cattura deliberatamente in modo ampio ai confini di isolamento
+    # — consegna degli eventi, slot Qt, avvio dei servizi, ciclo di rete —
+    # perché il requisito è che la GUI non cada mai. Una regola che andrebbe
+    # soppressa venti volte non aggiunge sicurezza, aggiunge rumore.
+    "BLE001",
+]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+# I binding Qt non hanno stub completi: si escludono dal controllo stretto.
+[[tool.mypy.overrides]]
+module = ["PySide6.*", "PyQt6.*", "cv2.*", "sounddevice.*", "psutil.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+filterwarnings = ["error::DeprecationWarning:core.*"]

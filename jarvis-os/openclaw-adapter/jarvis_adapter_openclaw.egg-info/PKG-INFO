@@ -1,0 +1,9 @@
+Metadata-Version: 2.4
+Name: jarvis-adapter-openclaw
+Version: 0.1.0
+Summary: Adapter JCP ↔ OpenClaw
+Requires-Python: >=3.11
+Requires-Dist: jarvis-protocol>=1.0
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0; extra == "dev"
+Requires-Dist: ruff>=0.4; extra == "dev"
