@@ -177,15 +177,20 @@ class Kernel:
         for observer in self.observers:
             await observer.start()
         if self.dashboard is not None:
-            self.dashboard.start()
+            self.dashboard.start()  # accessorio: un fallimento non blocca il boot
         self._started_at = time.monotonic()
         await self.bus.publish(Event(
             topic="kernel.started",
             payload={"identity": self.identity.name},
             source="kernel",
         ))
-        _log.info("%s operativo. %s", self.identity.name,
-                  f"Dashboard: {self.dashboard.url}" if self.dashboard else "")
+        _log.info(
+            "%s operativo. %s",
+            self.identity.name,
+            f"Dashboard: {self.dashboard.url}"
+            if self.dashboard is not None and self.dashboard.running
+            else "Dashboard non disponibile.",
+        )
 
     async def stop(self) -> None:
         """Arresto ordinato: osservatori → agenti → bus → persistenza."""

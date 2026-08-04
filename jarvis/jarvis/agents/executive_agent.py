@@ -124,14 +124,16 @@ class ExecutiveAgent(BaseAgent):
     def _format_system_report(stats: dict[str, Any]) -> str:
         cpu = stats.get("cpu", {})
         mem = stats.get("memory", {})
+        processes = stats.get("process_count")
         lines = [
             "Report di sistema:",
             f"  CPU: {cpu.get('percent', '?')}% su {int(cpu.get('cores', 0))} core"
             f" (load 1m: {cpu.get('load_1m', '?')})",
             f"  RAM: {mem.get('percent', '?')}% usata — "
             f"{mem.get('available_mb', '?')} MB disponibili su {mem.get('total_mb', '?')} MB",
-            f"  Processi attivi: {stats.get('process_count', '?')}",
+            f"  Processi attivi: {processes if processes is not None else 'non rilevabili'}",
         ]
         if stats.get("degraded"):
-            lines.append("  (metriche in modalità degradata: psutil non installato)")
+            lines.append("  (metriche di base: installare psutil per il dettaglio "
+                         "per-processo)")
         return "\n".join(lines)

@@ -31,6 +31,13 @@ def _build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _dashboard_hint(kernel: Kernel) -> str:
+    """Riga informativa sulla dashboard, solo se davvero raggiungibile."""
+    if kernel.dashboard is not None and kernel.dashboard.running:
+        return f"Dashboard: {kernel.dashboard.url}"
+    return ""
+
+
 async def _console_confirmer(description: str, level: SecurityLevel) -> bool:
     """Canale di conferma da terminale per le operazioni di Livello 2-3."""
     prompt = f"\n⚠️  Conferma richiesta: {description}\nProcedere? [s/N] "
@@ -71,7 +78,7 @@ async def _run(kernel: Kernel) -> None:
         else:
             # Modalità servizio: resta in vita finché non viene interrotto.
             print(f"{kernel.identity.name} in esecuzione (Ctrl+C per uscire). "
-                  + (f"Dashboard: {kernel.dashboard.url}" if kernel.dashboard else ""))
+                  + _dashboard_hint(kernel))
             with contextlib.suppress(asyncio.CancelledError):
                 await asyncio.Event().wait()
     finally:
@@ -82,8 +89,7 @@ async def _demo(kernel: Kernel) -> None:
     """Dimostrazione end-to-end: boot, richieste, arresto ordinato."""
     await kernel.start()
     print(f"\n=== DEMO {kernel.identity.name} ===")
-    if kernel.dashboard:
-        print(f"Dashboard: {kernel.dashboard.url}\n")
+    print(_dashboard_hint(kernel) + "\n")
     requests = [
         "Analizza lo stato del sistema e fammi un report",
         "Ricorda che preferisco report sintetici la mattina",
@@ -112,7 +118,24 @@ async def _status(kernel: Kernel) -> None:
     await kernel.stop()
 
 
+def _force_utf8_console() -> None:
+    """Porta stdout/stderr a UTF-8 tollerante.
+
+    Su Windows la console usa la code page locale (cp1252): senza questo,
+    accenti ed emoji fanno fallire la scrittura con ``UnicodeEncodeError``
+    non appena l'output viene rediretto su file.
+    """
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is not None:
+            try:
+                reconfigure(encoding="utf-8", errors="replace")
+            except (OSError, ValueError):  # pragma: no cover - stream esotici
+                pass
+
+
 def main(argv: list[str] | None = None) -> int:
+    _force_utf8_console()
     args = _build_parser().parse_args(argv)
     kernel = Kernel(load_config(args.config))
     runner = {"run": _run, "demo": _demo, "status": _status}[args.command]

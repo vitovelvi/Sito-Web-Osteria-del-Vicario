@@ -38,7 +38,18 @@ class DashboardServer:
     def url(self) -> str:
         return f"http://{self._host}:{self._port}"
 
-    def start(self) -> None:
+    @property
+    def running(self) -> bool:
+        """Vero solo se il server ha davvero acquisito la porta."""
+        return self._httpd is not None
+
+    def start(self) -> bool:
+        """Avvia il server.
+
+        La dashboard è un accessorio: se la porta è occupata il sistema deve
+        restare operativo. Ritorna ``False`` senza sollevare, così il Kernel
+        prosegue il boot.
+        """
         provider = self._provider
 
         class Handler(BaseHTTPRequestHandler):
@@ -67,12 +78,23 @@ class DashboardServer:
             def log_message(self, fmt: str, *args: Any) -> None:
                 pass  # niente rumore sull'access log: c'è il logging strutturato
 
-        self._httpd = ThreadingHTTPServer((self._host, self._port), Handler)
+        try:
+            self._httpd = ThreadingHTTPServer((self._host, self._port), Handler)
+        except OSError as exc:
+            _log.error(
+                "Dashboard non avviata su %s (%s). Il sistema resta operativo: "
+                "liberare la porta o cambiare 'dashboard.port' in configurazione.",
+                self.url, exc,
+            )
+            self._httpd = None
+            return False
+
         self._thread = threading.Thread(
             target=self._httpd.serve_forever, name="dashboard", daemon=True
         )
         self._thread.start()
         _log.info("Dashboard attiva su %s", self.url)
+        return True
 
     def stop(self) -> None:
         if self._httpd is not None:
